@@ -5,5 +5,12 @@
     "title": "Projet Velib Surpervised Learning",
     "section": "",
     "text": "Présentation du cours\nCe cours est enseigné par Christophe Ambroise, professeur de statistique à l’Université d’Évry Paris-Saclay. Ce site rassemble mes travaux pratiques réalisés dans ce cadre.\n\n\nListe des parties\n\nTP0 : Résume le module Pandas\nTP1 : Théorie de la décision\nTP2 : Modèles paramétriques\nTP3 : Méthodes non paramétriques\nTP4 : Arbres de décision\nTP5 : Méthodes d’ensemble\nTP6 : Équité en apprentissage\nTP7 : Apprentissage par renforcement\n\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "chapters/Part1.html",
+    "href": "chapters/Part1.html",
+    "title": "Résume le module Pandas",
+    "section": "",
+    "text": "import hashlib, urllib.request\nimport numpy as np\nimport pandas as pd\n\npd.set_option(\"display.max_columns\", None)\npd.set_option(\"display.width\", 200)\n\nURL = \"https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz\"\nFILE = \"velib-2026-10-08.csv.gz\"\nMD5 = \"02ab1e3fdac10579e4ce93d1540a5dc7\"\n\npath, _ = urllib.request.urlretrieve(URL, FILE)\nwith open(path, \"rb\") as f:\n    assert hashlib.md5(f.read()).hexdigest() == MD5, \"md5 mismatch\"\nprint(\"MD5 OK\")\n\nMD5 OK\n\n\n\n\n\n Back to top"
   }
 ]

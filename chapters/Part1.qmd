@@ -1,0 +1,31 @@
+---
+title: "Résume le module Pandas"
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+jupyter: projet-velib
+number-sections: true 
+code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+
+```{python}
+import hashlib, urllib.request
+import numpy as np
+import pandas as pd
+
+pd.set_option("display.max_columns", None)
+pd.set_option("display.width", 200)
+
+URL = "https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz"
+FILE = "velib-2026-10-08.csv.gz"
+MD5 = "02ab1e3fdac10579e4ce93d1540a5dc7"
+
+path, _ = urllib.request.urlretrieve(URL, FILE)
+with open(path, "rb") as f:
+    assert hashlib.md5(f.read()).hexdigest() == MD5, "md5 mismatch"
+print("MD5 OK")
+```
+
+
