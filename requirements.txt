@@ -3,3 +3,7 @@ numpy
 matplotlib
 scikit-learn
 matplotlib-inline
+jupyter
+pyyaml
+seaborn 
+ipykernel

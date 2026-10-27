@@ -1,0 +1,76 @@
+project:
+  type: website
+  output-dir: docs  # pour Github pages
+  execute-dir: project
+  
+
+jupyter: projet-velib
+  
+website:
+  title: "Projet Velib Supervised Learning"
+  favicon: assets/favicon-velib.svg   
+  page-navigation: true         
+  back-to-top-navigation: true
+  navbar:
+    logo: assets/favicon-velib.svg              
+    logo-alt: "Logo vélo"
+
+ 
+    
+    left:
+      - href: index.qmd
+        text: Accueil
+      - href: chapters/Part1.qmd
+        text: "Part1"
+      - href: chapters/Part2.qmd
+        text: "Part2"
+      - href: chapters/Part3.qmd
+        text: "Part3"
+      - href: chapters/Part4.qmd
+        text: "Part4"
+      - href: chapters/Part5.qmd
+        text: "Part5"
+
+    right:
+      - text: "Viet"
+        icon: person-circle
+        menu:
+          - text: "GitHub"
+            icon: github
+            href: https://github.com/ndhviet
+          - text: "Portfolio"
+            icon: globe
+            href: https://ndhviet.github.io/
+          - text: "LinkedIn"
+            icon: linkedin
+            href: https://www.linkedin.com/in/hoang-viet1810/
+      - text: "Sun"
+        icon: person-circle
+        menu:
+          - text: "GitHub"
+            icon: github
+            href: https://github.com/Zhenxua
+          - text: "LinkedIn"
+            icon: linkedin
+            href: https://www.linkedin.com/in/zhenxuan-sun-576607327/
+      
+
+format:
+  html:
+    theme: flatly
+    css: assets/custom.css
+    include-after-body: [assets/loading.html, assets/footer.html]
+    toc: true
+    toc-location: right
+    toc-title: "Sur cette page"
+    smooth-scroll: true
+    code-fold: true
+    code-copy: true
+    code-overflow: wrap
+    #code-block-bg: true
+    #code-block-border-left: "#2563EB"
+    fontsize: 1.05em
+    grid:
+      body-width: 900px
+      sidebar-width: 250px
+    embed-resources: false

@@ -1,0 +1,20 @@
+---
+title: "Projet Velib Surpervised Learning"
+author: "NGUYEN Duc Hoang Viet & Sun Zhenxuan"
+---
+
+# Présentation du cours
+
+Ce cours est enseigné par [Christophe Ambroise](https://ambroise.cloud/), professeur de statistique à l'Université d'Évry Paris-Saclay. Ce site rassemble mes travaux pratiques réalisés dans ce cadre.
+
+
+# Liste des parties
+
+-   [TP0 : Résume le module Pandas](chapters/tp0.qmd)
+-   [TP1 : Théorie de la décision](chapters/tp1.qmd)
+-   [TP2 : Modèles paramétriques](chapters/tp2.qmd)
+-   [TP3 : Méthodes non paramétriques](chapters/tp3.qmd)
+-   [TP4 : Arbres de décision](chapters/tp4.qmd)
+-   [TP5 : Méthodes d'ensemble](chapters/tp5.qmd)
+-   [TP6 : Équité en apprentissage](chapters/tp6.qmd)
+-   [TP7 : Apprentissage par renforcement](chapters/tp7.qmd)

@@ -1,0 +1,9 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Projet Velib Surpervised Learning",
+    "section": "",
+    "text": "Présentation du cours\nCe cours est enseigné par Christophe Ambroise, professeur de statistique à l’Université d’Évry Paris-Saclay. Ce site rassemble mes travaux pratiques réalisés dans ce cadre.\n\n\nListe des parties\n\nTP0 : Résume le module Pandas\nTP1 : Théorie de la décision\nTP2 : Modèles paramétriques\nTP3 : Méthodes non paramétriques\nTP4 : Arbres de décision\nTP5 : Méthodes d’ensemble\nTP6 : Équité en apprentissage\nTP7 : Apprentissage par renforcement\n\n\n\n\n\n Back to top"
+  }
+]

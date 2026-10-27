@@ -1,0 +1,29 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# TensorFlow / Keras cache
+.keras/
+
+# Data
+data/
+/.quarto/
+**/*.quarto_ipynb
+
+# RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Renviron

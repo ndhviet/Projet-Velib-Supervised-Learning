@@ -1,0 +1,98 @@
+<style>
+  /* ===== Loading screen (xanh lá - Vélib) ===== */
+  .loading-screen {
+    position: fixed; inset: 0; background: #fbfdfc;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 100000; transition: opacity .8s ease, visibility .6s ease;
+  }
+  .loading-screen.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .ls-ring {
+    width: clamp(120px, 24vw, 170px); height: clamp(120px, 24vw, 170px);
+    border-radius: 50%; position: relative; margin-bottom: 32px;
+  }
+  .ls-ring::before {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    border: 5px solid transparent;
+    border-top-color: #22C55E; border-right-color: #86EFAC;
+    animation: lsSpin 1.1s linear infinite;
+  }
+  .ls-ring::after {
+    content: ''; position: absolute; inset: 16%; border-radius: 50%;
+    border: 3px solid transparent;
+    border-bottom-color: #14532D; border-left-color: #16A34A;
+    animation: lsSpin .75s linear infinite reverse;
+  }
+  @keyframes lsSpin { to { transform: rotate(360deg); } }
+
+  .ls-ring-icon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 46%; height: 46%;
+  }
+  .ls-ring-icon svg { width: 100%; height: 100%; display: block; }
+
+  .ls-made {
+    font-size: clamp(18px, 4.4vw, 34px); font-weight: 800; letter-spacing: .05em;
+    background: linear-gradient(90deg, #14532D, #166534, #15803D, #14532D);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: lsFadeIn .8s ease .1s both, lsTextFlow 3s linear infinite;
+    margin-bottom: 10px; text-align: center; padding: 0 14px;
+    white-space: nowrap; max-width: 94vw;
+  }
+  @keyframes lsTextFlow { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+
+  .ls-proj {
+    font-size: clamp(12px, 2.8vw, 17px); font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+    color: #1f2937; margin-bottom: 28px; animation: lsFadeIn .8s ease .25s both;
+    text-align: center; padding: 0 14px;
+  }
+  @keyframes lsFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .ls-bar-wrap {
+    width: clamp(180px, 40vw, 260px); height: 3px; background: #e7e7e7;
+    border-radius: 2px; overflow: hidden; animation: lsFadeIn .8s ease .35s both;
+  }
+  .ls-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #22C55E, #14532D);
+    border-radius: 2px; transition: width .12s linear;
+  }
+</style>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="ls-ring">
+    <div class="ls-ring-icon">
+      <svg viewBox="0 0 64 64" fill="none" stroke="#16A34A" stroke-width="3.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-label="Logo vélo">
+        <circle cx="14" cy="42" r="10"/>
+        <circle cx="50" cy="42" r="10"/>
+        <path d="M14 42 L24 24 L44 24 L50 42"/>
+        <path d="M24 24 L30 42 L44 24"/>
+        <path d="M14 42 L30 42"/>
+        <path d="M20 20 H28"/>
+        <path d="M44 24 L41 17 H47"/>
+      </svg>
+    </div>
+  </div>
+  <div class="ls-made">NGUYEN DUC HOANG VIET &amp; SUN ZHENXUAN</div>
+  <div class="ls-proj">Projet Vélib · Supervised Learning</div>
+  <div class="ls-bar-wrap"><div class="ls-bar" id="loadingBar"></div></div>
+</div>
+
+<script>
+(function () {
+  var bar = document.getElementById('loadingBar');
+  var screen = document.getElementById('loadingScreen');
+  var progress = 0;
+  var interval = setInterval(function () {
+    progress += Math.random() * 18;
+    if (progress >= 100) { progress = 100; clearInterval(interval); }
+    bar.style.width = progress + '%';
+  }, 90);
+  window.addEventListener('load', function () {
+    setTimeout(function () { screen.classList.add('fade-out'); }, 900);
+  });
+})();
+</script>

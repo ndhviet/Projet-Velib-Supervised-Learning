@@ -1,0 +1,124 @@
+---
+title: "Cadre et théorie de la décision"
+author: "NGUYEN Duc Hoang Viet "
+jupyter: tp-ml-ia-fiable
+number-sections: true 
+code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+```{python}
+import sys; sys.path.append("..")
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib_inline
+from sklearn.model_selection import train_test_split
+```
+
+
+**Objectifs**
+
+Phrase décrivant l'objectif du TP, par exemple : mettre en œuvre le cadre de la théorie de la décision avant d'utiliser `scikit-learn`.
+
+::: {.callout-note}
+## Déroulé
+
+| | |
+|---|---|
+| **Ex. 1** | Prise en main et découpage|
+| **Ex. 2** | Bayes naïf codé à la main |
+| **Ex. 3** | LDA, QDA et frontières de décision |
+| **Ex. 4** | Évaluation et coûts asymétriques |
+:::
+
+# Exercice 1 — Titre de l'exercice
+
+## Charger et décrire
+
+```{python}
+import utils 
+utils.style()
+df = utils.load_saheart()
+df.head()
+```
+
+```{python}
+df.columns            # tên các cột (dạng Index)
+df.columns.tolist()   # tên các cột (dạng list, dễ đọc hơn)
+df.dtypes             # kiểu dữ liệu của từng cột
+df.info()             # tên cột, kiểu, số giá trị không rỗng, bộ nhớ
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{python}
+df.head(10)           # xem 10 dòng đầu thay vì 5
+df.sample(5)          # 5 dòng ngẫu nhiên
+df.describe()         # thống kê các cột số (mean, std, min, max...)
+df.describe(include="all")   # gồm cả cột chữ
+df.nunique()          # số giá trị khác nhau của mỗi cột
+df.isna().sum()       # số giá trị thiếu của mỗi cột
+```
+
+```{python}
+for col in df.columns:
+    print(col, "-", df[col].dtype)
+```
+
+
+```{python}
+df.shape
+```
+il y a 462 individus et 9 variables.
+
+**Notification**  
+Il y a 2 type de classe 0 est normale et 1 est malade
+
+```{python}
+df["chd"].value_counts() / len(df)
+```
+
+La classe 0 représente 65,37 % des observations (302/462), tandis que la classe 1 représente 34,63 % (160/462).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,311 @@
+---
+title: "Résume le module Pandas"
+author: "NGUYEN Duc Hoang Viet "
+jupyter: tp-ml-ia-fiable
+number-sections: true 
+code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+# Premier étap 
+
+**Importe des modules**
+
+```{python}
+import seaborn as sns
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib_inline
+import utils 
+utils.style()
+df = utils.load_saheart()
+```
+
+```{python}
+# Shape du dataset
+df.shape
+```
+
+```{python}
+# Les premieres lignes dans le dataset 
+df.head()
+```
+
+```{python}
+# Les dernieres lignes dans le dataset 
+df.tail()
+```
+
+```{python}
+# Les columns dans le dataset
+df.columns 
+```
+
+```{python}
+# Les columns mais dans forme Python list 
+df.columns.tolist()
+```
+
+```{python}
+# Les columns et ses types de données
+df.info()
+# Méthode 2:  df.dtypes
+```
+
+```{python}
+# Calcule les moyennes, std, min, max
+df.describe()
+```
+
+```{python}
+# Calcule les moyennes, std, min, max de Âge
+df['age'].describe()
+```
+
+```{python}
+# Choisir une columne
+df['obesity'] 
+```
+
+```{python}
+df.obesity  # Méthode 2 
+```
+
+```{python}
+# Choisir plusieurs columns 
+df [["age","obesity","alcohol","tobacco"]]
+```
+
+```{python}
+# Obtenir les différentes valeurs d’âge, sans doublons
+df["age"].unique()
+```
+
+```{python}
+# Compter le nombre de valeurs d’âge différentes
+df["age"].nunique()
+```
+
+```{python}
+#	Trouver l’âge minimum
+df["age"].min()
+```
+
+```{python}
+# Trouver l’âge maximum
+df["age"].max()
+```
+
+```{python}
+# Compter le nombre d’occurrences de chaque âge
+df["age"].value_counts()
+```
+
+```{python}
+# Obtenir les différents âges par ordre croissant
+df["age"].sort_values().unique()
+```
+
+```{python}
+# Obtenir les différents âges par ordre decroissant
+df["age"].sort_values(ascending=False).unique()
+```
+
+```{python}
+# Ajouter les fillters
+df[df["age"] == 52]
+df[df["age"] > 50]
+df[df["sbp"] == 150]
+df[(df["age"] > 50) & (df["sbp"] > 140)]
+
+```
+
+
+# Utilise iloc
+```{python}
+# Print la premiere ligne (de tous les variables/columns)
+#df.index.tolist()
+df.iloc[0]
+```
+
+```{python}
+# Plusieurs ligne 
+df.iloc[95:100]
+```
+
+```{python}
+# Choisir un seule column 
+df.iloc[:,0]
+```
+
+```{python}
+# Plusieur column 
+df.iloc[:, 0:2]
+```
+
+```{python}
+# 5 premieres ligne + 3 column premiers 
+df.iloc[0:5, 0:3]
+```
+
+
+# Mise à jour, copy 
+
+```{python}
+# fait un copy 
+df2 = df.copy()
+df2.head()
+```
+
+
+## Éliminer un columns
+
+```{python}
+df2.drop(columns=["age"])
+```
+
+## Ạouter un columns
+
+```{python}
+df2["10 x age"] = df["age"] * 10 
+df2.head()
+```
+
+
+```{python}
+df2["is_old"] = df["age"].apply(lambda x: True if x >= 50 else False)
+df2.head()
+```
+
+## Sauvegarder dans une nouvelle file 
+```{python}
+import os
+
+os.makedirs("prototype", exist_ok=True)
+df2.to_csv("prototype/df.csv", index=False)
+```
+
+
+# Extension (plot)
+
+```{python}
+sns.histplot(
+    x="age",
+    data=df
+)
+plt.show()
+```
+
+
+
+```{python}
+sns.regplot(
+    x="age",
+    y="obesity",
+    data=df
+)
+plt.show()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
