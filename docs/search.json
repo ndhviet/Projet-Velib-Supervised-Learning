@@ -11,6 +11,6 @@
     "href": "chapters/Part1.html",
     "title": "Résume le module Pandas",
     "section": "",
-    "text": "import hashlib, urllib.request\nimport numpy as np\nimport pandas as pd\n\npd.set_option(\"display.max_columns\", None)\npd.set_option(\"display.width\", 200)\n\nURL = \"https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz\"\nFILE = \"velib-2026-10-08.csv.gz\"\nMD5 = \"02ab1e3fdac10579e4ce93d1540a5dc7\"\n\npath, _ = urllib.request.urlretrieve(URL, FILE)\nwith open(path, \"rb\") as f:\n    assert hashlib.md5(f.read()).hexdigest() == MD5, \"md5 mismatch\"\nprint(\"MD5 OK\")\n\nMD5 OK\n\n\n\n\n\n Back to top"
+    "text": "import hashlib, urllib.request\nimport numpy as np\nimport pandas as pd\n\npd.set_option(\"display.max_columns\", None)\npd.set_option(\"display.width\", 200)\n\nURL = \"https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz\"\nFILE = \"velib-2026-10-08.csv.gz\"\nMD5 = \"02ab1e3fdac10579e4ce93d1540a5dc7\"\n\npath, _ = urllib.request.urlretrieve(URL, FILE)\nwith open(path, \"rb\") as f:\n    assert hashlib.md5(f.read()).hexdigest() == MD5, \"md5 mismatch\"\nprint(\"MD5 OK\")\n\nMD5 OK\n\n\n\nprint(\"Hello\")\n\nHello\n\n\n\n\n\n Back to top"
   }
 ]

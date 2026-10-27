@@ -2,7 +2,7 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "id": "e5dda605",
+   "id": "925a5cb1",
    "metadata": {},
    "source": [
     "---\n",
@@ -20,7 +20,7 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "e34436da",
+   "id": "b14ae565",
    "metadata": {},
    "outputs": [
     {
@@ -48,6 +48,24 @@
     "    assert hashlib.md5(f.read()).hexdigest() == MD5, \"md5 mismatch\"\n",
     "print(\"MD5 OK\")"
    ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "2506b579",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Hello\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Hello\")"
+   ]
   }
  ],
  "metadata": {
@@ -56,18 +74,6 @@
    "language": "python",
    "name": "projet-velib",
    "path": "/Users/nguyenduchoangviet/Library/Jupyter/kernels/projet-velib"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.14.3"
   }
  },
  "nbformat": 4,
