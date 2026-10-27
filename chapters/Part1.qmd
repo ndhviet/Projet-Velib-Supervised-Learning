@@ -1,6 +1,9 @@
 ---
-title: "Résume le module Pandas"
+title: "Extraction des données"
 author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+date: "2026-10-27"
+date-format: "DD/MM/YYYY"
+title-block-published: "Publié le"
 jupyter: projet-velib
 number-sections: true 
 code-fold: false
@@ -10,6 +13,10 @@ execute:
 ---
 
 
+# Importation des modules et vérification des données
+
+## Importation des modules
+
 ```{python}
 import hashlib, urllib.request
 import numpy as np
@@ -18,18 +25,65 @@ import pandas as pd
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 200)
 
+
+```
+
+## Vérification des données
+```{python}
 URL = "https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz"
-FILE = "velib-2026-10-08.csv.gz"
+FILE = "data/velib-2026-10-08.csv.gz"
 MD5 = "02ab1e3fdac10579e4ce93d1540a5dc7"
 
 path, _ = urllib.request.urlretrieve(URL, FILE)
+print("Download successful:", path)
+print("---------------------------------------------------")
 with open(path, "rb") as f:
-    assert hashlib.md5(f.read()).hexdigest() == MD5, "md5 mismatch"
-print("MD5 OK")
+    calculated_md5 = hashlib.md5(f.read()).hexdigest()
+
+print("Calculated MD5:", calculated_md5)
+print("Expected MD5:  ", MD5)
+
+assert calculated_md5 == MD5, f"MD5 mismatch: {calculated_md5}"
+print("MD5 OK!")
+```
+
+## Extraction des données
+```{python}
+# Les premières lignes du dataset
+raw = pd.read_csv(path)
+raw.head()
+```
+
+```{python}
+# Les dernières lignes du dataset
+raw.tail()
+```
+
+# RESUME DES DONNÉES
+```{python}
+# Dimensions du dataset
+print("Dimensions du dataset :", raw.shape)
+
+# Nombre de lignes dans le dataset
+print("Nombre de lignes :", raw.shape[0])
+
+# Nombre de colonnes dans le dataset
+print("Nombre de colonnes :", raw.shape[1])
 ```
 
 
 ```{python}
-print("Hello")
+# Les colonnes du dataset
+raw.columns
 ```
+
+```{python}
+# Informations générales sur le dataset
+raw.info()
+```
+
+```{python}
+raw.describe()
+```
+
 

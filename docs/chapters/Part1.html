@@ -8,7 +8,7 @@
 
 <meta name="author" content="NGUYEN Duc Hoang Viet &amp; Sun Zhenxuan">
 
-<title>Résume le module Pandas – Projet Velib Supervised Learning</title>
+<title>Extraction des données – Projet Velib Supervised Learning</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -62,7 +62,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -108,6 +108,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../assets/custom.css">
@@ -140,7 +143,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../chapters/Part1.html" aria-current="page"> 
-<span class="menu-text">Part1</span></a>
+<span class="menu-text">Extraction des données</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../chapters/Part2.qmd"> 
@@ -168,17 +171,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-viet">    
         <li>
-    <a class="dropdown-item" href="https://github.com/ndhviet"><i class="bi bi-github" role="img">
+    <a class="dropdown-item" href="https://github.com/ndhviet" rel="noopener noreferrer" target="_blank"><i class="bi bi-github" role="img">
 </i> 
  <span class="dropdown-text">GitHub</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://ndhviet.github.io/"><i class="bi bi-globe" role="img">
+    <a class="dropdown-item" href="https://ndhviet.github.io/" rel="noopener noreferrer" target="_blank"><i class="bi bi-globe" role="img">
 </i> 
  <span class="dropdown-text">Portfolio</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://www.linkedin.com/in/hoang-viet1810/"><i class="bi bi-linkedin" role="img">
+    <a class="dropdown-item" href="https://www.linkedin.com/in/hoang-viet1810/" rel="noopener noreferrer" target="_blank"><i class="bi bi-linkedin" role="img">
 </i> 
  <span class="dropdown-text">LinkedIn</span></a>
   </li>  
@@ -192,12 +195,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-sun">    
         <li>
-    <a class="dropdown-item" href="https://github.com/Zhenxua"><i class="bi bi-github" role="img">
+    <a class="dropdown-item" href="https://github.com/Zhenxua" rel="noopener noreferrer" target="_blank"><i class="bi bi-github" role="img">
 </i> 
  <span class="dropdown-text">GitHub</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://www.linkedin.com/in/zhenxuan-sun-576607327/"><i class="bi bi-linkedin" role="img">
+    <a class="dropdown-item" href="https://www.linkedin.com/in/zhenxuan-sun-576607327/" rel="noopener noreferrer" target="_blank"><i class="bi bi-linkedin" role="img">
 </i> 
  <span class="dropdown-text">LinkedIn</span></a>
   </li>  
@@ -214,15 +217,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sur cette page</h2>
+   
+  <ul>
+  <li><a href="#importation-des-modules-et-vérification-des-données" id="toc-importation-des-modules-et-vérification-des-données" class="nav-link active" data-scroll-target="#importation-des-modules-et-vérification-des-données"><span class="header-section-number">1</span> Importation des modules et vérification des données</a>
+  <ul class="collapse">
+  <li><a href="#importation-des-modules" id="toc-importation-des-modules" class="nav-link" data-scroll-target="#importation-des-modules"><span class="header-section-number">1.1</span> Importation des modules</a></li>
+  <li><a href="#vérification-des-données" id="toc-vérification-des-données" class="nav-link" data-scroll-target="#vérification-des-données"><span class="header-section-number">1.2</span> Vérification des données</a></li>
+  <li><a href="#extraction-des-données" id="toc-extraction-des-données" class="nav-link" data-scroll-target="#extraction-des-données"><span class="header-section-number">1.3</span> Extraction des données</a></li>
+  </ul></li>
+  <li><a href="#resume-des-données" id="toc-resume-des-données" class="nav-link" data-scroll-target="#resume-des-données"><span class="header-section-number">2</span> RESUME DES DONNÉES</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Résume le module Pandas</h1>
+<h1 class="title">Extraction des données</h1>
 </div>
 
 
@@ -236,6 +251,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           </div>
   </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">27/10/2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -245,34 +266,522 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="b14ae565" class="cell" data-execution_count="1">
+<section id="importation-des-modules-et-vérification-des-données" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Importation des modules et vérification des données</h1>
+<section id="importation-des-modules" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="importation-des-modules"><span class="header-section-number">1.1</span> Importation des modules</h2>
+<div id="cc62330f" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hashlib, urllib.request</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">"display.max_columns"</span>, <span class="va">None</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">"display.width"</span>, <span class="dv">200</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> <span class="st">"https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz"</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>FILE <span class="op">=</span> <span class="st">"velib-2026-10-08.csv.gz"</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>MD5 <span class="op">=</span> <span class="st">"02ab1e3fdac10579e4ce93d1540a5dc7"</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>path, _ <span class="op">=</span> urllib.request.urlretrieve(URL, FILE)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(path, <span class="st">"rb"</span>) <span class="im">as</span> f:</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> hashlib.md5(f.read()).hexdigest() <span class="op">==</span> MD5, <span class="st">"md5 mismatch"</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MD5 OK"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">"display.width"</span>, <span class="dv">200</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="vérification-des-données" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="vérification-des-données"><span class="header-section-number">1.2</span> Vérification des données</h2>
+<div id="1eaeabec" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> <span class="st">"https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>FILE <span class="op">=</span> <span class="st">"data/velib-2026-10-08.csv.gz"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>MD5 <span class="op">=</span> <span class="st">"02ab1e3fdac10579e4ce93d1540a5dc7"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>path, _ <span class="op">=</span> urllib.request.urlretrieve(URL, FILE)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Download successful:"</span>, path)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"---------------------------------------------------"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(path, <span class="st">"rb"</span>) <span class="im">as</span> f:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    calculated_md5 <span class="op">=</span> hashlib.md5(f.read()).hexdigest()</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Calculated MD5:"</span>, calculated_md5)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Expected MD5:  "</span>, MD5)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> calculated_md5 <span class="op">==</span> MD5, <span class="ss">f"MD5 mismatch: </span><span class="sc">{</span>calculated_md5<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MD5 OK!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>MD5 OK</code></pre>
+<pre><code>Download successful: data/velib-2026-10-08.csv.gz
+---------------------------------------------------
+Calculated MD5: 02ab1e3fdac10579e4ce93d1540a5dc7
+Expected MD5:   02ab1e3fdac10579e4ce93d1540a5dc7
+MD5 OK!</code></pre>
 </div>
 </div>
-<div id="2506b579" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Hello"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="extraction-des-données" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="extraction-des-données"><span class="header-section-number">1.3</span> Extraction des données</h2>
+<div id="0a763ecf" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Les premières lignes du dataset</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> pd.read_csv(path)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>raw.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="68">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">collected_at_utc</th>
+<th data-quarto-table-cell-role="th">source_updated_at</th>
+<th data-quarto-table-cell-role="th">station_code</th>
+<th data-quarto-table-cell-role="th">name</th>
+<th data-quarto-table-cell-role="th">commune</th>
+<th data-quarto-table-cell-role="th">insee_code</th>
+<th data-quarto-table-cell-role="th">latitude</th>
+<th data-quarto-table-cell-role="th">longitude</th>
+<th data-quarto-table-cell-role="th">capacity</th>
+<th data-quarto-table-cell-role="th">bikes_available</th>
+<th data-quarto-table-cell-role="th">mechanical_bikes</th>
+<th data-quarto-table-cell-role="th">electric_bikes</th>
+<th data-quarto-table-cell-role="th">docks_available</th>
+<th data-quarto-table-cell-role="th">is_installed</th>
+<th data-quarto-table-cell-role="th">is_renting</th>
+<th data-quarto-table-cell-role="th">is_returning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>2026-08-25T11:57:26+00:00</td>
+<td>2026-08-25T11:35:29+00:00</td>
+<td>10017</td>
+<td>Gare de l'Est - Fidélité</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.874575</td>
+<td>2.356796</td>
+<td>15.0</td>
+<td>8</td>
+<td>1</td>
+<td>7</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2026-08-25T11:57:26+00:00</td>
+<td>2026-08-25T11:34:30+00:00</td>
+<td>10042</td>
+<td>Enghien - Faubourg Poissonnière</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.872420</td>
+<td>2.348395</td>
+<td>33.0</td>
+<td>30</td>
+<td>22</td>
+<td>8</td>
+<td>3</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>2026-08-25T11:57:26+00:00</td>
+<td>2026-08-25T11:32:01+00:00</td>
+<td>10163</td>
+<td>Gare du Nord - Demarquay</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.881154</td>
+<td>2.358411</td>
+<td>30.0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>28</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>2026-08-25T11:57:26+00:00</td>
+<td>2026-08-25T11:32:46+00:00</td>
+<td>10202</td>
+<td>Bichat - Grange aux Belles</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.873688</td>
+<td>2.365015</td>
+<td>30.0</td>
+<td>4</td>
+<td>3</td>
+<td>1</td>
+<td>26</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>2026-08-25T11:57:26+00:00</td>
+<td>2026-08-25T11:33:01+00:00</td>
+<td>11101</td>
+<td>Charles Delescluze</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.852422</td>
+<td>2.380632</td>
+<td>49.0</td>
+<td>28</td>
+<td>27</td>
+<td>1</td>
+<td>21</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="788a536b" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Les dernières lignes du dataset</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>raw.tail()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="69">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">collected_at_utc</th>
+<th data-quarto-table-cell-role="th">source_updated_at</th>
+<th data-quarto-table-cell-role="th">station_code</th>
+<th data-quarto-table-cell-role="th">name</th>
+<th data-quarto-table-cell-role="th">commune</th>
+<th data-quarto-table-cell-role="th">insee_code</th>
+<th data-quarto-table-cell-role="th">latitude</th>
+<th data-quarto-table-cell-role="th">longitude</th>
+<th data-quarto-table-cell-role="th">capacity</th>
+<th data-quarto-table-cell-role="th">bikes_available</th>
+<th data-quarto-table-cell-role="th">mechanical_bikes</th>
+<th data-quarto-table-cell-role="th">electric_bikes</th>
+<th data-quarto-table-cell-role="th">docks_available</th>
+<th data-quarto-table-cell-role="th">is_installed</th>
+<th data-quarto-table-cell-role="th">is_renting</th>
+<th data-quarto-table-cell-role="th">is_returning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">329675</th>
+<td>2026-10-08T20:15:01+00:00</td>
+<td>2026-10-08T19:29:32+00:00</td>
+<td>9022</td>
+<td>Rossini - Laffitte</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.873346</td>
+<td>2.337981</td>
+<td>33.0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>29</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">329676</th>
+<td>2026-10-08T20:15:01+00:00</td>
+<td>2026-10-08T19:32:39+00:00</td>
+<td>9023</td>
+<td>Laffitte - Italiens</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.871816</td>
+<td>2.337202</td>
+<td>33.0</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>30</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">329677</th>
+<td>2026-10-08T20:15:01+00:00</td>
+<td>2026-10-08T19:28:28+00:00</td>
+<td>9035</td>
+<td>Gare Saint-Lazare - Place de Budapest</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.877753</td>
+<td>2.327339</td>
+<td>44.0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>41</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">329678</th>
+<td>2026-10-08T20:15:01+00:00</td>
+<td>2026-10-08T19:30:52+00:00</td>
+<td>9104</td>
+<td>Caumartin - Provence</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.874423</td>
+<td>2.328469</td>
+<td>22.0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>21</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">329679</th>
+<td>2026-10-08T20:15:01+00:00</td>
+<td>2026-10-08T19:26:52+00:00</td>
+<td>9116</td>
+<td>Victoire - Chaussée d'Antin</td>
+<td>Paris</td>
+<td>75056</td>
+<td>48.875066</td>
+<td>2.331674</td>
+<td>24.0</td>
+<td>5</td>
+<td>4</td>
+<td>1</td>
+<td>18</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="resume-des-données" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> RESUME DES DONNÉES</h1>
+<div id="662b274c" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dimensions du dataset</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Dimensions du dataset :"</span>, raw.shape)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Nombre de lignes dans le dataset</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Nombre de lignes :"</span>, raw.shape[<span class="dv">0</span>])</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Nombre de colonnes dans le dataset</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Nombre de colonnes :"</span>, raw.shape[<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Hello</code></pre>
+<pre><code>Dimensions du dataset : (329680, 16)
+Nombre de lignes : 329680
+Nombre de colonnes : 16</code></pre>
+</div>
+</div>
+<div id="b8995544" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Les colonnes du dataset</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>raw.columns</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="71">
+<pre><code>Index(['collected_at_utc', 'source_updated_at', 'station_code', 'name', 'commune', 'insee_code', 'latitude', 'longitude', 'capacity', 'bikes_available', 'mechanical_bikes', 'electric_bikes',
+       'docks_available', 'is_installed', 'is_renting', 'is_returning'],
+      dtype='str')</code></pre>
+</div>
+</div>
+<div id="3ee4a816" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Informations générales sur le dataset</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>raw.info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.DataFrame'&gt;
+RangeIndex: 329680 entries, 0 to 329679
+Data columns (total 16 columns):
+ #   Column             Non-Null Count   Dtype  
+---  ------             --------------   -----  
+ 0   collected_at_utc   329680 non-null  str    
+ 1   source_updated_at  329680 non-null  str    
+ 2   station_code       329680 non-null  int64  
+ 3   name               329680 non-null  str    
+ 4   commune            329680 non-null  str    
+ 5   insee_code         329680 non-null  int64  
+ 6   latitude           329680 non-null  float64
+ 7   longitude          329680 non-null  float64
+ 8   capacity           327760 non-null  float64
+ 9   bikes_available    329680 non-null  int64  
+ 10  mechanical_bikes   329680 non-null  int64  
+ 11  electric_bikes     329680 non-null  int64  
+ 12  docks_available    329680 non-null  int64  
+ 13  is_installed       329680 non-null  int64  
+ 14  is_renting         329680 non-null  int64  
+ 15  is_returning       329680 non-null  int64  
+dtypes: float64(3), int64(9), str(4)
+memory usage: 40.2 MB</code></pre>
+</div>
+</div>
+<div id="9b055dbe" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>raw.describe()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="73">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">station_code</th>
+<th data-quarto-table-cell-role="th">insee_code</th>
+<th data-quarto-table-cell-role="th">latitude</th>
+<th data-quarto-table-cell-role="th">longitude</th>
+<th data-quarto-table-cell-role="th">capacity</th>
+<th data-quarto-table-cell-role="th">bikes_available</th>
+<th data-quarto-table-cell-role="th">mechanical_bikes</th>
+<th data-quarto-table-cell-role="th">electric_bikes</th>
+<th data-quarto-table-cell-role="th">docks_available</th>
+<th data-quarto-table-cell-role="th">is_installed</th>
+<th data-quarto-table-cell-role="th">is_renting</th>
+<th data-quarto-table-cell-role="th">is_returning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">count</th>
+<td>329680.000000</td>
+<td>329680.000000</td>
+<td>329680.000000</td>
+<td>329680.000000</td>
+<td>327760.000000</td>
+<td>329680.000000</td>
+<td>329680.000000</td>
+<td>329680.000000</td>
+<td>329680.000000</td>
+<td>329680.0</td>
+<td>329680.000000</td>
+<td>329680.000000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">mean</th>
+<td>18749.075000</td>
+<td>81699.862500</td>
+<td>48.855573</td>
+<td>2.331706</td>
+<td>30.687500</td>
+<td>12.920471</td>
+<td>8.069695</td>
+<td>4.850777</td>
+<td>16.844352</td>
+<td>1.0</td>
+<td>0.997537</td>
+<td>0.997537</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">std</th>
+<td>11641.079442</td>
+<td>8593.362126</td>
+<td>0.033103</td>
+<td>0.058007</td>
+<td>12.438461</td>
+<td>11.754529</td>
+<td>10.053956</td>
+<td>5.065029</td>
+<td>12.120306</td>
+<td>0.0</td>
+<td>0.049567</td>
+<td>0.049567</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">min</th>
+<td>2102.000000</td>
+<td>75056.000000</td>
+<td>48.762770</td>
+<td>2.188134</td>
+<td>12.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>1.0</td>
+<td>0.000000</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">25%</th>
+<td>9791.750000</td>
+<td>75056.000000</td>
+<td>48.833366</td>
+<td>2.295205</td>
+<td>21.750000</td>
+<td>4.000000</td>
+<td>1.000000</td>
+<td>1.000000</td>
+<td>7.000000</td>
+<td>1.0</td>
+<td>1.000000</td>
+<td>1.000000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">50%</th>
+<td>15576.000000</td>
+<td>75056.000000</td>
+<td>48.854904</td>
+<td>2.337616</td>
+<td>30.000000</td>
+<td>10.000000</td>
+<td>4.000000</td>
+<td>3.000000</td>
+<td>16.000000</td>
+<td>1.0</td>
+<td>1.000000</td>
+<td>1.000000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">75%</th>
+<td>25007.250000</td>
+<td>92044.500000</td>
+<td>48.874829</td>
+<td>2.365033</td>
+<td>34.250000</td>
+<td>19.000000</td>
+<td>11.000000</td>
+<td>7.000000</td>
+<td>24.000000</td>
+<td>1.0</td>
+<td>1.000000</td>
+<td>1.000000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">max</th>
+<td>48012.000000</td>
+<td>94076.000000</td>
+<td>48.938282</td>
+<td>2.486581</td>
+<td>76.000000</td>
+<td>76.000000</td>
+<td>66.000000</td>
+<td>52.000000</td>
+<td>75.000000</td>
+<td>1.0</td>
+<td>1.000000</td>
+<td>1.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 </div>
 </div>
 
 
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <style>

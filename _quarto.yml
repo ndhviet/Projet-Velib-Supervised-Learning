@@ -21,7 +21,7 @@ website:
       - href: index.qmd
         text: Accueil
       - href: chapters/Part1.qmd
-        text: "Part1"
+        text: "Extraction des données"
       - href: chapters/Part2.qmd
         text: "Part2"
       - href: chapters/Part3.qmd
@@ -38,21 +38,31 @@ website:
           - text: "GitHub"
             icon: github
             href: https://github.com/ndhviet
+            target: "_blank"
+            rel: "noopener noreferrer"
           - text: "Portfolio"
             icon: globe
             href: https://ndhviet.github.io/
+            target: "_blank"
+            rel: "noopener noreferrer"
           - text: "LinkedIn"
             icon: linkedin
             href: https://www.linkedin.com/in/hoang-viet1810/
+            target: "_blank"
+            rel: "noopener noreferrer"
       - text: "Sun"
         icon: person-circle
         menu:
           - text: "GitHub"
             icon: github
             href: https://github.com/Zhenxua
+            target: "_blank"
+            rel: "noopener noreferrer"
           - text: "LinkedIn"
             icon: linkedin
             href: https://www.linkedin.com/in/zhenxuan-sun-576607327/
+            target: "_blank"
+            rel: "noopener noreferrer"
       
 
 format:
