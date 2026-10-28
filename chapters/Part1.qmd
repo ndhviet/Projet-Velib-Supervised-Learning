@@ -2,8 +2,7 @@
 title: "Extraction des données"
 author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
 date: "2026-10-27"
-date-format: "DD/MM/YYYY"
-title-block-published: "Publié le"
+
 jupyter: projet-velib
 number-sections: true 
 code-fold: false
@@ -54,12 +53,9 @@ raw = pd.read_csv(path)
 raw.head()
 ```
 
-```{python}
-# Les dernières lignes du dataset
-raw.tail()
-```
-
 # RESUME DES DONNÉES
+
+## Aperçu général du jeu de données
 ```{python}
 # Dimensions du dataset
 print("Dimensions du dataset :", raw.shape)
@@ -71,12 +67,6 @@ print("Nombre de lignes :", raw.shape[0])
 print("Nombre de colonnes :", raw.shape[1])
 ```
 
-
-```{python}
-# Les colonnes du dataset
-raw.columns
-```
-
 ```{python}
 # Informations générales sur le dataset
 raw.info()
@@ -85,5 +75,266 @@ raw.info()
 ```{python}
 raw.describe()
 ```
+
+## Contrôle de la qualité des données
+
+Avant toute analyse, on vérifie la qualité du jeu de données : présence de doublons et de valeurs manquantes.
+
+### Lignes dupliquées
+
+```{python}
+print("Nombre de lignes dupliquées :", raw.duplicated().sum())
+```
+
+### Valeurs manquantes
+
+```{python}
+print("Valeurs manquantes par colonne :")
+print(raw.isna().sum())
+```
+
+```{python}
+n_missing = raw["capacity"].isna().sum()
+print(f"Capacité manquante : {n_missing} lignes ({n_missing / len(raw):.2%} du jeu de données)")
+```
+
+Seule la colonne `capacity` contient des valeurs manquantes (1 920 lignes, soit environ 0,6 % des données). Toutes les autres colonnes sont complètes.
+
+### Origine des valeurs manquantes
+
+```{python}
+missing_capacity = raw[raw["capacity"].isna()]
+missing_capacity.head()
+```
+
+```{python}
+missing_capacity["name"].value_counts()
+```
+
+```{python}
+print("Stations concernées :", missing_capacity["station_code"].nunique())
+print("Observations par station :", missing_capacity["name"].value_counts().unique())
+```
+
+Les valeurs manquantes ne sont pas dispersées au hasard : elles concernent **80 stations**, chacune ayant exactement **24 observations** sans capacité. Il s'agit donc d'un problème lié à certaines stations (ou à une période précise), et non d'erreurs ponctuelles de mesure.
+
+### Traitement retenu
+
+Le traitement des valeurs manquantes de `capacity` est réalisé dans la section @sec-nettoyage (*Nettoyage et agrégation des données*) : les lignes sans capacité sont exclues avant le calcul du taux d'occupation (`bikes_available / capacity`), car ce taux n'est pas défini sans capacité. Les 80 stations concernées ne figurent donc pas dans la table agrégée `stations`. Elles représentent une faible part des données (environ 0,6 % des lignes).
+
+
+# Visualisation
+
+## Carte des stations Vélib'
+
+La carte ci-dessous montre l'emplacement des stations. La couleur indique
+le nombre moyen de vélos disponibles : les stations jaunes sont souvent
+bien remplies, les violettes souvent presque vides.
+
+```{python}
+import plotly.express as px
+# Suppression des stations sans coordonnées
+df_map = (
+    raw.dropna(subset=["latitude", "longitude"])
+       .groupby("station_code", as_index=False)
+       .agg(
+           name=("name", "first"),
+           commune=("commune", "first"),capacity=("capacity", "first"),
+           latitude=("latitude", "first"),longitude=("longitude", "first"),
+           bikes_available=("bikes_available", "mean"), ) )
+print("Nombre de stations :", len(df_map))
+
+fig = px.scatter_map(
+    df_map,lat="latitude",lon="longitude",hover_name="name",
+    hover_data=["station_code", "commune", "capacity"],
+    center=dict(lat=48.8566, lon=2.3522),  
+    zoom=10.5,height=700,color="bikes_available",map_style="open-street-map",
+    title="Répartition des stations Vélib' à Paris (nombre moyen de vélos)")
+
+fig.update_layout(
+    map=dict(center=dict(lat=48.8566, lon=2.3522), zoom=10.5),
+    margin=dict(l=0, r=0, t=50, b=0),)
+
+fig.show()
+```
+
+## Localisation détaillée des stations
+
+```{python}
+import folium
+from folium.plugins import MarkerCluster
+
+df_map = (
+    raw.dropna(subset=["latitude", "longitude"])
+       .drop_duplicates(subset="station_code")
+       .copy() )
+print("Nombre de stations :", len(df_map))
+
+m = folium.Map(
+    location=[df_map["latitude"].mean(), df_map["longitude"].mean()],
+    zoom_start=11 )
+cluster = MarkerCluster().add_to(m)
+
+for _, r in df_map.iterrows():
+    folium.Marker(
+        location=[r["latitude"], r["longitude"]],
+        popup=f"{r['name']}<br>Capacité : {r['capacity']}",).add_to(cluster)
+m
+```
+
+## Nombre de stations par commune
+```{python}
+# Une ligne par station, puis comptage par commune
+stations = raw.dropna(subset=["commune"]).drop_duplicates(subset="station_code")
+counts = (stations["commune"].value_counts()
+          .rename_axis("commune").reset_index(name="n_stations"))
+
+fig = px.bar(
+    counts.sort_values("n_stations"),
+    x="n_stations", y="commune", orientation="h",
+    color_discrete_sequence=["#22C55E"],
+    labels={"n_stations": "Nombre de stations", "commune": ""},
+    title="Nombre de stations par commune",
+    height=max(400, 22 * len(counts)), )
+fig.show()
+```
+
+
+## Nettoyage et agrégation des données
+
+```{python}
+import numpy as np
+import pandas as pd
+import plotly.express as px
+
+JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+VERT = ["#DCFCE7", "#86EFAC", "#22C55E", "#15803D", "#14532D"]
+
+TIME_COL = "collected_at_utc"
+
+df = raw.copy()
+df["ts"] = pd.to_datetime(df[TIME_COL], errors="coerce", utc=True).dt.tz_convert("Europe/Paris")
+df = df.dropna(subset=["ts", "latitude", "longitude"])
+df = df[(df["capacity"] > 0) & (df["is_installed"] == 1)].copy()
+
+df["hour"] = df["ts"].dt.hour
+df["weekday"] = df["ts"].dt.dayofweek
+df["periode"] = np.where(df["weekday"] >= 5, "Week-end", "Semaine")
+df["occupancy"] = df["bikes_available"] / df["capacity"]
+
+stations = (
+    df.groupby("station_code", as_index=False)
+      .agg(name=("name", "first"), commune=("commune", "first"),
+           capacity=("capacity", "first"),
+           latitude=("latitude", "first"), longitude=("longitude", "first"),
+           bikes_available=("bikes_available", "mean"),
+           occupancy=("occupancy", "mean"))
+)
+
+print("Nombre de stations :", len(stations))
+print("Période :", df["ts"].min(), "->", df["ts"].max())
+print("Nombre de jours :", df["ts"].dt.date.nunique())
+```
+
+### Vélos disponibles par heure
+```{python}
+by_hour = df.groupby("hour", as_index=False)["bikes_available"].mean()
+
+fig = px.line(by_hour, x="hour", y="bikes_available", markers=True,
+              color_discrete_sequence=["#15803D"],
+              labels={"hour": "Heure", "bikes_available": "Vélos disponibles (moyenne)"},
+              title="Vélos disponibles par heure")
+fig.update_xaxes(dtick=2)
+fig.show()
+```
+
+
+### Semaine vs week-end
+```{python}
+by_hour_p = df.groupby(["hour", "periode"], as_index=False)["bikes_available"].mean()
+
+fig = px.line(by_hour_p, x="hour", y="bikes_available", color="periode", markers=True,
+              color_discrete_map={"Semaine": "#14532D", "Week-end": "#22C55E"},
+              labels={"hour": "Heure", "bikes_available": "Vélos disponibles (moyenne)",
+                      "periode": ""},
+              title="Semaine vs week-end")
+fig.update_xaxes(dtick=2)
+fig.show()
+```
+
+### Distribution de la capacité des stations
+```{python}
+fig = px.histogram(stations, x="capacity", nbins=20,
+                   color_discrete_sequence=["#15803D"],
+                   labels={"capacity": "Capacité"},
+                   title="Distribution de la capacité des stations")
+fig.update_layout(yaxis_title="Nombre de stations", bargap=0.05)
+fig.show()
+```
+
+## Taux 
+
+### Taux d’occupation moyen par jour et par heure
+```{python}
+pivot = (df.groupby(["weekday", "hour"])["occupancy"].mean()
+           .unstack("hour").reindex(range(7)))
+pivot.index = [JOURS[i] for i in pivot.index]
+
+fig = px.imshow(pivot, color_continuous_scale=VERT, aspect="auto",
+                labels=dict(x="Heure", y="Jour", color="Taux d'occupation"),
+                title="Taux d'occupation moyen par jour et par heure")
+fig.show()
+```
+
+### Répartition du taux d’occupation des stations
+```{python}
+fig = px.histogram(stations, x="occupancy", nbins=30,
+                   color_discrete_sequence=["#22C55E"],
+                   labels={"occupancy": "Taux d'occupation moyen"},
+                   title="Répartition du taux d'occupation des stations")
+fig.update_layout(yaxis_title="Nombre de stations", bargap=0.05)
+fig.show()
+```
+
+### Taux d’occupation moyen par commune
+```{python}
+by_commune = (stations.groupby("commune", as_index=False)
+                      .agg(n_stations=("station_code", "count"),
+                           occupancy=("occupancy", "mean"))
+                      .sort_values("occupancy"))
+
+fig = px.bar(by_commune, x="occupancy", y="commune", orientation="h",
+             color="n_stations", color_continuous_scale=VERT,
+             hover_data=["n_stations"],
+             labels={"occupancy": "Taux d'occupation moyen", "commune": "",
+                     "n_stations": "Nb stations"},
+             title="Taux d'occupation moyen par commune",
+             height=max(400, 22 * len(by_commune)))
+fig.show()
+```
+
+
+### Taux d’occupation par commune et par heure
+```{python}
+top = stations["commune"].value_counts().head(15).index
+pv = (df[df["commune"].isin(top)]
+        .groupby(["commune", "hour"])["occupancy"].mean().unstack("hour"))
+
+fig = px.imshow(pv, color_continuous_scale=VERT, aspect="auto",
+                labels=dict(x="Heure", y="Commune", color="Taux d'occupation"),
+                title="Taux d'occupation par commune et par heure")
+fig.show()
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
