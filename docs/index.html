@@ -109,7 +109,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./chapters/Part2.html"> 
-<span class="menu-text">Part2</span></a>
+<span class="menu-text">Analyse exploratoire</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./chapters/Part3.qmd"> 
@@ -191,58 +191,6 @@ ul.task-list li input[type="checkbox"] {
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Bienvenue sur le projet Velib Surpervised Learning</h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>NGUYEN Duc Hoang Viet &amp; Sun Zhenxuan </p>
-          </div>
-  </div>
-    
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">27/10/2026</p>
-    </div>
-  </div>
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<section id="présentation-du-projet" class="level1">
-<h1>Présentation du projet</h1>
-<p>Ce cours est enseigné par <a href="https://ambroise.cloud/">Christophe Ambroise</a>, professeur de statistique à l’Université d’Évry Paris-Saclay. Ce site rassemble mes travaux pratiques réalisés dans ce cadre.</p>
-</section>
-<section id="liste-des-parties" class="level1">
-<h1>Liste des parties</h1>
-<ul>
-<li><a href="./chapters/Part1.html">Partie 1 : Extraction des données</a></li>
-<li><a href="chapters/tp2.qmd">Partie 2 : Modèles paramétriques</a></li>
-<li><a href="chapters/tp3.qmd">Partie 3 : Méthodes non paramétriques</a></li>
-<li><a href="chapters/tp4.qmd">Partie 4 : Arbres de décision</a></li>
-<li><a href="chapters/tp5.qmd">TP5 : Méthodes d’ensemble</a></li>
-<li><a href="chapters/tp6.qmd">TP6 : Équité en apprentissage</a></li>
-<li><a href="chapters/tp7.qmd">TP7 : Apprentissage par renforcement</a></li>
-</ul>
-
-
-</section>
-
-<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <style>
   /* ===== Loading screen (xanh lá - Vélib) ===== */
   .loading-screen {
@@ -304,7 +252,22 @@ ul.task-list li input[type="checkbox"] {
     background: linear-gradient(90deg, #22C55E, #14532D);
     border-radius: 2px; transition: width .12s linear;
   }
+
+  /* CHỖ SỬA 1: ẩn intro ở các trang sau */
+  html.ls-seen .loading-screen { display: none !important; }
 </style>
+
+<script>
+  try {
+    var nav = performance.getEntriesByType('navigation')[0];
+    var isReload = nav && nav.type === 'reload';
+    if (sessionStorage.getItem('velibIntroSeen') && !isReload) {
+      document.documentElement.classList.add('ls-seen');   // already seen, not a reload: hide
+    } else {
+      sessionStorage.setItem('velibIntroSeen', '1');       // first visit or reload: show intro
+    }
+  } catch (e) {}
+</script>
 
 <div class="loading-screen" id="loadingScreen">
   <div class="ls-ring">
@@ -340,6 +303,56 @@ ul.task-list li input[type="checkbox"] {
   });
 })();
 </script>
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bienvenue sur le projet Velib Surpervised Learning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>NGUYEN Duc Hoang Viet &amp; Sun Zhenxuan </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">27/10/2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="présentation-du-projet" class="level1">
+<h1>Présentation du projet</h1>
+<p>Ce cours est enseigné par <a href="https://ambroise.cloud/">Christophe Ambroise</a>, professeur de statistique à l’Université d’Évry Paris-Saclay. Ce site rassemble mes travaux pratiques réalisés dans ce cadre.</p>
+</section>
+<section id="liste-des-parties" class="level1">
+<h1>Liste des parties</h1>
+<ul>
+<li><a href="./chapters/Part1.html">Partie 1 : Extraction des données</a></li>
+<li><a href="./chapters/Part2.html">Partie 2 : Analyse exploratoire</a></li>
+<li><a href="chapters/Part3.qmd">Partie 3 : Modèles supervisés</a></li>
+<li><a href="chapters/Part4.qmd">Partie 4 : Comparaison des modèles</a></li>
+<li><a href="chapters/Part5.qmd">Partie 5 : Conclusion</a></li>
+</ul>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <div style="text-align:center; font-size:0.85em; color:#888; padding:25px;">
   <strong>© 2026 NGUYEN Duc Hoang Viet &amp; Sun Zhenxuan — Tous droits réservés.</strong><br>
   <strong> Projet Velib Surpervised Learning - Université Paris-Saclay </strong><br>

@@ -59,7 +59,22 @@
     background: linear-gradient(90deg, #22C55E, #14532D);
     border-radius: 2px; transition: width .12s linear;
   }
+
+  /* CHỖ SỬA 1: ẩn intro ở các trang sau */
+  html.ls-seen .loading-screen { display: none !important; }
 </style>
+
+<script>
+  try {
+    var nav = performance.getEntriesByType('navigation')[0];
+    var isReload = nav && nav.type === 'reload';
+    if (sessionStorage.getItem('velibIntroSeen') && !isReload) {
+      document.documentElement.classList.add('ls-seen');   // already seen, not a reload: hide
+    } else {
+      sessionStorage.setItem('velibIntroSeen', '1');       // first visit or reload: show intro
+    }
+  } catch (e) {}
+</script>
 
 <div class="loading-screen" id="loadingScreen">
   <div class="ls-ring">

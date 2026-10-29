@@ -14,9 +14,8 @@ Ce cours est enseigné par [Christophe Ambroise](https://ambroise.cloud/), profe
 # Liste des parties
 
 -   [Partie 1 : Extraction des données](chapters/Part1.qmd)
--   [Partie 2 : Modèles paramétriques](chapters/tp2.qmd)
--   [Partie 3 : Méthodes non paramétriques](chapters/tp3.qmd)
--   [Partie 4 : Arbres de décision](chapters/tp4.qmd)
--   [TP5 : Méthodes d'ensemble](chapters/tp5.qmd)
--   [TP6 : Équité en apprentissage](chapters/tp6.qmd)
--   [TP7 : Apprentissage par renforcement](chapters/tp7.qmd)
+-   [Partie 2 : Analyse exploratoire](chapters/Part2.qmd)
+-   [Partie 3 : Modèles supervisés](chapters/Part3.qmd)
+-   [Partie 4 : Comparaison des modèles](chapters/Part4.qmd)
+-   [Partie 5 : Conclusion](chapters/Part5.qmd)
+

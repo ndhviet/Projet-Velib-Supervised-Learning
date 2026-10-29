@@ -1,5 +1,5 @@
 ---
-title: "Analyse exploratoire (EDA)"
+title: "Analyse exploratoire"
 author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
 date: "2026-10-27"
 
@@ -24,16 +24,14 @@ raw = load_raw()
 df, stations = prepare(raw)
 ```
 
-# Visualisation
 
-## Carte des stations Vélib'
+# Carte des stations Vélib'
 
 La carte ci-dessous montre l'emplacement des stations. La couleur indique
 le nombre moyen de vélos disponibles : les stations jaunes sont souvent
 bien remplies, les violettes souvent presque vides.
 
 ```{python}
-import plotly.express as px
 # Suppression des stations sans coordonnées
 df_map = (
     raw.dropna(subset=["latitude", "longitude"])
@@ -59,7 +57,7 @@ fig.update_layout(
 fig.show()
 ```
 
-## Localisation détaillée des stations
+# Localisation détaillée des stations
 
 ```{python}
 import folium
@@ -83,7 +81,7 @@ for _, r in df_map.iterrows():
 m
 ```
 
-## Nombre de stations par commune
+# Nombre de stations par commune
 ```{python}
 # Une ligne par station, puis comptage par commune
 stations = raw.dropna(subset=["commune"]).drop_duplicates(subset="station_code")
@@ -101,7 +99,7 @@ fig.show()
 ```
 
 
-## Nettoyage et agrégation des données
+# Nettoyage et agrégation des données
 
 ```{python}
 import numpy as np
@@ -137,7 +135,7 @@ print("Période :", df["ts"].min(), "->", df["ts"].max())
 print("Nombre de jours :", df["ts"].dt.date.nunique())
 ```
 
-### Vélos disponibles par heure
+## Vélos disponibles par heure
 ```{python}
 by_hour = df.groupby("hour", as_index=False)["bikes_available"].mean()
 
@@ -150,7 +148,7 @@ fig.show()
 ```
 
 
-### Semaine vs week-end
+## Semaine vs week-end
 ```{python}
 by_hour_p = df.groupby(["hour", "periode"], as_index=False)["bikes_available"].mean()
 
@@ -163,7 +161,7 @@ fig.update_xaxes(dtick=2)
 fig.show()
 ```
 
-### Distribution de la capacité des stations
+## Distribution de la capacité des stations
 ```{python}
 fig = px.histogram(stations, x="capacity", nbins=20,
                    color_discrete_sequence=["#15803D"],
@@ -173,9 +171,9 @@ fig.update_layout(yaxis_title="Nombre de stations", bargap=0.05)
 fig.show()
 ```
 
-## Taux 
+# Taux 
 
-### Taux d’occupation moyen par jour et par heure
+## Taux d’occupation moyen par jour et par heure
 ```{python}
 pivot = (df.groupby(["weekday", "hour"])["occupancy"].mean()
            .unstack("hour").reindex(range(7)))
@@ -187,7 +185,7 @@ fig = px.imshow(pivot, color_continuous_scale=VERT, aspect="auto",
 fig.show()
 ```
 
-### Répartition du taux d’occupation des stations
+## Répartition du taux d’occupation des stations
 ```{python}
 fig = px.histogram(stations, x="occupancy", nbins=30,
                    color_discrete_sequence=["#22C55E"],
@@ -197,7 +195,7 @@ fig.update_layout(yaxis_title="Nombre de stations", bargap=0.05)
 fig.show()
 ```
 
-### Taux d’occupation moyen par commune
+## Taux d’occupation moyen par commune
 ```{python}
 by_commune = (stations.groupby("commune", as_index=False)
                       .agg(n_stations=("station_code", "count"),
@@ -215,7 +213,7 @@ fig.show()
 ```
 
 
-### Taux d’occupation par commune et par heure
+## Taux d’occupation par commune et par heure
 ```{python}
 top = stations["commune"].value_counts().head(15).index
 pv = (df[df["commune"].isin(top)]

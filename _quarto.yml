@@ -23,13 +23,13 @@ website:
       - href: chapters/Part1.qmd
         text: "Extraction des données"
       - href: chapters/Part2.qmd
-        text: "Part2"
+        text: "Analyse exploratoire"
       - href: chapters/Part3.qmd
-        text: "Part3"
+        text: "Modèles supervisés"
       - href: chapters/Part4.qmd
-        text: "Part4"
+        text: "Comparaison des modèles"
       - href: chapters/Part5.qmd
-        text: "Part5"
+        text: "Conclusion"
 
     right:
       - text: "Viet"
@@ -69,7 +69,9 @@ format:
   html:
     theme: flatly
     css: assets/custom.css
-    include-after-body: [assets/loading.html, assets/footer.html]
+    #include-after-body: [assets/loading.html, assets/footer.html]
+    include-before-body: [assets/loading.html]
+    include-after-body: [assets/footer.html]
     toc: true
     toc-location: right
     toc-title: "Sur cette page"

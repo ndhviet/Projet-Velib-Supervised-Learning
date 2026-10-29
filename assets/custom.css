@@ -10,9 +10,9 @@
 
 :root {
   --bs-primary: #22C55E;
-  --brand-dark: #14532D;   /* nền navbar, banner */
-  --brand: #22C55E;        /* điểm nhấn: nút, viền TOC */
-  --brand-link: #15803D;   /* chữ link: đậm hơn để đọc rõ trên nền trắng */
+  --brand-dark: #14532D;   
+  --brand: #22C55E;        
+  --brand-link: #15803D;   
 }
 
 body {
