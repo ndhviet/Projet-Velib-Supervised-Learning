@@ -440,7 +440,7 @@ p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
 <p>Les lignes pour lesquelles la station est fermée à <span class="math inline">\(t\)</span>, à <span class="math inline">\(t+30\)</span> min ou dans la fenêtre de retards sont exclues. Aucune valeur manquante n’est interpolée.</p>
 <section id="préparation-des-données" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="préparation-des-données"><span class="header-section-number">1.1</span> Préparation des données</h2>
-<div id="ee13e559" class="cell" data-execution_count="1">
+<div id="583b0345" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> (precision_score, recall_score, f1_score,</span>
@@ -465,7 +465,7 @@ test  | lignes :  51520 | de 2026-10-01 22:00:00+00:00 à 2026-10-08 19:45:00+00
 </section>
 <section id="découpage-chronologique" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="découpage-chronologique"><span class="header-section-number">1.2</span> Découpage chronologique</h2>
-<div id="dd1d3af9" class="cell" data-execution_count="2">
+<div id="9163c9db" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>X_train, y_train <span class="op">=</span> train[FEATS].to_numpy(), train[<span class="st">"y"</span>].to_numpy()</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>X_val,   y_val   <span class="op">=</span> val[FEATS].to_numpy(),   val[<span class="st">"y"</span>].to_numpy()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>X_test,  y_test  <span class="op">=</span> test[FEATS].to_numpy(),  test[<span class="st">"y"</span>].to_numpy()   <span class="co"># laissé intact</span></span>
@@ -483,7 +483,7 @@ Test  | lignes :  51520 | 2026-10-01 22:00:00+00:00 -&gt; 2026-10-08 19:45:00+00
 </section>
 <section id="références" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Références</h1>
-<div id="cf11f61e" class="cell" data-execution_count="3">
+<div id="eb4f5740" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>classe_maj    <span class="op">=</span> np.bincount(y_train).argmax()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pred_pers_val <span class="op">=</span> (val[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -514,7 +514,7 @@ p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
 <p>Les paramètres <span class="math inline">\(\pi\)</span>, <span class="math inline">\(\mu_{j,y}\)</span>, <span class="math inline">\(\sigma^2_{j,y}\)</span> sont estimés sur le jeu d’apprentissage uniquement.</p>
 <section id="la-classe" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="la-classe"><span class="header-section-number">3.1</span> La classe</h2>
-<div id="a64c9068" class="cell" data-execution_count="4">
+<div id="3835a812" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BayesNaifGaussien:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Classifieur de Bayes naïf gaussien, écrit à la main."""</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -553,7 +553,7 @@ p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
 </section>
 <section id="ce-que-le-modèle-a-appris" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="ce-que-le-modèle-a-appris"><span class="header-section-number">3.2</span> Ce que le modèle a appris</h2>
-<div id="8bb593f2" class="cell" data-execution_count="5">
+<div id="643f08bb" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bayes <span class="op">=</span> BayesNaifGaussien().fit(X_train, y_train)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Formes :"</span>, bayes.mu_.shape, bayes.sigma_.shape)     <span class="co"># (2, nb_variables)</span></span>
@@ -586,7 +586,7 @@ src_lag_min        63.78   67.36      28.45      46.31</code></pre>
 </section>
 <section id="vérification-de-la-formule-à-la-main" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="vérification-de-la-formule-à-la-main"><span class="header-section-number">3.3</span> Vérification de la formule à la main</h2>
-<div id="b5b7d2c4" class="cell" data-execution_count="6">
+<div id="d17d74b1" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> X_val[:<span class="dv">1</span>]</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>f1 <span class="op">=</span> np.exp(bayes._log_densite(x, <span class="dv">1</span>))[<span class="dv">0</span>]</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>f0 <span class="op">=</span> np.exp(bayes._log_densite(x, <span class="dv">0</span>))[<span class="dv">0</span>]</span>
@@ -601,7 +601,7 @@ predict_proba     : 0.9999999820149895</code></pre>
 </section>
 <section id="deux-erreurs-pas-une" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="deux-erreurs-pas-une"><span class="header-section-number">3.4</span> Deux erreurs, pas une</h2>
-<div id="958e8caa" class="cell" data-execution_count="7">
+<div id="6dc1cc07" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>erreur_apprentissage <span class="op">=</span> np.mean(bayes.predict(X_train) <span class="op">!=</span> y_train)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>erreur_val           <span class="op">=</span> np.mean(bayes.predict(X_val) <span class="op">!=</span> y_val)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -615,7 +615,7 @@ Erreur de validation   : 0.196</code></pre>
 </section>
 <section id="seuil-choisi-sur-la-validation" class="level2" data-number="3.5">
 <h2 data-number="3.5" class="anchored" data-anchor-id="seuil-choisi-sur-la-validation"><span class="header-section-number">3.5</span> Seuil choisi sur la validation</h2>
-<div id="f6ddc255" class="cell" data-execution_count="8">
+<div id="a7f629f3" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>p_val <span class="op">=</span> bayes.predict_proba(X_val)[:, <span class="dv">1</span>]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>C_FN, C_FP <span class="op">=</span> <span class="dv">5</span>, <span class="dv">1</span>          <span class="co"># hypothèse provisoire, à justifier dans le rapport</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -645,7 +645,7 @@ Erreur val sklearn : 0.196 | ma classe : 0.196</code></pre>
 <h1 data-number="4"><span class="header-section-number">4</span> Comparaison des modèles sur la validation</h1>
 <section id="régression-logistique-boosting-seuil-choisi-sur-val" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="régression-logistique-boosting-seuil-choisi-sur-val"><span class="header-section-number">4.1</span> Régression logistique, boosting, seuil choisi sur val</h2>
-<div id="e6158cf0" class="cell" data-execution_count="9">
+<div id="34e3e745" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
