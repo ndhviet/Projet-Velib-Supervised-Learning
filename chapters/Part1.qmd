@@ -113,10 +113,9 @@ print("Observations par station :", missing_capacity["name"].value_counts().uniq
 
 Les valeurs manquantes ne sont pas dispersées au hasard : elles concernent **80 stations**, chacune ayant exactement **24 observations** sans capacité. Il s'agit donc d'un problème lié à certaines stations (ou à une période précise), et non d'erreurs ponctuelles de mesure.
 
-### Traitement retenu
-
-Le traitement des valeurs manquantes de `capacity` est réalisé dans la section @sec-nettoyage (*Nettoyage et agrégation des données*) : les lignes sans capacité sont exclues avant le calcul du taux d'occupation (`bikes_available / capacity`), car ce taux n'est pas défini sans capacité. Les 80 stations concernées ne figurent donc pas dans la table agrégée `stations`. Elles représentent une faible part des données (environ 0,6 % des lignes).
-
+La variable `capacity` n'intervient pas dans la définition de la cible (qui repose sur
+`mechanical_bikes + electric_bikes`). Elle est laissée telle quelle et n'est pas
+utilisée comme variable explicative.
 
 ### Cohérence interne et statut des stations {#sec-coherence}
 
@@ -131,7 +130,9 @@ print("vélos + bornettes < capacité                :", (cap_sum < raw["capacit
 print("vélos > capacité                            :", (N_tmp > raw["capacity"]).sum())
 print("capacité == 0                               :", (raw["capacity"] == 0).sum())
 # Remarque : une comparaison avec NaN renvoie toujours False ; les NaN sont donc comptés séparément ci-dessous
+```
 
+```{python}
 print("\n--- Statut des stations ---")
 print(raw[["is_installed", "is_renting", "is_returning"]]
       .apply(lambda s: s.value_counts()))
@@ -144,5 +145,13 @@ print("Lignes avec au moins une valeur négative :",
 print("is_renting == 0 et is_returning == 0 sur les mêmes lignes :",
       ((raw["is_renting"] == 0) == (raw["is_returning"] == 0)).all())
 ```
+Aucune valeur négative n’est présente. Les stations hors service (812 lignes, 0,25 %) ont is_renting = is_returning = 0 sur exactement les mêmes lignes ; une seule des deux variables suffit donc.
 
+```{python}
+g = missing_capacity.groupby("collected_at_utc")["station_code"].nunique()
+print(g.value_counts())   # bao nhiêu mốc có 80 trạm, 50 trạm, 30 trạm
+```
+Les valeurs manquantes concernent les 80 stations, avec exactement 24 observations
+chacune. Elles apparaissent sur 26 horodatages : 22 communs aux 80 stations, et 4
+où seul un des deux groupes (Paris ou banlieue) a été collecté à cet instant.
 

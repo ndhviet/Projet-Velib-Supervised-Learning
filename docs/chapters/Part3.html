@@ -110,6 +110,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../assets/custom.css">
 </head>
@@ -215,8 +244,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sur cette page</h2>
+   
+  <ul>
+  <li><a href="#construction-du-modèle-supervisées" id="toc-construction-du-modèle-supervisées" class="nav-link active" data-scroll-target="#construction-du-modèle-supervisées"><span class="header-section-number">1</span> Construction du modèle supervisées</a>
+  <ul class="collapse">
+  <li><a href="#préparation-des-données" id="toc-préparation-des-données" class="nav-link" data-scroll-target="#préparation-des-données"><span class="header-section-number">1.1</span> Préparation des données</a></li>
+  <li><a href="#découpage-chronologique" id="toc-découpage-chronologique" class="nav-link" data-scroll-target="#découpage-chronologique"><span class="header-section-number">1.2</span> Découpage chronologique</a></li>
+  </ul></li>
+  <li><a href="#références" id="toc-références" class="nav-link" data-scroll-target="#références"><span class="header-section-number">2</span> Références</a></li>
+  <li><a href="#bayes-naïf-gaussien" id="toc-bayes-naïf-gaussien" class="nav-link" data-scroll-target="#bayes-naïf-gaussien"><span class="header-section-number">3</span> Bayes naïf gaussien</a>
+  <ul class="collapse">
+  <li><a href="#la-classe" id="toc-la-classe" class="nav-link" data-scroll-target="#la-classe"><span class="header-section-number">3.1</span> La classe</a></li>
+  <li><a href="#deux-erreurs-pas-une" id="toc-deux-erreurs-pas-une" class="nav-link" data-scroll-target="#deux-erreurs-pas-une"><span class="header-section-number">3.2</span> Deux erreurs, pas une</a></li>
+  <li><a href="#seuil-choisi-sur-la-validation" id="toc-seuil-choisi-sur-la-validation" class="nav-link" data-scroll-target="#seuil-choisi-sur-la-validation"><span class="header-section-number">3.3</span> Seuil choisi sur la validation</a></li>
+  </ul></li>
+  <li><a href="#comparaison-des-modèles-sur-la-validation" id="toc-comparaison-des-modèles-sur-la-validation" class="nav-link" data-scroll-target="#comparaison-des-modèles-sur-la-validation"><span class="header-section-number">4</span> Comparaison des modèles sur la validation</a>
+  <ul class="collapse">
+  <li><a href="#fonction-de-rapport" id="toc-fonction-de-rapport" class="nav-link" data-scroll-target="#fonction-de-rapport"><span class="header-section-number">4.1</span> Fonction de rapport</a></li>
+  <li><a href="#régression-logistique-boosting-seuil-choisi-sur-val" id="toc-régression-logistique-boosting-seuil-choisi-sur-val" class="nav-link" data-scroll-target="#régression-logistique-boosting-seuil-choisi-sur-val"><span class="header-section-number">4.2</span> Régression logistique, boosting, seuil choisi sur val</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -364,13 +415,243 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="b54cabff" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hashlib, urllib.request</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="construction-du-modèle-supervisées" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Construction du modèle supervisées</h1>
+<p>Pour chaque station <span class="math inline">\(s\)</span> et chaque instant <span class="math inline">\(t\)</span> (avec un pas de temps de 15 minutes), on définit le nombre total de vélos disponibles par :</p>
+<p><span class="math display">\[
+N_{s,t} = M_{s,t} + E_{s,t}
+\]</span></p>
+<p>où <span class="math inline">\(M_{s,t}\)</span>, <span class="math inline">\(E_{s,t}\)</span> désignent respectivement les nombres de vélos mécaniques et électriques.</p>
+<p>La variable à prédire est définie par :</p>
+<p><span class="math display">\[
+Y_{s,t} = \mathbf{1}\{N_{s,t+30\text{ min}} &lt; 2\}
+\]</span></p>
+<p>Elle vaut 1 si la station compte moins de deux vélos 30 minutes plus tard, et 0 sinon. Elle suit une loi de Bernoulli de paramètre <span class="math inline">\(p_{s,t}\)</span> :</p>
+<p><span class="math display">\[
+Y_{s,t} \sim \mathrm{Bernoulli}(p_{s,t}),
+\qquad
+p_{s,t} = \mathbb{P}(Y_{s,t}=1).
+\]</span></p>
+<p>Cette probabilité dépend de la station, de l’heure et de sa situation actuelle. On note <span class="math inline">\(X_{s,t}\)</span> l’ensemble des informations disponibles à l’instant <span class="math inline">\(t\)</span>, notamment le nombre de vélos présents, les observations passées et l’heure de la journée.</p>
+<p>L’objectif est d’estimer la probabilité conditionnelle suivante :</p>
+<p><span class="math display">\[
+p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
+\]</span></p>
+<section id="préparation-des-données" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="préparation-des-données"><span class="header-section-number">1.1</span> Préparation des données</h2>
+<div id="22861f6e" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> (precision_score, recall_score, f1_score,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                             average_precision_score, confusion_matrix,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                             fbeta_score, brier_score_loss, log_loss)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.naive_bayes <span class="im">import</span> GaussianNB</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> velib_utils <span class="im">import</span> load_raw_dt, build_features, split_time</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> load_raw_dt()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>feat, FEATS <span class="op">=</span> build_features(raw)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>train, val, test <span class="op">=</span> split_time(feat)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nom, part <span class="kw">in</span> [(<span class="st">"train"</span>, train), (<span class="st">"val"</span>, val), (<span class="st">"test"</span>, test)]:</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>nom<span class="sc">:5s}</span><span class="ss"> | lignes : </span><span class="sc">{</span><span class="bu">len</span>(part)<span class="sc">:6d}</span><span class="ss"> | de </span><span class="sc">{</span>part[<span class="st">'t'</span>]<span class="sc">.</span><span class="bu">min</span>()<span class="sc">}</span><span class="ss"> à </span><span class="sc">{</span>part[<span class="st">'t'</span>]<span class="sc">.</span><span class="bu">max</span>()<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f" | taux de positifs : </span><span class="sc">{</span>part[<span class="st">'y'</span>]<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>train | lignes : 211162 | de 2026-08-25 13:00:00+00:00 à 2026-09-22 21:45:00+00:00 | taux de positifs : 0.1032
+val   | lignes :  50753 | de 2026-09-24 22:00:00+00:00 à 2026-10-01 20:45:00+00:00 | taux de positifs : 0.1254
+test  | lignes :  51520 | de 2026-10-01 22:00:00+00:00 à 2026-10-08 19:45:00+00:00 | taux de positifs : 0.1202</code></pre>
+</div>
+</div>
+</section>
+<section id="découpage-chronologique" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="découpage-chronologique"><span class="header-section-number">1.2</span> Découpage chronologique</h2>
+<div id="6bb53d35" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>X_train, y_train <span class="op">=</span> train[FEATS].to_numpy(), train[<span class="st">"y"</span>].to_numpy()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>X_val,   y_val   <span class="op">=</span> val[FEATS].to_numpy(),   val[<span class="st">"y"</span>].to_numpy()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>X_test,  y_test  <span class="op">=</span> test[FEATS].to_numpy(),  test[<span class="st">"y"</span>].to_numpy()   <span class="co"># laissé intact</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Découpage chronologique (pas de shuffle, pas de stratify)"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nom, y_, part <span class="kw">in</span> [(<span class="st">"Train"</span>, y_train, train), (<span class="st">"Val"</span>, y_val, val), (<span class="st">"Test"</span>, y_test, test)]:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>nom<span class="sc">:5s}</span><span class="ss"> | lignes : </span><span class="sc">{</span><span class="bu">len</span>(y_)<span class="sc">:6d}</span><span class="ss"> | </span><span class="sc">{</span>part[<span class="st">'t'</span>]<span class="sc">.</span><span class="bu">min</span>()<span class="sc">}</span><span class="ss"> -&gt; </span><span class="sc">{</span>part[<span class="st">'t'</span>]<span class="sc">.</span><span class="bu">max</span>()<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f" | moyenne de y : </span><span class="sc">{</span>y_<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Découpage chronologique (pas de shuffle, pas de stratify)
+Train | lignes : 211162 | 2026-08-25 13:00:00+00:00 -&gt; 2026-09-22 21:45:00+00:00 | moyenne de y : 0.1032
+Val   | lignes :  50753 | 2026-09-24 22:00:00+00:00 -&gt; 2026-10-01 20:45:00+00:00 | moyenne de y : 0.1254
+Test  | lignes :  51520 | 2026-10-01 22:00:00+00:00 -&gt; 2026-10-08 19:45:00+00:00 | moyenne de y : 0.1202</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="références" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Références</h1>
+<div id="1893d084" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>classe_maj    <span class="op">=</span> np.bincount(y_train).argmax()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pred_pers_val <span class="op">=</span> (val[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Majoritaire : erreur val ="</span>, <span class="bu">round</span>(np.mean(y_val <span class="op">!=</span> classe_maj), <span class="dv">3</span>))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Persistance : erreur val ="</span>, <span class="bu">round</span>(np.mean(y_val <span class="op">!=</span> pred_pers_val), <span class="dv">3</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"| précision"</span>, <span class="bu">round</span>(precision_score(y_val, pred_pers_val), <span class="dv">3</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"| rappel"</span>, <span class="bu">round</span>(recall_score(y_val, pred_pers_val), <span class="dv">3</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"| F1"</span>, <span class="bu">round</span>(f1_score(y_val, pred_pers_val), <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Majoritaire : erreur val = 0.125
+Persistance : erreur val = 0.064 | précision 0.746 | rappel 0.745 | F1 0.746</code></pre>
+</div>
+</div>
+</section>
+<section id="bayes-naïf-gaussien" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Bayes naïf gaussien</h1>
+<section id="la-classe" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="la-classe"><span class="header-section-number">3.1</span> La classe</h2>
+<div id="055df992" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BayesNaifGaussien:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Classifieur de Bayes naïf gaussien, écrit à la main."""</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> fit(<span class="va">self</span>, X, y, eps<span class="op">=</span><span class="fl">1e-9</span>):</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.classes_ <span class="op">=</span> np.unique(y)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pi_    <span class="op">=</span> np.array([np.mean(y <span class="op">==</span> k) <span class="cf">for</span> k <span class="kw">in</span> <span class="va">self</span>.classes_])</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.mu_    <span class="op">=</span> np.array([X[y <span class="op">==</span> k].mean(axis<span class="op">=</span><span class="dv">0</span>) <span class="cf">for</span> k <span class="kw">in</span> <span class="va">self</span>.classes_])</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sigma_ <span class="op">=</span> np.array([X[y <span class="op">==</span> k].std(axis<span class="op">=</span><span class="dv">0</span>) <span class="cf">for</span> k <span class="kw">in</span> <span class="va">self</span>.classes_]) <span class="op">+</span> eps</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _log_densite(<span class="va">self</span>, X, k):</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        mu, sigma <span class="op">=</span> <span class="va">self</span>.mu_[k], <span class="va">self</span>.sigma_[k]</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.<span class="bu">sum</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> np.log(<span class="dv">2</span> <span class="op">*</span> np.pi) <span class="op">-</span> np.log(sigma)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                      <span class="op">-</span> (X <span class="op">-</span> mu) <span class="op">**</span> <span class="dv">2</span> <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> sigma <span class="op">**</span> <span class="dv">2</span>), axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _log_posterieurs(<span class="va">self</span>, X):</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.array([np.log(<span class="va">self</span>.pi_[k]) <span class="op">+</span> <span class="va">self</span>._log_densite(X, k)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                         <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(<span class="va">self</span>.classes_))])</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> predict_proba(<span class="va">self</span>, X):</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        lp <span class="op">=</span> <span class="va">self</span>._log_posterieurs(X)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        lp <span class="op">=</span> lp <span class="op">-</span> lp.<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">0</span>)          <span class="co"># stabilité numérique</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> np.exp(lp)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (p <span class="op">/</span> p.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)).T      <span class="co"># colonne 1 = P(y = 1 | x)</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> predict(<span class="va">self</span>, X, tau<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>.classes_[np.argmax(<span class="va">self</span>._log_posterieurs(X), axis<span class="op">=</span><span class="dv">0</span>)]</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (<span class="va">self</span>.predict_proba(X)[:, <span class="dv">1</span>] <span class="op">&gt;</span> tau).astype(<span class="bu">int</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="deux-erreurs-pas-une" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="deux-erreurs-pas-une"><span class="header-section-number">3.2</span> Deux erreurs, pas une</h2>
+<div id="0eb4a520" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bayes <span class="op">=</span> BayesNaifGaussien().fit(X_train, y_train)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>erreur_apprentissage <span class="op">=</span> np.mean(bayes.predict(X_train) <span class="op">!=</span> y_train)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>erreur_val           <span class="op">=</span> np.mean(bayes.predict(X_val) <span class="op">!=</span> y_val)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Erreur d'apprentissage : </span><span class="sc">{</span>erreur_apprentissage<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Erreur de validation   : </span><span class="sc">{</span>erreur_val<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Erreur d'apprentissage : 0.195
+Erreur de validation   : 0.196</code></pre>
+</div>
+</div>
+</section>
+<section id="seuil-choisi-sur-la-validation" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="seuil-choisi-sur-la-validation"><span class="header-section-number">3.3</span> Seuil choisi sur la validation</h2>
+<div id="92166a73" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>p_val <span class="op">=</span> bayes.predict_proba(X_val)[:, <span class="dv">1</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>C_FN, C_FP <span class="op">=</span> <span class="dv">5</span>, <span class="dv">1</span>          <span class="co"># hypothèse provisoire, à justifier dans le rapport</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>taus  <span class="op">=</span> np.linspace(<span class="fl">0.05</span>, <span class="fl">0.99</span>, <span class="dv">95</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>costs <span class="op">=</span> [(C_FP <span class="op">*</span> ((p_val <span class="op">&gt;</span> t) <span class="op">&amp;</span> (y_val <span class="op">==</span> <span class="dv">0</span>)).<span class="bu">sum</span>()</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>          <span class="op">+</span> C_FN <span class="op">*</span> ((p_val <span class="op">&lt;=</span> t) <span class="op">&amp;</span> (y_val <span class="op">==</span> <span class="dv">1</span>)).<span class="bu">sum</span>()) <span class="op">/</span> <span class="bu">len</span>(y_val) <span class="cf">for</span> t <span class="kw">in</span> taus]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>tau_star <span class="op">=</span> taus[<span class="bu">int</span>(np.argmin(costs))]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> (p_val <span class="op">&gt;</span> tau_star).astype(<span class="bu">int</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"tau* (val, coût </span><span class="sc">{</span>C_FN<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>C_FP<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>tau_star<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Précision </span><span class="sc">{</span>precision_score(y_val, pred)<span class="sc">:.3f}</span><span class="ss"> | rappel </span><span class="sc">{</span>recall_score(y_val, pred)<span class="sc">:.3f}</span><span class="ss"> | "</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"F1 </span><span class="sc">{</span>f1_score(y_val, pred)<span class="sc">:.3f}</span><span class="ss"> | AP </span><span class="sc">{</span>average_precision_score(y_val, p_val)<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Vérification contre scikit-learn (doit être très proche)</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>sk <span class="op">=</span> GaussianNB().fit(X_train, y_train)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Erreur val sklearn :"</span>, <span class="bu">round</span>(np.mean(sk.predict(X_val) <span class="op">!=</span> y_val), <span class="dv">3</span>),</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"| ma classe :"</span>, <span class="bu">round</span>(erreur_val, <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tau* (val, coût 5:1) = 0.99
+Précision 0.414 | rappel 0.948 | F1 0.576 | AP 0.662
+Erreur val sklearn : 0.196 | ma classe : 0.196</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="comparaison-des-modèles-sur-la-validation" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Comparaison des modèles sur la validation</h1>
+<section id="fonction-de-rapport" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="fonction-de-rapport"><span class="header-section-number">4.1</span> Fonction de rapport</h2>
+<div id="d6f02567" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> report(name, y, p, tau<span class="op">=</span><span class="fl">0.5</span>, c_fn<span class="op">=</span><span class="dv">5</span>, c_fp<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> (p <span class="op">&gt;</span> tau).astype(<span class="bu">int</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    tn, fp, fn, tp <span class="op">=</span> confusion_matrix(y, pred, labels<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">1</span>]).ravel()</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"model"</span>: name, <span class="st">"tau"</span>: tau, <span class="st">"TP"</span>: tp, <span class="st">"FP"</span>: fp, <span class="st">"FN"</span>: fn, <span class="st">"TN"</span>: tn,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"precision"</span>: precision_score(y, pred, zero_division<span class="op">=</span><span class="dv">0</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"recall"</span>: recall_score(y, pred),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"F1"</span>: f1_score(y, pred), <span class="st">"F2"</span>: fbeta_score(y, pred, beta<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"AP"</span>: average_precision_score(y, p),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"AP/pi"</span>: average_precision_score(y, p) <span class="op">/</span> y.mean(),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Brier"</span>: brier_score_loss(y, p),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">"logloss"</span>: log_loss(y, np.clip(p, <span class="fl">1e-6</span>, <span class="dv">1</span> <span class="op">-</span> <span class="fl">1e-6</span>)),</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">"cost"</span>: (c_fp <span class="op">*</span> fp <span class="op">+</span> c_fn <span class="op">*</span> fn) <span class="op">/</span> <span class="bu">len</span>(y)}   <span class="co"># c_fn/c_fp = 5 : hypothèse provisoire</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="régression-logistique-boosting-seuil-choisi-sur-val" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="régression-logistique-boosting-seuil-choisi-sur-val"><span class="header-section-number">4.2</span> Régression logistique, boosting, seuil choisi sur val</h2>
+<div id="4ea90f33" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> HistGradientBoostingClassifier</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> make_pipeline(StandardScaler(), LogisticRegression(max_iter<span class="op">=</span><span class="dv">1000</span>))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>lr.fit(train[FEATS], train[<span class="st">"y"</span>])</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>p_val_lr <span class="op">=</span> lr.predict_proba(val[FEATS])[:, <span class="dv">1</span>]</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>hgb <span class="op">=</span> HistGradientBoostingClassifier(max_iter<span class="op">=</span><span class="dv">300</span>, learning_rate<span class="op">=</span><span class="fl">0.05</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                                     max_leaf_nodes<span class="op">=</span><span class="dv">31</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>hgb.fit(train[FEATS], train[<span class="st">"y"</span>])</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>p_val_hgb <span class="op">=</span> hgb.predict_proba(val[FEATS])[:, <span class="dv">1</span>]</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Seuil qui minimise le coût sur la VALIDATION, même méthode pour tous les modèles</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>taus <span class="op">=</span> np.linspace(<span class="fl">0.05</span>, <span class="fl">0.95</span>, <span class="dv">91</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> val[<span class="st">"y"</span>]</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [report(<span class="st">"majoritaire"</span>, y, np.zeros(<span class="bu">len</span>(val))),</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        report(<span class="st">"persistance"</span>, y, (val[<span class="st">"N"</span>] <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">float</span>))]</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nom, p <span class="kw">in</span> [(<span class="st">"bayes_naif"</span>, p_val),</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>               (<span class="st">"logreg"</span>,     p_val_lr),</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>               (<span class="st">"hgb"</span>,        p_val_hgb)]:</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    costs <span class="op">=</span> [report(nom, y, p, tau<span class="op">=</span>t)[<span class="st">"cost"</span>] <span class="cf">for</span> t <span class="kw">in</span> taus]</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    rows.append(report(nom, y, p, tau<span class="op">=</span>taus[<span class="bu">int</span>(np.argmin(costs))]))</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>table2 <span class="op">=</span> pd.DataFrame(rows).set_index(<span class="st">"model"</span>).<span class="bu">round</span>(<span class="dv">3</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(table2.T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>model      majoritaire  persistance  bayes_naif     logreg        hgb
+tau              0.500        0.500       0.950      0.190      0.130
+TP               0.000     4740.000    6063.000   5807.000   5900.000
+FP               0.000     1611.000    9049.000   4729.000   4515.000
+FN            6362.000     1622.000     299.000    555.000    462.000
+TN           44391.000    42780.000   35342.000  39662.000  39876.000
+precision        0.000        0.746       0.401      0.551      0.566
+recall           0.000        0.745       0.953      0.913      0.927
+F1               0.000        0.746       0.565      0.687      0.703
+F2               0.000        0.745       0.747      0.807      0.823
+AP               0.125        0.588       0.662      0.773      0.836
+AP/pi            1.000        4.691       5.282      6.170      6.668
+Brier            0.125        0.064       0.192      0.048      0.043
+logloss          1.732        0.880       2.141      0.161      0.140
+cost             0.627        0.192       0.208      0.148      0.134</code></pre>
+</div>
 </div>
 
 
+</section>
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <div style="text-align:center; font-size:0.85em; color:#888; padding:25px;">

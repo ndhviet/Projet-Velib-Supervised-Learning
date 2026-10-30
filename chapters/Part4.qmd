@@ -1,5 +1,5 @@
 ---
-title: "Comparaison des modèles"
+title: "Modèles supervisés"
 author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
 date: "2026-10-27"
 
@@ -11,8 +11,228 @@ execute:
   message: false
 ---
 
+# Construction du modèle supervisé
+
+Pour chaque station $s$ et chaque instant $t$ (pas de 15 minutes), on définit le nombre total de vélos disponibles par :
+
+$$
+N_{s,t} = M_{s,t} + E_{s,t}
+$$
+
+où $M_{s,t}$ et $E_{s,t}$ désignent respectivement les nombres de vélos mécaniques et électriques.
+
+La variable à prédire est définie par :
+
+$$
+Y_{s,t} = \mathbf{1}\{N_{s,t+30\text{ min}} < 2\}
+$$
+
+Elle vaut 1 si la station compte moins de deux vélos 30 minutes plus tard, et 0 sinon. Elle suit une loi de Bernoulli de paramètre $p_{s,t}$ :
+
+$$
+Y_{s,t} \sim \mathrm{Bernoulli}(p_{s,t}),
+\qquad
+p_{s,t} = \mathbb{P}(Y_{s,t}=1).
+$$
+
+On note $X_{s,t}$ l'ensemble des informations disponibles à l'instant $t$. L'objectif est d'estimer :
+
+$$
+p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
+$$
+
+Les lignes pour lesquelles la station est fermée à $t$, à $t+30$ min ou dans la fenêtre de retards sont exclues. Aucune valeur manquante n'est interpolée.
+
+## Préparation des données
+
 ```{python}
-import hashlib, urllib.request
 import numpy as np
 import pandas as pd
+from sklearn.metrics import (precision_score, recall_score, f1_score,
+                             average_precision_score)
+from sklearn.naive_bayes import GaussianNB
+
+from velib_utils import load_raw_dt, build_features, split_time, report
+
+raw = load_raw_dt()
+feat, FEATS = build_features(raw)
+train, val, test = split_time(feat)
+
+for nom, part in [("train", train), ("val", val), ("test", test)]:
+    print(f"{nom:5s} | lignes : {len(part):6d} | de {part['t'].min()} à {part['t'].max()}"
+          f" | taux de positifs : {part['y'].mean():.4f}")
+```
+
+## Découpage chronologique
+
+```{python}
+X_train, y_train = train[FEATS].to_numpy(), train["y"].to_numpy()
+X_val,   y_val   = val[FEATS].to_numpy(),   val["y"].to_numpy()
+X_test,  y_test  = test[FEATS].to_numpy(),  test["y"].to_numpy()   # laissé intact
+
+for nom, y_, part in [("Train", y_train, train), ("Val", y_val, val), ("Test", y_test, test)]:
+    print(f"{nom:5s} | lignes : {len(y_):6d} | {part['t'].min()} -> {part['t'].max()}"
+          f" | moyenne de y : {y_.mean():.4f}")
+```
+
+# Références
+
+```{python}
+classe_maj    = np.bincount(y_train).argmax()
+pred_pers_val = (val["N"].to_numpy() < 2).astype(int)
+
+print("Majoritaire : erreur val =", round(np.mean(y_val != classe_maj), 3))
+print("Persistance : erreur val =", round(np.mean(y_val != pred_pers_val), 3),
+      "| précision", round(precision_score(y_val, pred_pers_val), 3),
+      "| rappel", round(recall_score(y_val, pred_pers_val), 3),
+      "| F1", round(f1_score(y_val, pred_pers_val), 3))
+```
+
+Deux règles sans apprentissage servent de points de comparaison :
+la classe majoritaire (toujours prédire « pas de pénurie ») et la persistance
+(l'état dans 30 minutes est supposé égal à l'état actuel).
+
+# Bayes naïf gaussien
+
+Le modèle repose sur la formule de Bayes :
+
+$$
+p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
+\qquad \pi = \mathbb{P}(Y=1),
+$$
+
+où $f_y$ est la densité de $X$ sachant $Y=y$, avec deux hypothèses :
+
+1. **Gaussienne** : $X_j \mid Y=y \sim \mathcal N(\mu_{j,y}, \sigma^2_{j,y})$.
+2. **Indépendance conditionnelle** (le côté « naïf ») : $f_y(x) = \prod_j f_{j,y}(x_j)$.
+
+Les paramètres $\pi$, $\mu_{j,y}$, $\sigma^2_{j,y}$ sont estimés sur le jeu d'apprentissage uniquement.
+
+## La classe
+
+```{python}
+class BayesNaifGaussien:
+    """Classifieur de Bayes naïf gaussien, écrit à la main."""
+
+    def fit(self, X, y, eps=1e-9):
+        self.classes_ = np.unique(y)
+        # pi_ : proportion de chaque classe (partie Bernoulli de Y)
+        self.pi_    = np.array([np.mean(y == k) for k in self.classes_])
+        # Hypothèse 1 : une moyenne et un écart-type par variable et par classe
+        self.mu_    = np.array([X[y == k].mean(axis=0) for k in self.classes_])
+        self.sigma_ = np.array([X[y == k].std(axis=0) for k in self.classes_]) + eps
+        return self
+
+    def _log_densite(self, X, k):
+        mu, sigma = self.mu_[k], self.sigma_[k]
+        # log-densité gaussienne de chaque variable (hypothèse 1)
+        log_f_1d = (-0.5 * np.log(2 * np.pi) - np.log(sigma)
+                    - (X - mu) ** 2 / (2 * sigma ** 2))        # (n, nb_variables)
+        # Hypothèse 2 : indépendance conditionnelle -> somme des log-densités
+        return np.sum(log_f_1d, axis=1)                         # (n,)
+
+    def _log_posterieurs(self, X):
+        return np.array([np.log(self.pi_[k]) + self._log_densite(X, k)
+                         for k in range(len(self.classes_))])    # (2, n)
+
+    def predict_proba(self, X):
+        lp = self._log_posterieurs(X)
+        lp = lp - lp.max(axis=0)          # stabilité numérique
+        p = np.exp(lp)
+        return (p / p.sum(axis=0)).T      # colonne 1 = P(Y = 1 | x)
+
+    def predict(self, X, tau=None):
+        if tau is None:
+            return self.classes_[np.argmax(self._log_posterieurs(X), axis=0)]
+        return (self.predict_proba(X)[:, 1] > tau).astype(int)
+```
+
+## Ce que le modèle a appris
+
+```{python}
+bayes = BayesNaifGaussien().fit(X_train, y_train)
+
+print("Formes :", bayes.mu_.shape, bayes.sigma_.shape)     # (2, nb_variables)
+print("Proportions de classes (pi_) :", bayes.pi_.round(4))
+print(pd.DataFrame({"mu y=0": bayes.mu_[0], "mu y=1": bayes.mu_[1],
+                    "sigma y=0": bayes.sigma_[0], "sigma y=1": bayes.sigma_[1]},
+                   index=FEATS).round(2))
+```
+
+## Vérification de la formule à la main
+
+```{python}
+x = X_val[:1]
+f1 = np.exp(bayes._log_densite(x, 1))[0]
+f0 = np.exp(bayes._log_densite(x, 0))[0]
+pi1, pi0 = bayes.pi_[1], bayes.pi_[0]
+print("formule à la main :", pi1 * f1 / (pi1 * f1 + pi0 * f0))
+print("predict_proba     :", bayes.predict_proba(x)[0, 1])
+```
+
+## Deux erreurs, pas une
+
+```{python}
+erreur_apprentissage = np.mean(bayes.predict(X_train) != y_train)
+erreur_val           = np.mean(bayes.predict(X_val) != y_val)
+
+print(f"Erreur d'apprentissage : {erreur_apprentissage:.3f}")
+print(f"Erreur de validation   : {erreur_val:.3f}")
+```
+
+## Seuil choisi sur la validation
+
+```{python}
+p_val = bayes.predict_proba(X_val)[:, 1]
+C_FN, C_FP = 5, 1          # hypothèse provisoire, à justifier dans le rapport
+
+taus  = np.linspace(0.05, 0.99, 95)
+costs = [(C_FP * ((p_val > t) & (y_val == 0)).sum()
+          + C_FN * ((p_val <= t) & (y_val == 1)).sum()) / len(y_val) for t in taus]
+tau_star = taus[int(np.argmin(costs))]
+
+pred = (p_val > tau_star).astype(int)
+print(f"tau* (val, coût {C_FN}:{C_FP}) = {tau_star:.2f}")
+print(f"Précision {precision_score(y_val, pred):.3f} | rappel {recall_score(y_val, pred):.3f} | "
+      f"F1 {f1_score(y_val, pred):.3f} | AP {average_precision_score(y_val, p_val):.3f}")
+
+# Vérification contre scikit-learn (doit être très proche)
+sk = GaussianNB().fit(X_train, y_train)
+print("Erreur val sklearn :", round(np.mean(sk.predict(X_val) != y_val), 3),
+      "| ma classe :", round(erreur_val, 3))
+```
+
+# Comparaison des modèles sur la validation
+
+## Régression logistique, boosting, seuil choisi sur val
+
+```{python}
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.ensemble import HistGradientBoostingClassifier
+
+lr = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
+lr.fit(train[FEATS], train["y"])
+p_val_lr = lr.predict_proba(val[FEATS])[:, 1]
+
+hgb = HistGradientBoostingClassifier(max_iter=300, learning_rate=0.05,
+                                     max_leaf_nodes=31, random_state=0)
+hgb.fit(train[FEATS], train["y"])
+p_val_hgb = hgb.predict_proba(val[FEATS])[:, 1]
+
+# Seuil qui minimise le coût sur la VALIDATION, même méthode pour tous les modèles
+taus = np.linspace(0.05, 0.95, 91)
+y = val["y"]
+
+rows = [report("majoritaire", y, np.zeros(len(val))),
+        report("persistance", y, (val["N"] < 2).astype(float))]
+for nom, p in [("bayes_naif", p_val),
+               ("logreg",     p_val_lr),
+               ("hgb",        p_val_hgb)]:
+    costs = [report(nom, y, p, tau=t)["cost"] for t in taus]
+    rows.append(report(nom, y, p, tau=taus[int(np.argmin(costs))]))
+
+table2 = pd.DataFrame(rows).set_index("model").round(3)
+print(table2.T)
 ```

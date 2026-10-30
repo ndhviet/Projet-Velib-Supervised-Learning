@@ -237,8 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#lignes-dupliquées" id="toc-lignes-dupliquées" class="nav-link" data-scroll-target="#lignes-dupliquées"><span class="header-section-number">2.2.1</span> Lignes dupliquées</a></li>
   <li><a href="#valeurs-manquantes" id="toc-valeurs-manquantes" class="nav-link" data-scroll-target="#valeurs-manquantes"><span class="header-section-number">2.2.2</span> Valeurs manquantes</a></li>
   <li><a href="#origine-des-valeurs-manquantes" id="toc-origine-des-valeurs-manquantes" class="nav-link" data-scroll-target="#origine-des-valeurs-manquantes"><span class="header-section-number">2.2.3</span> Origine des valeurs manquantes</a></li>
-  <li><a href="#traitement-retenu" id="toc-traitement-retenu" class="nav-link" data-scroll-target="#traitement-retenu"><span class="header-section-number">2.2.4</span> Traitement retenu</a></li>
-  <li><a href="#sec-coherence" id="toc-sec-coherence" class="nav-link" data-scroll-target="#sec-coherence"><span class="header-section-number">2.2.5</span> Cohérence interne et statut des stations</a></li>
+  <li><a href="#sec-coherence" id="toc-sec-coherence" class="nav-link" data-scroll-target="#sec-coherence"><span class="header-section-number">2.2.4</span> Cohérence interne et statut des stations</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -394,7 +393,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="1"><span class="header-section-number">1</span> Importation des modules et vérification des données</h1>
 <section id="importation-des-modules" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="importation-des-modules"><span class="header-section-number">1.1</span> Importation des modules</h2>
-<div id="c991f594" class="cell" data-execution_count="1">
+<div id="1d09cb06" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hashlib, urllib.request</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -402,7 +401,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="vérification-des-données" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="vérification-des-données"><span class="header-section-number">1.2</span> Vérification des données</h2>
-<div id="a8100e88" class="cell" data-execution_count="2">
+<div id="311d1c4e" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> <span class="st">"https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz"</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>FILE <span class="op">=</span> <span class="st">"data/velib-2026-10-08.csv.gz"</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>MD5 <span class="op">=</span> <span class="st">"02ab1e3fdac10579e4ce93d1540a5dc7"</span></span>
@@ -429,11 +428,11 @@ MD5 OK!</code></pre>
 </section>
 <section id="extraction-des-données" class="level2" data-number="1.3">
 <h2 data-number="1.3" class="anchored" data-anchor-id="extraction-des-données"><span class="header-section-number">1.3</span> Extraction des données</h2>
-<div id="17a7a923" class="cell" data-execution_count="3">
+<div id="cd322011" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Les premières lignes du dataset</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> pd.read_csv(path)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>raw.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 
 
@@ -567,7 +566,7 @@ MD5 OK!</code></pre>
 <h1 data-number="2"><span class="header-section-number">2</span> RESUME DES DONNÉES</h1>
 <section id="aperçu-général-du-jeu-de-données" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="aperçu-général-du-jeu-de-données"><span class="header-section-number">2.1</span> Aperçu général du jeu de données</h2>
-<div id="2f8a8b03" class="cell" data-execution_count="4">
+<div id="d155eb9d" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dimensions du dataset</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Dimensions du dataset :"</span>, raw.shape)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -582,7 +581,7 @@ Nombre de lignes : 329680
 Nombre de colonnes : 16</code></pre>
 </div>
 </div>
-<div id="76293363" class="cell" data-execution_count="5">
+<div id="4eb95d46" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Informations générales sur le dataset</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>raw.info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -611,9 +610,9 @@ dtypes: float64(3), int64(9), str(4)
 memory usage: 40.2 MB</code></pre>
 </div>
 </div>
-<div id="b618ba03" class="cell" data-execution_count="6">
+<div id="443b56e4" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>raw.describe()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
 
@@ -768,7 +767,7 @@ memory usage: 40.2 MB</code></pre>
 <p>Avant toute analyse, on vérifie la qualité du jeu de données : présence de doublons et de valeurs manquantes.</p>
 <section id="lignes-dupliquées" class="level3" data-number="2.2.1">
 <h3 data-number="2.2.1" class="anchored" data-anchor-id="lignes-dupliquées"><span class="header-section-number">2.2.1</span> Lignes dupliquées</h3>
-<div id="9e6693a5" class="cell" data-execution_count="7">
+<div id="b4560387" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Nombre de lignes dupliquées :"</span>, raw.duplicated().<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Nombre de lignes dupliquées : 0</code></pre>
@@ -777,7 +776,7 @@ memory usage: 40.2 MB</code></pre>
 </section>
 <section id="valeurs-manquantes" class="level3" data-number="2.2.2">
 <h3 data-number="2.2.2" class="anchored" data-anchor-id="valeurs-manquantes"><span class="header-section-number">2.2.2</span> Valeurs manquantes</h3>
-<div id="32f583c0" class="cell" data-execution_count="8">
+<div id="19a2adb3" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Valeurs manquantes par colonne :"</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(raw.isna().<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -801,7 +800,7 @@ is_returning            0
 dtype: int64</code></pre>
 </div>
 </div>
-<div id="436cc5c5" class="cell" data-execution_count="9">
+<div id="d27fc902" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>n_missing <span class="op">=</span> raw[<span class="st">"capacity"</span>].isna().<span class="bu">sum</span>()</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Capacité manquante : </span><span class="sc">{</span>n_missing<span class="sc">}</span><span class="ss"> lignes (</span><span class="sc">{</span>n_missing <span class="op">/</span> <span class="bu">len</span>(raw)<span class="sc">:.2%}</span><span class="ss"> du jeu de données)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -812,10 +811,10 @@ dtype: int64</code></pre>
 </section>
 <section id="origine-des-valeurs-manquantes" class="level3" data-number="2.2.3">
 <h3 data-number="2.2.3" class="anchored" data-anchor-id="origine-des-valeurs-manquantes"><span class="header-section-number">2.2.3</span> Origine des valeurs manquantes</h3>
-<div id="a9a8fddf" class="cell" data-execution_count="10">
+<div id="50eb846f" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>missing_capacity <span class="op">=</span> raw[raw[<span class="st">"capacity"</span>].isna()]</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>missing_capacity.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="26">
 <div>
 
 
@@ -943,9 +942,9 @@ dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<div id="61fc9427" class="cell" data-execution_count="11">
+<div id="a928bf15" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>missing_capacity[<span class="st">"name"</span>].value_counts()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="27">
 <pre><code>name
 Mairie de Rosny-sous-Bois                24
 Proudhon - Président Wilson              24
@@ -961,7 +960,7 @@ Lagny - Auguste Blanqui                  24
 Name: count, Length: 80, dtype: int64</code></pre>
 </div>
 </div>
-<div id="c6e77193" class="cell" data-execution_count="12">
+<div id="ca13ac15" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Stations concernées :"</span>, missing_capacity[<span class="st">"station_code"</span>].nunique())</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Observations par station :"</span>, missing_capacity[<span class="st">"name"</span>].value_counts().unique())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -970,14 +969,11 @@ Observations par station : [24]</code></pre>
 </div>
 </div>
 <p>Les valeurs manquantes ne sont pas dispersées au hasard : elles concernent <strong>80 stations</strong>, chacune ayant exactement <strong>24 observations</strong> sans capacité. Il s’agit donc d’un problème lié à certaines stations (ou à une période précise), et non d’erreurs ponctuelles de mesure.</p>
+<p>La variable <code>capacity</code> n’intervient pas dans la définition de la cible (qui repose sur <code>mechanical_bikes + electric_bikes</code>). Elle est laissée telle quelle et n’est pas utilisée comme variable explicative.</p>
 </section>
-<section id="traitement-retenu" class="level3" data-number="2.2.4">
-<h3 data-number="2.2.4" class="anchored" data-anchor-id="traitement-retenu"><span class="header-section-number">2.2.4</span> Traitement retenu</h3>
-<p>Le traitement des valeurs manquantes de <code>capacity</code> est réalisé dans la section <strong>?@sec-nettoyage</strong> (<em>Nettoyage et agrégation des données</em>) : les lignes sans capacité sont exclues avant le calcul du taux d’occupation (<code>bikes_available / capacity</code>), car ce taux n’est pas défini sans capacité. Les 80 stations concernées ne figurent donc pas dans la table agrégée <code>stations</code>. Elles représentent une faible part des données (environ 0,6 % des lignes).</p>
-</section>
-<section id="sec-coherence" class="level3" data-number="2.2.5">
-<h3 data-number="2.2.5" class="anchored" data-anchor-id="sec-coherence"><span class="header-section-number">2.2.5</span> Cohérence interne et statut des stations</h3>
-<div id="9984f240" class="cell" data-execution_count="13">
+<section id="sec-coherence" class="level3" data-number="2.2.4">
+<h3 data-number="2.2.4" class="anchored" data-anchor-id="sec-coherence"><span class="header-section-number">2.2.4</span> Cohérence interne et statut des stations</h3>
+<div id="06c7cb01" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>N_tmp   <span class="op">=</span> raw[<span class="st">"mechanical_bikes"</span>] <span class="op">+</span> raw[<span class="st">"electric_bikes"</span>]</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>cap_sum <span class="op">=</span> raw[<span class="st">"bikes_available"</span>] <span class="op">+</span> raw[<span class="st">"docks_available"</span>]</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -987,11 +983,7 @@ Observations par station : [24]</code></pre>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"vélos + bornettes &lt; capacité                :"</span>, (cap_sum <span class="op">&lt;</span> raw[<span class="st">"capacity"</span>]).<span class="bu">sum</span>())   <span class="co"># peut-être des bornettes hors service</span></span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"vélos &gt; capacité                            :"</span>, (N_tmp <span class="op">&gt;</span> raw[<span class="st">"capacity"</span>]).<span class="bu">sum</span>())</span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"capacité == 0                               :"</span>, (raw[<span class="st">"capacity"</span>] <span class="op">==</span> <span class="dv">0</span>).<span class="bu">sum</span>())</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Remarque : une comparaison avec NaN renvoie toujours False ; les NaN sont donc comptés séparément ci-dessous</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Statut des stations ---"</span>)</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(raw[[<span class="st">"is_installed"</span>, <span class="st">"is_renting"</span>, <span class="st">"is_returning"</span>]]</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>      .<span class="bu">apply</span>(<span class="kw">lambda</span> s: s.value_counts()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Remarque : une comparaison avec NaN renvoie toujours False ; les NaN sont donc comptés séparément ci-dessous</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 --- Cohérence ---
@@ -999,24 +991,44 @@ bikes_available != mécaniques + électriques : 0
 vélos + bornettes &gt; capacité                : 2256
 vélos + bornettes &lt; capacité                : 168340
 vélos &gt; capacité                            : 86
-capacité == 0                               : 0
-
+capacité == 0                               : 0</code></pre>
+</div>
+</div>
+<div id="2abe9efd" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Statut des stations ---"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(raw[[<span class="st">"is_installed"</span>, <span class="st">"is_renting"</span>, <span class="st">"is_returning"</span>]]</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>      .<span class="bu">apply</span>(<span class="kw">lambda</span> s: s.value_counts()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
 --- Statut des stations ---
    is_installed  is_renting  is_returning
 0           NaN         812           812
 1      329680.0      328868        328868</code></pre>
 </div>
 </div>
-<div id="e73d6ead" class="cell" data-execution_count="14">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Lignes avec au moins une valeur négative :"</span>,</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>      (raw[[<span class="st">"mechanical_bikes"</span>, <span class="st">"electric_bikes"</span>, <span class="st">"docks_available"</span>]] <span class="op">&lt;</span> <span class="dv">0</span>).<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>())</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"is_renting == 0 et is_returning == 0 sur les mêmes lignes :"</span>,</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>      ((raw[<span class="st">"is_renting"</span>] <span class="op">==</span> <span class="dv">0</span>) <span class="op">==</span> (raw[<span class="st">"is_returning"</span>] <span class="op">==</span> <span class="dv">0</span>)).<span class="bu">all</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b7a887bf" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Lignes avec au moins une valeur négative :"</span>,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>      (raw[[<span class="st">"mechanical_bikes"</span>, <span class="st">"electric_bikes"</span>, <span class="st">"docks_available"</span>]] <span class="op">&lt;</span> <span class="dv">0</span>).<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>())</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"is_renting == 0 et is_returning == 0 sur les mêmes lignes :"</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>      ((raw[<span class="st">"is_renting"</span>] <span class="op">==</span> <span class="dv">0</span>) <span class="op">==</span> (raw[<span class="st">"is_returning"</span>] <span class="op">==</span> <span class="dv">0</span>)).<span class="bu">all</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Lignes avec au moins une valeur négative : 0
 is_renting == 0 et is_returning == 0 sur les mêmes lignes : True</code></pre>
 </div>
 </div>
+<p>Aucune valeur négative n’est présente. Les stations hors service (812 lignes, 0,25 %) ont is_renting = is_returning = 0 sur exactement les mêmes lignes ; une seule des deux variables suffit donc.</p>
+<div id="2a671794" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> missing_capacity.groupby(<span class="st">"collected_at_utc"</span>)[<span class="st">"station_code"</span>].nunique()</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(g.value_counts())   <span class="co"># bao nhiêu mốc có 80 trạm, 50 trạm, 30 trạm</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>station_code
+80    22
+30     2
+50     2
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>Les valeurs manquantes concernent les 80 stations, avec exactement 24 observations chacune. Elles apparaissent sur 26 horodatages : 22 communs aux 80 stations, et 4 où seul un des deux groupes (Paris ou banlieue) a été collecté à cet instant.</p>
 
 
 </section>
