@@ -1,0 +1,198 @@
+---
+title: "Partie 3 Modèles supervisés"
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+date: "2026-10-27"
+
+jupyter: projet-velib
+number-sections: true 
+code-fold: false
+execute: 
+  freeze: auto
+  warning: false
+  message: false
+---
+
+# Construction du modèle supervisé
+
+Pour chaque station $s$ et chaque instant $t$ (pas de 15 minutes), on définit le nombre total de vélos disponibles par
+
+$$
+N_{s,t} = M_{s,t} + E_{s,t}
+$$
+
+où $M_{s,t}$ et $E_{s,t}$ désignent respectivement les nombres de vélos mécaniques et électriques. La variable à prédire, pour un horizon $h \in \{30, 60\}$ minutes, est définie par :
+
+$$
+Y_{s,t} = \mathbf{1}\{N_{s,t+h} < 2\}
+$$
+
+Elle vaut 1 si la station compte moins de deux vélos $h$ minutes plus tard, et 0 sinon. Elle suit une loi de Bernoulli de paramètre $p_{s,t}$ :
+
+$$
+Y_{s,t} \sim \mathrm{Bernoulli}(p_{s,t}),
+\qquad
+p_{s,t} = \mathbb{P}(Y_{s,t}=1).
+$$
+
+On note $X_{s,t}$ l'ensemble des informations disponibles à l'instant $t$. L'objectif est d'estimer :
+
+$$
+p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
+$$
+
+Les lignes pour lesquelles la station n'est pas observée ou est fermée à $t$ ou à $t+h$ sont exclues. Aucune valeur manquante n'est interpolée : les rares retards qui tombent dans une panne ou une fermeture restent `NaN`, et les modèles les remplacent par la médiane du train (calculée sur le train seul).
+
+## Préparation des données
+
+La grille, la cible, la population et le découpage chronologique sont décrits en Partie 2. Ici, on construit simplement les jeux de données des deux horizons.
+
+```{python}
+import inspect
+import numpy as np
+import pandas as pd
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.naive_bayes import GaussianNB
+
+from velib_utils import (load_raw_dt, prepare_sets, pipeline_horizon, evaluate_models,
+                         precision_at_recall, ablation, BayesNaifGaussien)
+
+raw = load_raw_dt()
+HORIZONS = (30, 60)
+S = {h: prepare_sets(raw, h) for h in HORIZONS}
+
+for h in HORIZONS:
+    print(f"horizon {h} min | nombre de variables : {len(S[h]['FEATS'])}")
+    for nom in ["train", "val", "test"]:
+        part = S[h][nom]
+        print(f"  {nom:5s} | lignes : {len(part):6d} | de {part['t'].min()} à {part['t'].max()}")
+```
+
+# Références
+
+Deux règles sans apprentissage servent de points de comparaison : la classe majoritaire (toujours prédire « pas de pénurie ») et la persistance (l'état dans $h$ minutes est supposé égal à l'état actuel).
+
+```{python}
+rows = []
+for h in HORIZONS:
+    val, train = S[h]["val"], S[h]["train"]
+    y_val = val["y"].to_numpy()
+    classe_maj = np.bincount(train["y"].to_numpy()).argmax()
+    pred_pers = (val["N"].to_numpy() < 2).astype(int)
+    rows.append({"horizon (min)": h,
+                 "erreur majoritaire": np.mean(y_val != classe_maj),
+                 "erreur persistance": np.mean(y_val != pred_pers),
+                 "précision persistance": precision_score(y_val, pred_pers),
+                 "rappel persistance": recall_score(y_val, pred_pers),
+                 "F1 persistance": f1_score(y_val, pred_pers)})
+pd.DataFrame(rows).set_index("horizon (min)").round(3)
+```
+
+# Bayes naïf gaussien
+
+Le modèle repose sur la formule de Bayes :
+
+$$
+p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
+\qquad \pi = \mathbb{P}(Y=1),
+$$
+
+où $f_y$ est la densité de $X$ sachant $Y=y$, avec deux hypothèses :
+
+1. **Gaussienne** : $X_j \mid Y=y \sim \mathcal N(\mu_{j,y}, \sigma^2_{j,y})$.
+2. **Indépendance conditionnelle** (le côté « naïf ») : $f_y(x) = \prod_j f_{j,y}(x_j)$.
+
+Les paramètres $\pi$, $\mu_{j,y}$, $\sigma^2_{j,y}$ sont estimés sur le jeu d'apprentissage uniquement. La variable `dow` (0 à 6) n'est pas utilisée : un modèle gaussien la lirait comme une grandeur ordonnée (dimanche « loin » de lundi) ; on garde `weekend` et l'heure.
+
+## La classe
+
+```{python}
+print(inspect.getsource(BayesNaifGaussien))
+```
+
+## Ce que le modèle a appris
+
+```{python}
+S30 = S[30]
+FEATS_NB = [f for f in S30["FEATS"] if f != "dow"]
+
+imp = SimpleImputer(strategy="median").fit(S30["train"][FEATS_NB])      # médiane du train
+X_train, y_train = imp.transform(S30["train"][FEATS_NB]), S30["train"]["y"].to_numpy()
+X_val,   y_val   = imp.transform(S30["val"][FEATS_NB]),   S30["val"]["y"].to_numpy()
+
+bayes = BayesNaifGaussien().fit(X_train, y_train)
+
+print("Formes :", bayes.mu_.shape, bayes.sigma_.shape)
+print("Proportions de classes (pi_) :", bayes.pi_.round(4))
+pd.DataFrame({"mu y=0": bayes.mu_[0], "mu y=1": bayes.mu_[1],
+              "sigma y=0": bayes.sigma_[0], "sigma y=1": bayes.sigma_[1]},
+             index=FEATS_NB).round(2)
+```
+
+## Vérification de la formule à la main
+
+```{python}
+x = X_val[:1]
+f1 = np.exp(bayes._log_densite(x, 1))[0]
+f0 = np.exp(bayes._log_densite(x, 0))[0]
+pi1, pi0 = bayes.pi_[1], bayes.pi_[0]
+print("formule à la main :", pi1 * f1 / (pi1 * f1 + pi0 * f0))
+print("predict_proba     :", bayes.predict_proba(x)[0, 1])
+```
+
+## Deux erreurs, pas une
+
+```{python}
+erreur_apprentissage = np.mean(bayes.predict(X_train) != y_train)
+erreur_val           = np.mean(bayes.predict(X_val) != y_val)
+
+print(f"Erreur d'apprentissage : {erreur_apprentissage:.3f}")
+print(f"Erreur de validation   : {erreur_val:.3f}")
+
+# Vérification contre scikit-learn (doit être très proche)
+sk = GaussianNB().fit(X_train, y_train)
+print("Erreur val sklearn :", round(np.mean(sk.predict(X_val) != y_val), 3),
+      "| ma classe :", round(erreur_val, 3))
+```
+
+# Comparaison des modèles sur la validation
+
+Pour chaque horizon, tous les modèles sont ajustés sur le train. Le réglage de $k$ (k-NN) et de la profondeur (arbre) se fait sur la validation, par la précision moyenne (AP). Le seuil de chaque modèle est choisi sur la validation, par la même règle pour tous. Le test n'est pas utilisé ici.
+
+```{python}
+CRITERION = "f1"      # "f1" : F1 maximal ; "cout" : coût moyen minimal (c_FN / c_FP = 5, hypothèse provisoire)
+R = {h: pipeline_horizon(raw, h, criterion=CRITERION) for h in HORIZONS}
+
+for h in HORIZONS:
+    sel = R[h]["selection"]
+    print(f"horizon {h} min | k retenu : {sel['k']} | profondeur retenue : {sel['profondeur']} "
+          f"| modèle retenu (AP validation) : {R[h]['chosen']}")
+    print("seuils :", {k: round(v, 2) for k, v in R[h]["taus"].items()})
+    display(R[h]["val_table"].round(3).T)
+```
+
+## Comparaison au même rappel que la persistance
+
+```{python}
+for h in HORIZONS:
+    res = R[h]
+    val = res["val"]
+    y_val = val["y"].to_numpy()
+    _, sc, _ = evaluate_models(res, val)
+
+    pred_pers = (val["N"].to_numpy() < 2).astype(int)
+    r_pers, p_pers = recall_score(y_val, pred_pers), precision_score(y_val, pred_pers)
+    print(f"horizon {h} min | persistance : précision {p_pers:.3f} à rappel {r_pers:.3f}")
+    for nom in res["models"]:
+        print(f"  {nom:12s} : précision {precision_at_recall(y_val, sc[nom], r_pers):.3f} au même rappel")
+```
+
+## Apport des groupes de variables (ablation, validation)
+
+Une forêt est ajustée de nouveau sans chaque groupe de variables. Un faible écart signifie que le groupe est redondant, pas forcément inutile.
+
+```{python}
+for h in HORIZONS:
+    print(f"horizon {h} min")
+    display(ablation(R[h]).round(3))
+```

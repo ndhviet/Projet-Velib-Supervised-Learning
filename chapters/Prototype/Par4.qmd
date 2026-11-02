@@ -1,0 +1,129 @@
+---
+title: "Comparaison des modèles"
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+date: "2026-10-27"
+
+jupyter: projet-velib
+number-sections: true 
+code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+# Protocole d'évaluation finale
+
+Les modèles, leurs hyperparamètres, leurs seuils et le modèle retenu sont choisis sur la validation, **avant** ce chapitre (règle fixée à l'avance : le modèle d'AP maximale sur la validation). Le bloc de test, une semaine du 1er au 8 octobre, est noté ici **une seule fois**, avec les modèles et seuils figés. Aucun choix n'est refait à partir du test.
+
+```{python}
+import numpy as np
+import pandas as pd
+from IPython.display import Image, display
+
+from velib_utils import (load_raw_dt, pipeline_horizon, prepare_sets, evaluate_models,
+                         precision_at_recall, scored_frame, metrics_by, daily_dispersion,
+                         station_comparison, situation_table, station_bootstrap,
+                         persistence_score, pr_curves, TAU_PERS)
+
+pd.set_option("display.width", 250)
+pd.set_option("display.max_columns", None)
+
+CRITERION = "f1"          # le même qu'en Partie 3
+SUSPECT_STATION = None    # code de la station quasi figée repérée en Partie 2 (ex. 45504 chez vos camarades ; à vérifier chez vous)
+
+raw = load_raw_dt()
+RES = {h: pipeline_horizon(raw, h, criterion=CRITERION) for h in (30, 60)}   # train et validation seulement
+for h, r in RES.items():
+    print(f"horizon {h} min : modèle retenu sur la validation = {r['chosen']}")
+```
+
+# Résultats sur la semaine de test
+
+```{python}
+OUT = {}
+for h, r in RES.items():
+    te = r["test"]
+    table, sc, taus = evaluate_models(r, te)
+    OUT[h] = (table, sc, taus)
+    chosen = r["chosen"]
+    pers = table.loc["persistance"]
+    at_recall = precision_at_recall(te["y"], sc[chosen], pers["recall"])
+    print(f"===== horizon {h} min | test : {len(te)} lignes, taux de positifs {te['y'].mean():.3f} =====")
+    print(table.round(3).T)
+    print(f"Au rappel de la persistance ({pers['recall']:.3f}) : précision {pers['precision']:.3f} "
+          f"pour la persistance contre {at_recall:.3f} pour {chosen}\n")
+```
+
+```{python}
+panels = {}
+for h, r in RES.items():
+    table, sc, taus = OUT[h]
+    c = r["chosen"]
+    panels[h] = {"y": r["test"]["y"].to_numpy(),
+                 "modèle": (c, sc[c], (sc[c] > taus[c]).astype(int)),
+                 "persistance": (sc["persistance"], (sc["persistance"] > TAU_PERS).astype(int))}
+display(Image(pr_curves(panels, "pr_curves_test.png"), width=850))
+```
+
+# Résultats par groupe, dispersion et incertitude
+
+Par zone, tranche horaire et type de jour ; jour par jour (mesure de dispersion qui respecte le temps) ; bootstrap par **station** (les lignes d'une station sont dépendantes), avec la différence modèle − persistance calculée sur les mêmes stations tirées.
+
+```{python}
+SCORED = {}
+for h, r in RES.items():
+    table, sc, taus = OUT[h]
+    te, c = r["test"], r["chosen"]
+    SCORED[h] = {n: scored_frame(te, sc[n], (sc[n] > taus[n]).astype(int)) for n in (c, "persistance")}
+    print(f"===== horizon {h} min =====")
+    for by in ("zone", "tranche", "jour_type"):
+        display(pd.concat({n: metrics_by(s, by) for n, s in SCORED[h].items()},
+                          names=["modèle", by]).astype(float).round(3))
+```
+
+```{python}
+for h, r in RES.items():
+    c = r["chosen"]
+    sm, sp = SCORED[h][c], SCORED[h]["persistance"]
+    print(f"===== horizon {h} min =====")
+    display(pd.concat({n: daily_dispersion(s) for n, s in SCORED[h].items()}, names=["modèle", "jour"]).round(3))
+    display(station_bootstrap(sm, sp, labels=(c, "persistance")).round(3))
+    st = station_comparison(sm, sp)
+    avec_pos = st[st["positifs"] > 0]
+    print(f"{c} : F1 >= F1 de la persistance sur {(avec_pos['gain_f1'] >= 0).mean():.0%} "
+          f"des {len(avec_pos)} stations ayant au moins un positif ; plus fortes pertes :")
+    display(avec_pos.head(5).round(3))
+```
+
+# Erreurs caractéristiques
+
+La persistance a raison chaque fois que l'état ne change pas et tort à chaque changement : l'apport d'un modèle se lit dans les transitions.
+
+```{python}
+for h, r in RES.items():
+    c = r["chosen"]
+    print(f"horizon {h} min")
+    display(situation_table(SCORED[h]).round(3))
+```
+
+# Sensibilité (modèles figés)
+
+Deux variantes du test : une fermeture à $t+h$ comptée comme « départ impossible » au lieu d'être exclue ; la station quasi figée retirée (si `SUSPECT_STATION` est renseigné).
+
+```{python}
+for h, r in RES.items():
+    c = r["chosen"]
+    te = r["test"]
+    S2 = prepare_sets(raw, h, closed_as_positive=True, rate=r["rate"])   # même st_empty_rate que le modèle figé
+    variantes = {"fermeture à t+h comptée positive": S2["test"]}
+    if SUSPECT_STATION is not None:
+        variantes[f"sans la station {SUSPECT_STATION}"] = te[te["station_code"] != SUSPECT_STATION]
+    for nom, d in variantes.items():
+        t2, _, _ = evaluate_models(r, d, names=["persistance", c])
+        print(f"horizon {h} min | {nom} : {len(d)} lignes (test par défaut : {len(te)})")
+        display(t2[["precision", "recall", "F1", "AP"]].round(3))
+```
+
+# À rédiger (en Partie 5, après lecture des sorties)
+
+Réponse à la question avec les chiffres du test et les intervalles ; apport au même rappel que la persistance ; où le modèle gagne (transitions) et où il ne gagne pas (nuit, stations à peu de positifs) ; apport des groupes de variables (Partie 3) ; limites de la collecte (panne de 28 h, relevés incomplets, stations fermées ou figées, une seule saison, dérive du taux de positifs, pas de météo) ; limites d'usage : le modèle prédit un état observé du service, pas la demande individuelle.

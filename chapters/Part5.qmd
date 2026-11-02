@@ -1,5 +1,5 @@
 ---
-title: "Conclusion"
+title: "Partie 5 Conclusion"
 author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
 date: "2026-10-27"
 
@@ -11,8 +11,5 @@ execute:
   message: false
 ---
 
-```{python}
-import hashlib, urllib.request
-import numpy as np
-import pandas as pd
-```
+# Conclusions et limites
+

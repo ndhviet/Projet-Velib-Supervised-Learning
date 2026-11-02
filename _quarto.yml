@@ -21,9 +21,9 @@ website:
       - href: index.qmd
         text: Accueil
       - href: chapters/Part1.qmd
-        text: "Extraction des données"
+        text: "Exploration"
       - href: chapters/Part2.qmd
-        text: "Analyse exploratoire"
+        text: "Qualité et Préparation "
       - href: chapters/Part3.qmd
         text: "Modèles supervisés"
       - href: chapters/Part4.qmd

@@ -1,0 +1,47 @@
+### Fiabilité de la collecte {#sec-collecte}
+
+Cette section décrit la collecte sans rien modifier. Elle vient après la section sur la cohérence interne.
+
+```{python}
+from velib_utils import qualite
+for c in ["collected_at_utc", "source_updated_at"]:
+    raw[c] = pd.to_datetime(raw[c], utc=True)
+Q = qualite(raw)
+```
+
+#### Interruptions de collecte
+
+```{python}
+Q["gaps"].head(10)
+```
+
+#### Relevés incomplets
+
+```{python}
+print(f"{Q['n_incomplets']} relevés incomplets ; ensembles de stations disjoints et couvrant les 80 stations : {Q['complementaires']}")
+Q["ensembles_incomplets"]
+```
+
+#### Stations fermées (`is_renting = 0`)
+
+```{python}
+Q["fermetures"]
+```
+
+#### Stations quasi figées et incohérences de capacité
+
+```{python}
+print(Q["figees"].head(5).round(3))
+print()
+print(Q["over_capacity"].head(5).rename("lignes vélos + bornettes > capacité"))
+```
+
+#### Fiabilité de `source_updated_at`
+
+```{python}
+print(Q["retard_source"].round(1))
+print("Lignes où l'horodatage de la source ne bouge pas alors que le nombre de vélos change :",
+      Q["source_figee_mais_velos_changent"])
+```
+
+À rédiger après lecture des sorties (n'écrire que ce que les chiffres montrent) : durée de la panne principale, nombre d'interruptions de 30 minutes, composition des relevés incomplets, stations fermées et durée des épisodes, station quasi figée, fiabilité de `source_updated_at`.

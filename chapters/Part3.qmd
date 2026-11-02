@@ -1,5 +1,5 @@
 ---
-title: "Modèles supervisés"
+title: "Partie 3 Modèles supervisés"
 author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
 date: "2026-10-27"
 
@@ -11,24 +11,21 @@ execute:
   message: false
 ---
 
+# Construction du modèle supervisé
 
-# Construction du modèle supervisées
-
-Pour chaque station $s$ et chaque instant $t$ (avec un pas de temps de 15 minutes), on définit le nombre total de vélos disponibles par :
+Pour chaque station $s$ et chaque instant $t$ (pas de 15 minutes), on définit le nombre total de vélos disponibles par
 
 $$
 N_{s,t} = M_{s,t} + E_{s,t}
 $$
 
-où $M_{s,t}$, $E_{s,t}$ désignent respectivement les nombres de vélos mécaniques et électriques.
-
-La variable à prédire est définie par :
+où $M_{s,t}$ et $E_{s,t}$ désignent respectivement les nombres de vélos mécaniques et électriques. La variable à prédire, pour un horizon $h \in \{30, 60\}$ minutes, est définie par :
 
 $$
-Y_{s,t} = \mathbf{1}\{N_{s,t+30\text{ min}} < 2\}
+Y_{s,t} = \mathbf{1}\{N_{s,t+h} < 2\}
 $$
 
-Elle vaut 1 si la station compte moins de deux vélos 30 minutes plus tard, et 0 sinon. Elle suit une loi de Bernoulli de paramètre $p_{s,t}$ :
+Elle vaut 1 si la station compte moins de deux vélos $h$ minutes plus tard, et 0 sinon. Elle suit une loi de Bernoulli de paramètre $p_{s,t}$ :
 
 $$
 Y_{s,t} \sim \mathrm{Bernoulli}(p_{s,t}),
@@ -36,124 +33,120 @@ Y_{s,t} \sim \mathrm{Bernoulli}(p_{s,t}),
 p_{s,t} = \mathbb{P}(Y_{s,t}=1).
 $$
 
-Cette probabilité dépend de la station, de l'heure et de sa situation actuelle. On note $X_{s,t}$ l'ensemble des informations disponibles à l'instant $t$, notamment le nombre de vélos présents, les observations passées et l'heure de la journée.
-
-L'objectif est d'estimer la probabilité conditionnelle suivante :
+On note $X_{s,t}$ l'ensemble des informations disponibles à l'instant $t$. L'objectif est d'estimer :
 
 $$
 p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
 $$
 
+Les lignes pour lesquelles la station n'est pas observée ou est fermée à $t$ ou à $t+h$ sont exclues. Aucune valeur manquante n'est interpolée : les rares retards qui tombent dans une panne ou une fermeture restent `NaN`, et les modèles les remplacent par la médiane du train (calculée sur le train seul).
+
 ## Préparation des données
 
+La grille, la cible, la population et le découpage chronologique sont décrits en Partie 2. Ici, on construit simplement les jeux de données des deux horizons.
+
 ```{python}
+import inspect
 import numpy as np
 import pandas as pd
-from sklearn.metrics import (precision_score, recall_score, f1_score,
-                             average_precision_score, confusion_matrix,
-                             fbeta_score, brier_score_loss, log_loss)
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.naive_bayes import GaussianNB
 
-from velib_utils import load_raw_dt, build_features, split_time
+from velib_utils import (load_raw_dt, prepare_sets, pipeline_horizon, evaluate_models,
+                         precision_at_recall, ablation, BayesNaifGaussien)
 
 raw = load_raw_dt()
-feat, FEATS = build_features(raw)
-train, val, test = split_time(feat)
+HORIZONS = (30, 60)
+S = {h: prepare_sets(raw, h) for h in HORIZONS}
 
-for nom, part in [("train", train), ("val", val), ("test", test)]:
-    print(f"{nom:5s} | lignes : {len(part):6d} | de {part['t'].min()} à {part['t'].max()}"
-          f" | taux de positifs : {part['y'].mean():.4f}")
-```
-
-## Découpage chronologique
-
-```{python}
-X_train, y_train = train[FEATS].to_numpy(), train["y"].to_numpy()
-X_val,   y_val   = val[FEATS].to_numpy(),   val["y"].to_numpy()
-X_test,  y_test  = test[FEATS].to_numpy(),  test["y"].to_numpy()   # laissé intact
-
-print("Découpage chronologique (pas de shuffle, pas de stratify)")
-for nom, y_, part in [("Train", y_train, train), ("Val", y_val, val), ("Test", y_test, test)]:
-    print(f"{nom:5s} | lignes : {len(y_):6d} | {part['t'].min()} -> {part['t'].max()}"
-          f" | moyenne de y : {y_.mean():.4f}")
+for h in HORIZONS:
+    print(f"horizon {h} min | nombre de variables : {len(S[h]['FEATS'])}")
+    for nom in ["train", "val", "test"]:
+        part = S[h][nom]
+        print(f"  {nom:5s} | lignes : {len(part):6d} | de {part['t'].min()} à {part['t'].max()}")
 ```
 
 # Références
 
-```{python}
-classe_maj    = np.bincount(y_train).argmax()
-pred_pers_val = (val["N"].to_numpy() < 2).astype(int)
+Deux règles sans apprentissage servent de points de comparaison : la classe majoritaire (toujours prédire « pas de pénurie ») et la persistance (l'état dans $h$ minutes est supposé égal à l'état actuel).
 
-print("Majoritaire : erreur val =", round(np.mean(y_val != classe_maj), 3))
-print("Persistance : erreur val =", round(np.mean(y_val != pred_pers_val), 3),
-      "| précision", round(precision_score(y_val, pred_pers_val), 3),
-      "| rappel", round(recall_score(y_val, pred_pers_val), 3),
-      "| F1", round(f1_score(y_val, pred_pers_val), 3))
+```{python}
+rows = []
+for h in HORIZONS:
+    val, train = S[h]["val"], S[h]["train"]
+    y_val = val["y"].to_numpy()
+    classe_maj = np.bincount(train["y"].to_numpy()).argmax()
+    pred_pers = (val["N"].to_numpy() < 2).astype(int)
+    rows.append({"horizon (min)": h,
+                 "erreur majoritaire": np.mean(y_val != classe_maj),
+                 "erreur persistance": np.mean(y_val != pred_pers),
+                 "précision persistance": precision_score(y_val, pred_pers),
+                 "rappel persistance": recall_score(y_val, pred_pers),
+                 "F1 persistance": f1_score(y_val, pred_pers)})
+pd.DataFrame(rows).set_index("horizon (min)").round(3)
 ```
 
 # Bayes naïf gaussien
 
+Le modèle repose sur la formule de Bayes :
+
+$$
+p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
+\qquad \pi = \mathbb{P}(Y=1),
+$$
+
+où $f_y$ est la densité de $X$ sachant $Y=y$, avec deux hypothèses :
+
+1. **Gaussienne** : $X_j \mid Y=y \sim \mathcal N(\mu_{j,y}, \sigma^2_{j,y})$.
+2. **Indépendance conditionnelle** (le côté « naïf ») : $f_y(x) = \prod_j f_{j,y}(x_j)$.
+
+Les paramètres $\pi$, $\mu_{j,y}$, $\sigma^2_{j,y}$ sont estimés sur le jeu d'apprentissage uniquement. La variable `dow` (0 à 6) n'est pas utilisée : un modèle gaussien la lirait comme une grandeur ordonnée (dimanche « loin » de lundi) ; on garde `weekend` et l'heure.
+
 ## La classe
 
 ```{python}
-class BayesNaifGaussien:
-    """Classifieur de Bayes naïf gaussien, écrit à la main."""
+print(inspect.getsource(BayesNaifGaussien))
+```
 
-    def fit(self, X, y, eps=1e-9):
-        self.classes_ = np.unique(y)
-        self.pi_    = np.array([np.mean(y == k) for k in self.classes_])
-        self.mu_    = np.array([X[y == k].mean(axis=0) for k in self.classes_])
-        self.sigma_ = np.array([X[y == k].std(axis=0) for k in self.classes_]) + eps
-        return self
+## Ce que le modèle a appris
 
-    def _log_densite(self, X, k):
-        mu, sigma = self.mu_[k], self.sigma_[k]
-        return np.sum(-0.5 * np.log(2 * np.pi) - np.log(sigma)
-                      - (X - mu) ** 2 / (2 * sigma ** 2), axis=1)
+```{python}
+S30 = S[30]
+FEATS_NB = [f for f in S30["FEATS"] if f != "dow"]
 
-    def _log_posterieurs(self, X):
-        return np.array([np.log(self.pi_[k]) + self._log_densite(X, k)
-                         for k in range(len(self.classes_))])
+imp = SimpleImputer(strategy="median").fit(S30["train"][FEATS_NB])      # médiane du train
+X_train, y_train = imp.transform(S30["train"][FEATS_NB]), S30["train"]["y"].to_numpy()
+X_val,   y_val   = imp.transform(S30["val"][FEATS_NB]),   S30["val"]["y"].to_numpy()
 
-    def predict_proba(self, X):
-        lp = self._log_posterieurs(X)
-        lp = lp - lp.max(axis=0)          # stabilité numérique
-        p = np.exp(lp)
-        return (p / p.sum(axis=0)).T      # colonne 1 = P(y = 1 | x)
+bayes = BayesNaifGaussien().fit(X_train, y_train)
 
-    def predict(self, X, tau=None):
-        if tau is None:
-            return self.classes_[np.argmax(self._log_posterieurs(X), axis=0)]
-        return (self.predict_proba(X)[:, 1] > tau).astype(int)
+print("Formes :", bayes.mu_.shape, bayes.sigma_.shape)
+print("Proportions de classes (pi_) :", bayes.pi_.round(4))
+pd.DataFrame({"mu y=0": bayes.mu_[0], "mu y=1": bayes.mu_[1],
+              "sigma y=0": bayes.sigma_[0], "sigma y=1": bayes.sigma_[1]},
+             index=FEATS_NB).round(2)
+```
+
+## Vérification de la formule à la main
+
+```{python}
+x = X_val[:1]
+f1 = np.exp(bayes._log_densite(x, 1))[0]
+f0 = np.exp(bayes._log_densite(x, 0))[0]
+pi1, pi0 = bayes.pi_[1], bayes.pi_[0]
+print("formule à la main :", pi1 * f1 / (pi1 * f1 + pi0 * f0))
+print("predict_proba     :", bayes.predict_proba(x)[0, 1])
 ```
 
 ## Deux erreurs, pas une
 
 ```{python}
-bayes = BayesNaifGaussien().fit(X_train, y_train)
-
 erreur_apprentissage = np.mean(bayes.predict(X_train) != y_train)
 erreur_val           = np.mean(bayes.predict(X_val) != y_val)
 
 print(f"Erreur d'apprentissage : {erreur_apprentissage:.3f}")
 print(f"Erreur de validation   : {erreur_val:.3f}")
-```
-
-## Seuil choisi sur la validation
-
-```{python}
-p_val = bayes.predict_proba(X_val)[:, 1]
-C_FN, C_FP = 5, 1          # hypothèse provisoire, à justifier dans le rapport
-
-taus  = np.linspace(0.05, 0.99, 95)
-costs = [(C_FP * ((p_val > t) & (y_val == 0)).sum()
-          + C_FN * ((p_val <= t) & (y_val == 1)).sum()) / len(y_val) for t in taus]
-tau_star = taus[int(np.argmin(costs))]
-
-pred = (p_val > tau_star).astype(int)
-print(f"tau* (val, coût {C_FN}:{C_FP}) = {tau_star:.2f}")
-print(f"Précision {precision_score(y_val, pred):.3f} | rappel {recall_score(y_val, pred):.3f} | "
-      f"F1 {f1_score(y_val, pred):.3f} | AP {average_precision_score(y_val, p_val):.3f}")
 
 # Vérification contre scikit-learn (doit être très proche)
 sk = GaussianNB().fit(X_train, y_train)
@@ -163,52 +156,51 @@ print("Erreur val sklearn :", round(np.mean(sk.predict(X_val) != y_val), 3),
 
 # Comparaison des modèles sur la validation
 
-## Fonction de rapport
+Pour chaque horizon, tous les modèles sont ajustés sur le train. Le réglage de $k$ (k-NN, repris pour le k-NN pondéré) et de la profondeur (arbre) se fait sur la validation, par la précision moyenne (AP). Le seuil de chaque modèle est choisi sur la validation, par la même règle pour tous. Le test n'est pas utilisé ici.
 
 ```{python}
-def report(name, y, p, tau=0.5, c_fn=5, c_fp=1):
-    pred = (p > tau).astype(int)
-    tn, fp, fn, tp = confusion_matrix(y, pred, labels=[0, 1]).ravel()
-    return {"model": name, "tau": tau, "TP": tp, "FP": fp, "FN": fn, "TN": tn,
-            "precision": precision_score(y, pred, zero_division=0),
-            "recall": recall_score(y, pred),
-            "F1": f1_score(y, pred), "F2": fbeta_score(y, pred, beta=2),
-            "AP": average_precision_score(y, p),
-            "AP/pi": average_precision_score(y, p) / y.mean(),
-            "Brier": brier_score_loss(y, p),
-            "logloss": log_loss(y, np.clip(p, 1e-6, 1 - 1e-6)),
-            "cost": (c_fp * fp + c_fn * fn) / len(y)}   # c_fn/c_fp = 5 : hypothèse provisoire
+CRITERION = "f1"      # "f1" : F1 maximal ; "cout" : coût moyen minimal (c_FN / c_FP = 5, hypothèse provisoire)
+R = {h: pipeline_horizon(raw, h, criterion=CRITERION) for h in HORIZONS}
+
+for h in HORIZONS:
+    sel = R[h]["selection"]
+    print(f"horizon {h} min | k retenu : {sel['k']} | profondeur retenue : {sel['profondeur']} "
+          f"| modèle retenu (AP validation) : {R[h]['chosen']}")
+    print("seuils :", {k: round(v, 2) for k, v in R[h]["taus"].items()})
+    display(R[h]["val_table"].round(3).T)
 ```
 
-## Régression logistique, boosting, seuil choisi sur val
+## Poids du k-NN pondéré
+
+Le k-NN usuel donne le même poids à toutes les variables, ce qui bruite la distance. Le k-NN pondéré multiplie chaque variable standardisée par un poids appris **dans le train seul** : la dernière semaine du train est mise de côté, une forêt est ajustée sur le reste, et le poids d'une variable est son importance par permutation (baisse de l'AP quand on la mélange) sur cette semaine. Les poids sont normalisés (poids moyen = 1) ; $k$ est celui du k-NN usuel.
 
 ```{python}
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
-from sklearn.ensemble import HistGradientBoostingClassifier
+poids = pd.DataFrame({f"{h} min": R[h]["selection"]["poids_knn"] for h in HORIZONS})
+poids.sort_values("30 min", ascending=False).round(2)
+```
 
-lr = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
-lr.fit(train[FEATS], train["y"])
-p_val_lr = lr.predict_proba(val[FEATS])[:, 1]
+## Comparaison au même rappel que la persistance
 
-hgb = HistGradientBoostingClassifier(max_iter=300, learning_rate=0.05,
-                                     max_leaf_nodes=31, random_state=0)
-hgb.fit(train[FEATS], train["y"])
-p_val_hgb = hgb.predict_proba(val[FEATS])[:, 1]
+```{python}
+for h in HORIZONS:
+    res = R[h]
+    val = res["val"]
+    y_val = val["y"].to_numpy()
+    _, sc, _ = evaluate_models(res, val)
 
-# Seuil qui minimise le coût sur la VALIDATION, même méthode pour tous les modèles
-taus = np.linspace(0.05, 0.95, 91)
-y = val["y"]
+    pred_pers = (val["N"].to_numpy() < 2).astype(int)
+    r_pers, p_pers = recall_score(y_val, pred_pers), precision_score(y_val, pred_pers)
+    print(f"horizon {h} min | persistance : précision {p_pers:.3f} à rappel {r_pers:.3f}")
+    for nom in res["models"]:
+        print(f"  {nom:12s} : précision {precision_at_recall(y_val, sc[nom], r_pers):.3f} au même rappel")
+```
 
-rows = [report("majoritaire", y, np.zeros(len(val))),
-        report("persistance", y, (val["N"] < 2).astype(float))]
-for nom, p in [("bayes_naif", p_val),
-               ("logreg",     p_val_lr),
-               ("hgb",        p_val_hgb)]:
-    costs = [report(nom, y, p, tau=t)["cost"] for t in taus]
-    rows.append(report(nom, y, p, tau=taus[int(np.argmin(costs))]))
+## Apport des groupes de variables (ablation, validation)
 
-table2 = pd.DataFrame(rows).set_index("model").round(3)
-print(table2.T)
+Une forêt est ajustée de nouveau sans chaque groupe de variables. Un faible écart signifie que le groupe est redondant, pas forcément inutile.
+
+```{python}
+for h in HORIZONS:
+    print(f"horizon {h} min")
+    display(ablation(R[h]).round(3))
 ```

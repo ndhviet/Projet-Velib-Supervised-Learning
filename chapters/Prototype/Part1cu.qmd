@@ -1,0 +1,265 @@
+---
+title: "Partie 1 Extraction des données"
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+date: "2026-10-27"
+
+jupyter: projet-velib
+number-sections: true 
+code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+```{python}
+import hashlib, urllib.request
+import numpy as np
+import pandas as pd
+from velib_utils import load_raw_dt, coverage, qualite 
+```
+
+# Vérification des données
+```{python}
+URL = "https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz"
+FILE = "data/velib-2026-10-08.csv.gz"
+MD5 = "02ab1e3fdac10579e4ce93d1540a5dc7"
+
+path, _ = urllib.request.urlretrieve(URL, FILE)
+print("Download successful:", path)
+print("-------------------------------------------------")
+with open(path, "rb") as f:
+    calculated_md5 = hashlib.md5(f.read()).hexdigest()
+
+print("Calculated MD5:", calculated_md5)
+print("Expected MD5:  ", MD5)
+
+assert calculated_md5 == MD5, f"MD5 mismatch: {calculated_md5}"
+print("MD5 OK!")
+```
+
+**Extraction des données**
+```{python}
+# Les premières lignes du dataset
+raw = load_raw_dt()
+raw.head(3)
+```
+
+# RESUME DES DONNÉES
+
+## Aperçu des données
+```{python}
+# Nombre de lignes dans le dataset
+print("Nombre de lignes :", raw.shape[0])
+
+# Nombre de colonnes dans le dataset
+print("Nombre de colonnes :", raw.shape[1])
+```
+
+```{python}
+# Informations générales sur le dataset
+raw.info()
+```
+
+```{python}
+coverage(raw)
+```
+
+## Contrôle de la qualité des données
+
+Avant toute analyse, on vérifie la qualité du jeu de données : présence de doublons et de valeurs manquantes.
+
+### Lignes dupliquées
+
+```{python}
+print("Nombre de lignes dupliquées :", raw.duplicated().sum())
+```
+
+### Valeurs manquantes
+
+```{python}
+print("Valeurs manquantes par colonne :")
+print(raw.isna().sum())
+```
+
+```{python}
+n_missing = raw["capacity"].isna().sum()
+print(f"Capacité manquante : {n_missing} lignes ({n_missing / len(raw):.2%} du jeu de données)")
+```
+
+#### Où manque la capacité ?
+```{python}
+missing_capacity = raw[raw["capacity"].isna()]
+missing_capacity.head(3)
+```
+
+```{python}
+missing_capacity["name"].value_counts()
+```
+
+```{python}
+print("Stations concernées :", missing_capacity["station_code"].nunique())
+print("Observations par station :", missing_capacity["name"].value_counts().unique())
+```
+
+Les valeurs manquantes ne sont pas dispersées au hasard : elles concernent **les 80 stations**, chacune ayant exactement **24 observations** sans capacité. Il s'agit donc d'un problème lié à une **période de collecte** (24 relevés, sur 26 horodatages), et non à certaines stations ni à des erreurs ponctuelles de mesure.
+
+La capacité est constante pour une station donnée : c'est un attribut statique. On la complète donc par station à partir de ses autres relevés (maximum observé). Ce n'est ni une interpolation ni une fuite d'information du futur. La variable n'intervient pas dans la définition de la cible, qui repose sur `mechanical_bikes + electric_bikes`.
+
+```{python}
+g = missing_capacity.groupby("collected_at_utc")["station_code"].nunique()
+print(g.value_counts())  
+```
+
+Les valeurs manquantes concernent les 80 stations, avec exactement 24 observations
+chacune. Elles apparaissent sur 26 horodatages : 22 communs aux 80 stations, et 4
+où seul un des deux groupes (Paris ou banlieue) a été collecté à cet instant.
+
+### Cohérence interne et statut des stations {#sec-coherence}
+
+```{python}
+Q = qualite(raw)
+Q["coherence"]
+```
+
+- **`vélos + bornettes > capacité`** (2 256 lignes) est concentré sur quelques stations : la station 45504 en regroupe à elle seule 1 641 (environ 73 %), suivie des stations 9104 (400) et 40007 (145). La capacité déclarée y est peu fiable. C'est pourquoi le taux de remplissage est calculé par `vélos / (vélos + bornettes)` plutôt que par rapport à `capacity`.
+- **`vélos + bornettes < capacité`** (168 340 lignes, environ la moitié du jeu) reflète simplement des bornettes hors service.
+- **`vélos > capacité`** (86 lignes) et **`capacité manquante`** (1 920 lignes, soit 80 stations × 24 relevés) sont marginaux. Aucune ligne n'a `capacité == 0`, ni `vélos + bornettes == 0`.
+
+#### Stations quasi figées et incohérences de capacité
+
+```{python}
+print(Q["over_capacity"].head(5).rename("lignes vélos + bornettes > capacité"))
+```
+
+La station **45504** est inchangée dans 89 % des relevés et concentre l'essentiel des incohérences de capacité : elle est traitée comme suspecte et écartée dans l'analyse de sensibilité (Partie 3).
+
+```{python}
+print("\n--- Statut des stations ---")
+print(raw[["is_installed", "is_renting", "is_returning"]].apply(lambda s: s.value_counts()))
+      
+```
+```{python}
+print("Lignes avec au moins une valeur négative :",
+      (raw[["mechanical_bikes", "electric_bikes", "docks_available"]] < 0).any(axis=1).sum())
+print("is_renting == 0 et is_returning == 0 sur les mêmes lignes :",
+      ((raw["is_renting"] == 0) == (raw["is_returning"] == 0)).all())
+```
+Aucune valeur négative n’est présente. Les stations hors service (812 lignes, 0,25 %) ont is_renting = is_returning = 0 sur exactement les mêmes lignes ; une seule des deux variables suffit donc.
+
+### Fiabilité de la collecte {#sec-collecte}
+
+#### Interruptions de collecte
+
+```{python}
+Q["gaps"]
+```
+
+#### Relevés incomplets
+
+```{python}
+print(f"{Q['n_incomplets']} relevés incomplets ; ensembles de stations disjoints et couvrant les 80 stations : {Q['complementaires']}")
+Q["ensembles_incomplets"]
+```
+
+#### Stations fermées (`is_renting = 0`)
+
+```{python}
+Q["fermetures"]
+```
+
+#### Fiabilité de `source_updated_at`
+
+```{python}
+print("collected_at_utc - source_updated_at (minutes):")
+display(Q["retard_source"].round(1).to_frame().T)
+print("rows whose source timestamp did not change while the bike count did:",
+      Q["source_figee_mais_velos_changent"])
+```
+
+`source_updated_at` ne permet pas de dater l'état des stations de façon fiable :
+
+- l'horodatage de la source est en retard sur la collecte : de 62 min en médiane, 98 min pour 90 % des lignes et 150 min pour 99 % d'entre elles, avec un maximum d'environ 20 h ;
+- dans 91 373 lignes (environ 28 %), il ne change pas alors que le nombre de vélos change.
+
+Nous utilisons donc `collected_at_utc` comme seule référence temporelle et n'employons pas `source_updated_at` dans les variables du modèle.
+
+```{python}
+static = Q["figees"]
+print(f"Part de relevés inchangés : médiane {static.median():.2f} ; station 45504 : {static.loc[45504]:.2f}")
+```
+
+Une station typique est inchangée d'un relevé à l'autre dans 38 % des cas (médiane sur les 80 stations) ; la station 45504 l'est dans 89 % des cas.
+
+
+# Grille régulière, cible et population
+
+```{python}
+from velib_utils import prepare_sets, population_table, split_summary, n_unaligned, TZ
+import numpy as np, pandas as pd
+
+HORIZONS = (30, 60)
+S = {h: prepare_sets(raw, h) for h in HORIZONS}
+
+print("Lignes brutes écartées car hors grille de 15 minutes :", n_unaligned(raw))
+for h in HORIZONS:
+    print(f"horizon {h} min")
+    display(population_table(S[h]["reason"], h))
+```
+
+## Distribution de la cible
+
+```{python}
+tr = S[30]["train"]
+hour = tr["t"].dt.tz_convert(TZ).dt.hour
+
+display(tr.groupby(hour)["y"].mean().rename("taux de positifs par heure (Paris), train").to_frame().T.round(3))
+display(tr.groupby(np.where(tr["is_paris"] == 1, "Paris", "banlieue"))["y"].mean()
+          .rename("taux de positifs, train").to_frame().round(3))
+display(tr.groupby("station_code")["y"].mean().describe()
+          .rename("taux de positifs par station, train").to_frame().T.round(3))
+
+trval = pd.concat([S[30]["train"], S[30]["val"]])
+week = trval["t"].dt.tz_convert(TZ).dt.isocalendar().week.to_numpy()
+trval.groupby(week)["y"].mean().rename("taux de positifs par semaine ISO (train + val)").to_frame().T.round(3)
+```
+
+## Découpage chronologique
+
+```{python}
+for h in HORIZONS:
+    print(f"horizon {h} min")
+    display(split_summary(S[h]))
+```
+
+## Variables 
+
+```{python}
+from velib_utils import FEATURE_GROUPS
+pd.Series({g: ", ".join(f) for g, f in FEATURE_GROUPS.items()}, name="variables").to_frame()
+```
+
+```{python}
+tr30 = S[30]["train"]
+FEATS = S[30]["FEATS"]
+
+display(tr30[FEATS].isna().mean().rename("part de valeurs manquantes (train)").to_frame().T)
+
+display(tr30.groupby(pd.cut(tr30["N"], [-1, 0, 1, 2, 4, 8, 100]), observed=True)["y"].mean()
+          .rename("P(y = 1 | vélos maintenant), train").to_frame().T.round(3))
+```
+
+```{python}
+tr.groupby(pd.cut(tr["N"], [-1, 0, 1, 2, 4, 8, 100]), observed=True)["y"].mean() \
+  .rename("P(y = 1 | vélos maintenant), train").to_frame().T.round(3)
+```
+
+```{python}
+tr30 = S[30]["train"]
+FEATS = S[30]["FEATS"]
+
+display(tr30[FEATS].isna().mean().rename("part de valeurs manquantes (train)").to_frame().T)
+
+display(tr30.groupby(pd.cut(tr30["N"], [-1, 0, 1, 2, 4, 8, 100]), observed=True)["y"].mean()
+          .rename("P(y = 1 | vélos maintenant), train").to_frame().T.round(3))
+```
+

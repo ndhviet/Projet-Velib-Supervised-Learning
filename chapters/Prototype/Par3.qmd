@@ -1,0 +1,208 @@
+---
+title: "Modèles supervisés"
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+date: "2026-10-27"
+
+jupyter: projet-velib
+number-sections: true 
+code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+# Construction du modèle supervisé
+
+Pour chaque station $s$ et chaque instant $t$ (pas de 15 minutes), on définit le nombre total de vélos disponibles par :
+
+$$
+N_{s,t} = M_{s,t} + E_{s,t}
+$$
+
+où $M_{s,t}$ et $E_{s,t}$ désignent respectivement les nombres de vélos mécaniques et électriques.
+
+La variable à prédire, pour un horizon $h$ de 30 ou 60 minutes, est :
+
+$$
+Y_{s,t} = \mathbf{1}\{N_{s,t+h} < 2\}
+$$
+
+Elle suit une loi de Bernoulli de paramètre $p_{s,t} = \mathbb{P}(Y_{s,t}=1)$. On note $X_{s,t}$ l'ensemble des informations disponibles à l'instant $t$ et l'objectif est d'estimer :
+
+$$
+p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
+$$
+
+Une ligne est conservée si la station est observée et ouverte à $t$, à $t+h$ et sur toute la fenêtre de retards. Aucune valeur manquante n'est interpolée.
+
+## Préparation des données
+
+Tout le travail de ce chapitre utilise le train et la validation. Le bloc de test est découpé mais n'est pas utilisé (il est noté une seule fois en Partie 4).
+
+```{python}
+import numpy as np
+import pandas as pd
+from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.naive_bayes import GaussianNB
+
+from velib_utils import (load_raw_dt, pipeline_horizon, population_table,
+                         precision_at_recall, ablation, FEATURE_GROUPS)
+
+pd.set_option("display.width", 250)
+pd.set_option("display.max_columns", None)
+
+CRITERION = "f1"      # "f1" (sans hypothèse de coût) ou "cout" (c_FN / c_FP = 5, à justifier)
+
+raw = load_raw_dt()
+RES = {h: pipeline_horizon(raw, h, criterion=CRITERION) for h in (30, 60)}
+
+res = RES[30]
+train, val, test, FEATS = res["train"], res["val"], res["test"], res["FEATS"]
+print("Nombre de variables :", len(FEATS))
+for h, r in RES.items():
+    for nom in ("train", "val"):
+        part = r[nom]
+        print(f"h={h} min | {nom:5s} | lignes : {len(part):6d} | de {part['t'].min()} à {part['t'].max()}"
+              f" | taux de positifs : {part['y'].mean():.4f}")
+    print(f"h={h} min | test  | lignes : {len(r['test']):6d} | (taux de positifs non consulté)")
+```
+
+## Population : pourquoi des créneaux sont exclus
+
+Chaque créneau (station, 15 minutes) de la grille est compté une seule fois, sous la première raison d'exclusion qui s'applique. Une ligne n'est gardée que si $t$ et $t+h$ tombent dans le même bloc chronologique.
+
+```{python}
+for h, r in RES.items():
+    pop = population_table(r["reason"], h)
+    print(f"Horizon {h} min")
+    print(pop)
+    print("Contrôle train / val / test :",
+          pop.loc["conservée", "train"] == len(r["train"]),
+          pop.loc["conservée", "val"] == len(r["val"]),
+          pop.loc["conservée", "test"] == len(r["test"]))
+    print()
+```
+
+## Distribution de la cible (train et validation seulement)
+
+```{python}
+loc = train["t"].dt.tz_convert("Europe/Paris")
+print(train.groupby(loc.dt.hour)["y"].mean().round(3).rename("taux de positifs par heure (Paris), train").to_frame().T)
+print(train.groupby(np.where(train["is_paris"] == 1, "Paris", "banlieue"))["y"].mean().round(3))
+print(train.groupby("station_code")["y"].mean().describe().round(3))
+
+tv = pd.concat([train, val])
+sem = tv["t"].dt.tz_convert("Europe/Paris").dt.isocalendar().week.to_numpy()
+print(tv.groupby(sem)["y"].mean().round(3).rename("taux de positifs par semaine ISO (train + val)").to_frame().T)
+
+bins = pd.cut(train["N"], [-1, 0, 1, 2, 4, 8, 100])
+print(train.groupby(bins, observed=True)["y"].mean().round(3).rename("P(y = 1 | N maintenant), train").to_frame().T)
+```
+
+# Références
+
+Deux règles sans apprentissage servent de points de comparaison : la classe majoritaire (toujours prédire « pas de pénurie ») et la persistance (l'état dans $h$ minutes est supposé égal à l'état actuel).
+
+$$
+\hat y^{\text{maj}}(x) = \mathbf 1\{\hat\pi > 1/2\}, \qquad
+\hat y^{\text{pers}}_{s,t} = \mathbf 1\{N_{s,t} < 2\}.
+$$
+
+Pour calculer une AP, la persistance reçoit aussi un score de classement $1/(1+N_{s,t})$ : c'est une mesure généreuse pour la référence.
+
+```{python}
+y_train = train["y"].to_numpy()
+y_val = val["y"].to_numpy()
+classe_maj    = np.bincount(y_train).argmax()
+pred_pers_val = (val["N"].to_numpy() < 2).astype(int)
+
+print("Majoritaire : erreur val =", round(np.mean(y_val != classe_maj), 3))
+print("Persistance : erreur val =", round(np.mean(y_val != pred_pers_val), 3),
+      "| précision", round(precision_score(y_val, pred_pers_val), 3),
+      "| rappel", round(recall_score(y_val, pred_pers_val), 3),
+      "| F1", round(f1_score(y_val, pred_pers_val), 3))
+```
+
+# Bayes naïf gaussien (écrit à la main)
+
+Le modèle repose sur la formule de Bayes :
+
+$$
+p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
+\qquad \pi = \mathbb{P}(Y=1),
+$$
+
+où $f_y$ est la densité de $X$ sachant $Y=y$, avec deux hypothèses :
+
+1. **Gaussienne** : $X_j \mid Y=y \sim \mathcal N(\mu_{j,y}, \sigma^2_{j,y})$.
+2. **Indépendance conditionnelle** (le côté « naïf ») : $f_y(x) = \prod_j f_{j,y}(x_j)$.
+
+Les paramètres $\pi$, $\mu_{j,y}$, $\sigma^2_{j,y}$ sont estimés sur le jeu d'apprentissage uniquement. La classe `BayesNaifGaussien` est définie dans `velib_utils.py` : `_log_densite` applique l'hypothèse 1 (log-densité de chaque variable) puis l'hypothèse 2 (somme sur les variables).
+
+## Ce que le modèle a appris
+
+```{python}
+bayes = res["models"]["bayes_naif"]
+print("Formes :", bayes.mu_.shape, bayes.sigma_.shape)
+print("Proportions de classes (pi_) :", bayes.pi_.round(4))
+print(pd.DataFrame({"mu y=0": bayes.mu_[0], "mu y=1": bayes.mu_[1],
+                    "sigma y=0": bayes.sigma_[0], "sigma y=1": bayes.sigma_[1]},
+                   index=FEATS).round(2))
+```
+
+## Vérification de la formule à la main
+
+```{python}
+X_train, X_val = train[FEATS].to_numpy(), val[FEATS].to_numpy()
+x = X_val[:1]
+f1 = np.exp(bayes._log_densite(x, 1))[0]
+f0 = np.exp(bayes._log_densite(x, 0))[0]
+pi1, pi0 = bayes.pi_[1], bayes.pi_[0]
+print("formule à la main :", pi1 * f1 / (pi1 * f1 + pi0 * f0))
+print("predict_proba     :", bayes.predict_proba(x)[0, 1])
+```
+
+## Deux erreurs, pas une
+
+```{python}
+erreur_apprentissage = np.mean(bayes.predict(X_train) != y_train)
+erreur_val           = np.mean(bayes.predict(X_val) != y_val)
+sk = GaussianNB().fit(X_train, y_train)
+
+print(f"Erreur d'apprentissage : {erreur_apprentissage:.3f}")
+print(f"Erreur de validation   : {erreur_val:.3f}")
+print(f"Erreur val scikit-learn (doit être très proche) : {np.mean(sk.predict(X_val) != y_val):.3f}")
+```
+
+# Comparaison des modèles sur la validation
+
+Les modèles sont ajustés sur le train. Les hyperparamètres ($k$ du $k$-PPV, profondeur de l'arbre) maximisent l'AP sur la validation. Le seuil de chaque modèle est choisi sur la validation par la même règle (critère : `CRITERION`). Ces chiffres de validation sont des chiffres de sélection, optimistes par construction.
+
+```{python}
+for h, r in RES.items():
+    print(f"===== horizon {h} min | modèle retenu sur la validation : {r['chosen']} =====")
+    print("k =", r["selection"]["k"], "| profondeur =", r["selection"]["profondeur"])
+    print(r["val_table"].round(3).T)
+    print()
+```
+
+## Comparaison au même rappel que la persistance
+
+```{python}
+for h, r in RES.items():
+    v = r["val"]
+    pers = (v["N"].to_numpy() < 2).astype(int)
+    r_pers = recall_score(v["y"], pers)
+    print(f"Horizon {h} min | persistance : précision {precision_score(v['y'], pers):.3f} à rappel {r_pers:.3f}")
+    for nom, m in r["models"].items():
+        p = m.predict_proba(v[r["FEATS"]])[:, 1]
+        print(f"   {nom:11s} : précision {precision_at_recall(v['y'], p, r_pers):.3f} au même rappel")
+```
+
+## Apport des groupes de variables (ablation, validation, horizon 30 min)
+
+Une forêt est ajustée de nouveau sans chaque groupe de variables. Un faible écart signifie que le groupe est redondant, pas forcément inutile. Ce sont des associations, pas des effets.
+
+```{python}
+print(ablation(RES[30]).round(3))
+```
