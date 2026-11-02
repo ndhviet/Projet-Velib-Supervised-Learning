@@ -18,7 +18,7 @@
 <a href="#"><img src="https://img.shields.io/badge/Status-In%20progress-yellow?style=flat-square"></a>
 <a href="#"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square"></a>
 
-<a href="https://ndhviet.github.io/NOM-DU-DEPOT/">
+<a href="https://ndhviet.github.io/Projet-Velib-Supervised-Learning/">
   <img src="https://img.shields.io/badge/Demo-Live%20Website-brightgreen?style=for-the-badge&logo=googlechrome&logoColor=white">
 </a>
 
