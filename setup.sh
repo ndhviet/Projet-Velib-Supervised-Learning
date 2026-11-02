@@ -20,7 +20,7 @@ fi
 "$PY" -m pip install jupyter pyyaml ipykernel
 
 # 3) Register the Jupyter kernel (name must match _quarto.yml)
-"$PY" -m ipykernel install --user --name tp-ml-ia-fiable
+"$PY" -m ipykernel install --user --name projet-velib
 
 # 4) Point RStudio to this venv's Python, PER PROJECT
 #    (writes .Renviron in the project folder, not ~/.Renviron)
