@@ -1,0 +1,469 @@
+---
+title: "Partie 3 Modèles supervisés"
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+date: "2026-10-27"
+
+jupyter: projet-velib
+number-sections: true 
+code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+# Construction du modèle supervisé
+
+Pour chaque station $s$ et chaque instant $t$ (pas de 15 minutes), on définit le nombre total de vélos disponibles par
+
+$$
+N_{s,t} = M_{s,t} + E_{s,t}
+$$
+
+où $M_{s,t}$ et $E_{s,t}$ désignent respectivement les nombres de vélos mécaniques et électriques. La variable à prédire, pour un horizon $h \in \{30, 60\}$ minutes, est définie par :
+
+$$
+Y_{s,t} = \mathbf{1}\{N_{s,t+h} < 2\}
+$$
+
+Elle vaut 1 si la station compte moins de deux vélos $h$ minutes plus tard, et 0 sinon. Elle suit une loi de Bernoulli de paramètre $p_{s,t}$ :
+
+$$
+Y_{s,t} \sim \mathrm{Bernoulli}(p_{s,t}),
+\qquad
+p_{s,t} = \mathbb{P}(Y_{s,t}=1).
+$$
+
+On note $X_{s,t}$ l'ensemble des informations disponibles à l'instant $t$. L'objectif est d'estimer :
+
+$$
+p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
+$$
+
+Les lignes pour lesquelles la station n'est pas observée ou est fermée à $t$ ou à $t+h$ sont exclues. Aucune valeur manquante n'est interpolée : les rares retards qui tombent dans une panne ou une fermeture restent `NaN`, et les modèles les remplacent par la médiane du train (calculée sur le train seul).
+
+## Préparation des données
+
+La grille, la cible, la population et le découpage chronologique sont décrits en Partie 2. Ici, on construit simplement les jeux de données des deux horizons.
+
+```{python}
+import inspect
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.naive_bayes import GaussianNB
+from IPython.display import Image
+from sklearn.inspection import permutation_importance
+from sklearn.metrics import precision_score, recall_score, f1_score, precision_recall_curve
+
+from velib_utils import (load_raw_dt, prepare_sets, pipeline_horizon, evaluate_models,
+                         precision_at_recall, BayesNaifGaussien, scored_frame, metrics_by,daily_dispersion,
+                         station_bootstrap, station_comparison, situation_table, pr_curves,
+                         correlated_pairs, seed_sensitivity, pca_val, plot_validation_summary,  
+                         SUSPECT_STATION, TZ)
+                         
+
+raw = load_raw_dt()
+HORIZONS = (30, 60)
+
+import os, joblib
+from joblib import Parallel, delayed
+
+CRITERION = "f1"
+CACHE = f"cache/modeles_R_{CRITERION}.joblib"
+os.makedirs("cache", exist_ok=True)
+
+if os.path.exists(CACHE):
+    R = joblib.load(CACHE)
+else:
+    res = Parallel(n_jobs=len(HORIZONS))(
+        delayed(pipeline_horizon)(raw, h, criterion=CRITERION) for h in HORIZONS)
+    R = dict(zip(HORIZONS, res))
+    joblib.dump(R, CACHE)
+S = R 
+
+for h in HORIZONS:
+    print(f"horizon {h} min | nombre de variables : {len(S[h]['FEATS'])}")
+    for nom in ["train", "val", "test"]:
+        part = S[h][nom]
+        print(f"  {nom:5s} | lignes : {len(part):6d} | de {part['t'].min()} à {part['t'].max()}")
+```
+
+# Modèles de Références
+
+Deux règles sans apprentissage servent de points de comparaison : la classe majoritaire (toujours prédire « pas de pénurie ») et la persistance (l'état dans $h$ minutes est supposé égal à l'état actuel).
+
+$$
+\hat y^{\text{maj}}(x) = \mathbf 1\{\hat\pi > 1/2\}, \qquad
+\hat y^{\text{pers}}_{s,t} = \mathbf 1\{N_{s,t} < 2\}.
+$$
+
+```{python}
+rows = []
+for h in HORIZONS:
+    val, train = S[h]["val"], S[h]["train"]
+    y_val = val["y"].to_numpy()
+    classe_maj = np.bincount(train["y"].to_numpy()).argmax()
+    pred_pers = (val["N"].to_numpy() < 2).astype(int)
+    rows.append({"horizon (min)": h,
+                 "erreur majoritaire": np.mean(y_val != classe_maj),
+                 "erreur persistance": np.mean(y_val != pred_pers),
+                 "précision persistance": precision_score(y_val, pred_pers),
+                 "rappel persistance": recall_score(y_val, pred_pers),
+                 "F1 persistance": f1_score(y_val, pred_pers)})
+pd.DataFrame(rows).set_index("horizon (min)").round(3)
+```
+
+# Bayes naïf gaussien
+
+Le modèle repose sur la formule de Bayes :
+
+$$
+p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
+\qquad \pi = \mathbb{P}(Y=1),
+$$
+
+où $f_y$ est la densité de $X$ sachant $Y=y$, avec deux hypothèses :
+
+1. **Gaussienne** : $X_j \mid Y=y \sim \mathcal N(\mu_{j,y}, \sigma^2_{j,y})$.
+2. **Indépendance conditionnelle** (le côté « naïf ») : $f_y(x) = \prod_j f_{j,y}(x_j)$.
+
+Les paramètres $\pi$, $\mu_{j,y}$, $\sigma^2_{j,y}$ sont estimés sur le jeu d'apprentissage uniquement. La variable `dow` (0 à 6) n'est pas utilisée : un modèle gaussien la lirait comme une grandeur ordonnée (dimanche « loin » de lundi) ; on garde `weekend` et l'heure.
+
+## La classe
+
+```{python}
+print(inspect.getsource(BayesNaifGaussien))
+```
+
+## Ce que le modèle a appris
+
+```{python}
+S30 = S[30]
+FEATS_NB = [f for f in S30["FEATS"] if f != "dow"]
+
+imp = SimpleImputer(strategy="median").fit(S30["train"][FEATS_NB])      # médiane du train
+X_train, y_train = imp.transform(S30["train"][FEATS_NB]), S30["train"]["y"].to_numpy()
+X_val,   y_val   = imp.transform(S30["val"][FEATS_NB]),   S30["val"]["y"].to_numpy()
+
+bayes = BayesNaifGaussien().fit(X_train, y_train)
+
+print("Formes :", bayes.mu_.shape, bayes.sigma_.shape)
+print("Proportions de classes (pi_) :", bayes.pi_.round(4))
+pd.DataFrame({"mu y=0": bayes.mu_[0], "mu y=1": bayes.mu_[1],
+              "sigma y=0": bayes.sigma_[0], "sigma y=1": bayes.sigma_[1]},
+             index=FEATS_NB).round(2)
+```
+
+## Vérification de la formule à la main
+
+```{python}
+x = X_val[:1]
+f1 = np.exp(bayes._log_densite(x, 1))[0]
+f0 = np.exp(bayes._log_densite(x, 0))[0]
+pi1, pi0 = bayes.pi_[1], bayes.pi_[0]
+print("formule à la main :", pi1 * f1 / (pi1 * f1 + pi0 * f0))
+print("predict_proba     :", bayes.predict_proba(x)[0, 1])
+```
+
+## Deux erreurs, pas une
+
+```{python}
+erreur_apprentissage = np.mean(bayes.predict(X_train) != y_train)
+erreur_val           = np.mean(bayes.predict(X_val) != y_val)
+
+print(f"Erreur d'apprentissage : {erreur_apprentissage:.3f}")
+print(f"Erreur de validation   : {erreur_val:.3f}")
+
+# Vérification contre scikit-learn (doit être très proche)
+sk = GaussianNB().fit(X_train, y_train)
+print("Erreur val sklearn :", round(np.mean(sk.predict(X_val) != y_val), 3),
+      "| ma classe :", round(erreur_val, 3))
+```
+
+# $K$-NN
+
+Le modèle ne suppose aucune forme pour la loi de $Y$ sachant $X$. Pour une ligne $x$, il cherche les $k$ lignes d'apprentissage les plus proches et estime la probabilité par leur proportion de positifs :
+
+$$
+\hat p(x) = \frac{1}{k}\sum_{i \in \mathcal N_k(x)} y_i,
+$$
+
+où $\mathcal N_k(x)$ désigne l'ensemble des $k$ plus proches voisins de $x$ dans le jeu d'apprentissage, pour la distance euclidienne :
+
+$$
+d(x, x') = \Big(\sum_{j} (x_j - x'_j)^2\Big)^{1/2}.
+$$
+
+- Les variables sont **standardisées** (moyenne et écart-type calculés sur le jeu d'apprentissage uniquement) : sinon les variables de grande échelle, comme `N`, domineraient la distance.
+- Le nombre de voisins $k$ est un hyperparamètre : un $k$ petit donne un modèle très flexible (variance élevée), un $k$ grand donne un modèle plus lisse (biais élevé). Il est choisi sur la **validation** en maximisant l'AP.
+- Le modèle n'apprend rien : il mémorise l'apprentissage. Deux lignes voisines dans le temps étant presque identiques, il est particulièrement sensible à une évaluation mal construite ; le découpage chronologique évite ce biais.
+- La distance souffre de la dimension (ici une vingtaine de variables) et de variables redondantes (les retards successifs de `N`).
+
+## Poids du K-NN pondéré
+
+Le k-NN usuel donne le même poids à toutes les variables, ce qui bruite la distance. Le k-NN pondéré multiplie chaque variable standardisée par un poids appris **dans le train seul** : la dernière semaine du train est mise de côté, une forêt est ajustée sur le reste, et le poids d'une variable est son importance par permutation (baisse de l'AP quand on la mélange) sur cette semaine. Les poids sont normalisés (poids moyen = 1) ; $k$ est celui du k-NN usuel.
+
+```{python}
+poids = pd.DataFrame({f"{h} min": R[h]["selection"]["poids_knn"] for h in HORIZONS})
+poids.sort_values("30 min", ascending=False).round(2)
+```
+
+# Arbre de décision
+
+Un arbre partitionne l'espace des variables par une suite de questions du type « $x_j \le c$ ? », puis prédit dans chaque feuille la proportion de positifs de l'apprentissage. À chaque nœud, le couple $(j, c)$ retenu maximise la baisse d'impureté de Gini :
+
+$$
+\Delta G = G(\text{parent}) - \frac{n_G}{n}\,G(\text{gauche}) - \frac{n_D}{n}\,G(\text{droite}),
+\qquad Gini = 2p(1-p),
+$$
+
+où $p$ est la proportion de positifs du nœud.
+
+- Un arbre profond sépare parfaitement l'apprentissage mais généralise mal (variance élevée) ; un arbre peu profond est stable mais trop simple.
+- La complexité est contrôlée par la profondeur maximale (choisie sur la validation parmi quelques valeurs, en maximisant l'AP) et par une taille minimale de feuille (50 lignes).
+- Aucune standardisation n'est nécessaire, et l'arbre capte des interactions (par exemple « peu de vélos **et** en baisse **et** heure de pointe »).
+- Son avantage est l'interprétabilité : le chemin de la racine à une feuille est une règle lisible.
+
+# Forêt aléatoire
+
+Une forêt moyenne $B$ arbres, chacun ajusté sur un échantillon bootstrap des lignes et, à chaque nœud, sur un sous-ensemble aléatoire de variables ($\sqrt{d}$ par défaut) :
+
+$$
+\hat p(x) = \frac{1}{B}\sum_{b=1}^{B} \hat p_b(x).
+$$
+
+Si chaque arbre a une variance $\sigma^2$ et que deux arbres ont une corrélation $\rho$, la variance de la moyenne vaut :
+
+$$
+\mathrm{Var}\big(\hat p(x)\big) = \rho\,\sigma^2 + \frac{1-\rho}{B}\,\sigma^2 .
+$$
+
+- Augmenter $B$ ne supprime que le second terme ; le tirage aléatoire des variables sert à diminuer $\rho$, donc le premier terme.
+- Ici $B = 200$ arbres, avec au moins 20 lignes par feuille.
+- La forêt réduit la variance d'un arbre profond sans augmenter son biais, et reste peu sensible au réglage.
+- Les proportions moyennées ne sont pas des probabilités calibrées. Le seuil est donc choisi sur la validation, pas fixé à $1/2$.
+
+# Gradient boosting
+
+Le boosting construit un modèle additif d'arbres peu profonds, ajoutés **l'un après l'autre** :
+
+$$
+F_m(x) = F_{m-1}(x) + \nu\, f_m(x), \qquad \hat p(x) = \frac{1}{1+e^{-F_M(x)}},
+$$
+
+où $\nu$ est le taux d'apprentissage et $f_m$ un arbre. Le modèle minimise la log-vraisemblance négative ; pour cette perte, le gradient négatif au point $i$ vaut :
+
+$$
+y_i - \hat p_m(x_i),
+$$
+
+c'est-à-dire que chaque nouvel arbre $f_m$ est ajusté sur les **résidus de probabilité** du modèle courant. (scikit-learn utilise aussi la hessienne de la perte, ce qui ne change pas l'idée.)
+
+- Contrairement à la forêt, les arbres ne sont pas indépendants : chacun corrige les erreurs des précédents, ce qui réduit surtout le **biais**.
+- Ici : `HistGradientBoostingClassifier`, 300 itérations, $\nu = 0{,}1$, sans arrêt anticipé (l'arrêt anticipé de scikit-learn tire au hasard une partie des lignes d'apprentissage, ce qui n'a pas de sens pour des données temporelles).
+- Les variables sont regroupées en classes avant de construire les arbres, ce qui rend l'ajustement rapide, et les valeurs manquantes sont gérées nativement.
+- C'est en général la famille la plus performante sur des données tabulaires ; un trop grand nombre d'itérations peut sur-ajuster l'apprentissage.
+
+# Choix du seuil
+
+Chaque modèle fournit une probabilité $\hat p(x)$ ; la décision est $\hat y = \mathbf 1\{\hat p(x) > \tau\}$. Le seuil $\tau$ de chaque modèle est choisi sur la **validation** par la même règle pour tous, puis figé avant la semaine de test.
+
+# Comparaison des modèles sur la validation
+
+Pour chaque horizon, tous les modèles sont ajustés sur le train. Le réglage de $k$ (k-NN, repris pour le k-NN pondéré) et de la profondeur (arbre) se fait sur la validation, par la précision moyenne (AP). Le seuil de chaque modèle est choisi sur la validation, par la même règle pour tous. Le test n'est pas utilisé ici.
+
+```{python}
+for h in HORIZONS:
+    sel = R[h]["selection"]
+    print(f"horizon {h} min | k retenu : {sel['k']} | profondeur retenue : {sel['profondeur']} "
+          f"| modèle retenu (AP validation) : {R[h]['chosen']}")
+    print("seuils :", {k: round(v, 2) for k, v in R[h]["taus"].items()})
+    display(R[h]["val_table"].round(3).T)
+```
+
+**Synthèse des scores de validation.**
+```{python}
+for h in HORIZONS:
+    plot_validation_summary(R[h], h)
+```
+
+## Courbes de validation
+
+Quatre figures résument le choix des seuils et la qualité des scores, pour les deux horizons. Les calculs n'utilisent que la validation.
+
+```{python}
+NAMES = list(R[30]["models"])
+COLORS = dict(zip(NAMES, plt.cm.tab10.colors))
+SC_VAL = {h: evaluate_models(R[h], R[h]["val"], scores=R[h]["p_val"])[1] for h in HORIZONS} 
+PERS_VAL = {h: (R[h]["val"]["N"].to_numpy() < 2).astype(int) for h in HORIZONS}
+```
+
+**Courbes précision-rappel.** Chaque point marque le seuil retenu ; l'étoile est la règle de persistance.
+
+```{python}
+fig, axes = plt.subplots(1, len(HORIZONS), figsize=(13, 5.5), sharey=True)
+for ax, h in zip(axes, HORIZONS):
+    res, sc = R[h], SC_VAL[h]
+    yv = res["val"]["y"].to_numpy()
+    r_p, p_p = recall_score(yv, PERS_VAL[h]), precision_score(yv, PERS_VAL[h])
+    for n in res["models"]:
+        pr, rc, _ = precision_recall_curve(yv, sc[n])
+        ax.plot(rc, pr, color=COLORS[n], label=n)
+        pred = (sc[n] > res["taus"][n]).astype(int)
+        ax.scatter(recall_score(yv, pred), precision_score(yv, pred), color=COLORS[n], edgecolor="k", zorder=3)
+    ax.scatter(r_p, p_p, marker="*", s=250, color="k", zorder=4, label="persistance (règle)")
+    ax.axvline(r_p, color="gray", ls=":", lw=1)
+    ax.set(title=f"Horizon {h} min", xlabel="Rappel", xlim=(0, 1), ylim=(0, 1))
+axes[0].set_ylabel("Précision")
+axes[-1].legend(fontsize=8, loc="lower left")
+fig.tight_layout()
+plt.show()
+```
+
+**F1 selon le seuil.** Le point est le seuil choisi (F1 maximal sur la validation) ; la ligne pointillée est le F1 de la persistance.
+
+```{python}
+fig, axes = plt.subplots(1, len(HORIZONS), figsize=(13, 4.5), sharey=True)
+for ax, h in zip(axes, HORIZONS):
+    res, sc = R[h], SC_VAL[h]
+    yv = res["val"]["y"].to_numpy()
+    for n in res["models"]:
+        pr, rc, th = precision_recall_curve(yv, sc[n])
+        f1 = 2 * pr * rc / (pr + rc + 1e-12)
+        ax.plot(th, f1[:-1], color=COLORS[n], label=n)
+        ax.plot(res["taus"][n], f1_score(yv, sc[n] > res["taus"][n]), "o", color=COLORS[n], markeredgecolor="k")
+    ax.axhline(f1_score(yv, PERS_VAL[h]), color="k", ls="--", label="persistance")
+    ax.set(title=f"Horizon {h} min", xlabel="Seuil τ", ylim=(0, 0.9))
+axes[0].set_ylabel("F1 (validation)")
+axes[-1].legend(fontsize=8, loc="lower center")
+fig.tight_layout()
+plt.show()
+```
+
+**Courbes de calibration.** Sur la diagonale, le score est une probabilité fiable ; au-dessus, le modèle est trop prudent, en dessous trop confiant.
+
+```{python}
+bins_c = [0, .05, .1, .2, .3, .5, .7, .9, 1.0]
+fig, axes = plt.subplots(1, len(HORIZONS), figsize=(12, 5.5), sharey=True)
+for ax, h in zip(axes, HORIZONS):
+    yv = R[h]["val"]["y"].to_numpy()
+    for n in R[h]["models"]:
+        d = pd.DataFrame({"p": SC_VAL[h][n], "y": yv})
+        c = d.groupby(pd.cut(d["p"], bins_c, include_lowest=True), observed=True).agg(p=("p", "mean"), obs=("y", "mean"))
+        ax.plot(c["p"], c["obs"], "o-", color=COLORS[n], label=n)
+    ax.plot([0, 1], [0, 1], "k--", label="calibration parfaite")
+    ax.set(title=f"Horizon {h} min", xlabel="Probabilité prédite", xlim=(0, 1), ylim=(0, 1))
+axes[0].set_ylabel("Fréquence observée")
+axes[-1].legend(fontsize=8, loc="upper left")
+fig.tight_layout()
+plt.show()
+```
+
+## Lecture des probabilités prédites
+
+Ces figures (validation seulement) montrent ce que les scores signifient concrètement : la régression logistique et le boosting sont comparés à la fréquence réellement observée. Le seuil retenu pour le boosting est tracé en pointillés.
+
+```{python}
+SID = 2102      # station affichée dans la série temporelle (une station quelconque si elle n'existe pas)
+
+def table_val(h):
+    t = R[h]["val"][["station_code", "t", "N", "y"]].copy()
+    t["p_rf"], t["p_hgb"] = SC_VAL[h]["foret"], SC_VAL[h]["boosting"]
+    t["heure"] = t["t"].dt.tz_convert(TZ).dt.hour
+    return t
+TMP = {h: table_val(h) for h in HORIZONS}
+TAU_B = {h: R[h]["taus"]["boosting"] for h in HORIZONS}
+```
+
+**Probabilité de pénurie selon le nombre de vélos actuel.**
+
+```{python}
+fig, axes = plt.subplots(1, len(HORIZONS), figsize=(12, 4.5), sharey=True)
+for ax, h in zip(axes, HORIZONS):
+    c = TMP[h][TMP[h]["N"] <= 20].groupby("N")[["y", "p_rf", "p_hgb"]].mean()
+    ax.plot(c.index, c["y"], "ko", label="fréquence observée (y)")
+    ax.plot(c.index, c["p_rf"], "-", label="forêt aléatoire")
+    ax.plot(c.index, c["p_hgb"], "-", label="boosting")
+    ax.axhline(TAU_B[h], color="gray", ls=":", label=f"seuil τ (boosting) = {TAU_B[h]:.2f}")
+    ax.set(title=f"Horizon {h} min", xlabel="Nombre de vélos actuel N")
+axes[0].set_ylabel("p̂ moyen (probabilité de pénurie)")
+axes[-1].legend(fontsize=8)
+fig.tight_layout()
+plt.show()
+```
+
+**p̂ moyen du boosting selon l'heure et le nombre de vélos.**
+
+```{python}
+for h in HORIZONS:
+    pv = TMP[h][TMP[h]["N"] <= 10].pivot_table(index="N", columns="heure", values="p_hgb", aggfunc="mean")
+    fig, ax = plt.subplots(figsize=(9, 4))
+    im = ax.imshow(pv.values, origin="lower", aspect="auto", cmap="viridis", vmin=0, vmax=1)
+    ax.set_xticks(range(len(pv.columns)))
+    ax.set_xticklabels(pv.columns)
+    ax.set_yticks(range(len(pv.index)))
+    ax.set_yticklabels(pv.index.astype(int))
+    ax.set(xlabel="Heure (Paris)", ylabel="Nombre de vélos N",
+           title=f"p̂ moyen (boosting) selon l'heure et le nombre de vélos, {h} min")
+    fig.colorbar(im, label="p̂")
+    plt.show()
+```
+
+**Exemple d'une station sur trois jours.** La zone rouge marque les instants où la pénurie s'est réellement produite ($Y=1$).
+
+```{python}
+for h in HORIZONS:
+    tmp = TMP[h]
+    sid = SID if SID in set(tmp["station_code"]) else tmp.groupby("station_code")["y"].sum().idxmax()
+    w = tmp[tmp["station_code"] == sid].copy()
+    w["tl"] = w["t"].dt.tz_convert(TZ)
+    debut = pd.Timestamp("2026-09-26", tz=TZ)
+    sel = w[(w["tl"] >= debut) & (w["tl"] < debut + pd.Timedelta(days=3))]
+    w = sel if len(sel) else w.iloc[:288]
+
+    fig, ax = plt.subplots(figsize=(11, 4))
+    ax.plot(w["tl"], w["p_hgb"], color="C1", label="p̂ (boosting)")
+    ax.fill_between(w["tl"], 0, 1, where=(w["y"] == 1).to_numpy(), color="red", alpha=0.15,
+                    step="mid", label="pénurie réelle (y = 1)")
+    ax.axhline(TAU_B[h], color="gray", ls=":")
+    ax.set(ylim=(0, 1), ylabel="p̂", title=f"Station {sid} : probabilité de pénurie à {h} min")
+    ax2 = ax.twinx()
+    ax2.plot(w["tl"], w["N"], color="C0", alpha=0.5, label="N (nombre de vélos)")
+    ax2.set_ylabel("N")
+    ax.legend(loc="upper left")
+    ax2.legend(loc="upper right")
+    plt.show()
+```
+
+**Distribution de p̂ selon l'étiquette réelle.**
+
+```{python}
+fig, axes = plt.subplots(1, len(HORIZONS), figsize=(12, 4), sharey=True)
+bins = np.linspace(0, 1, 51)
+for ax, h in zip(axes, HORIZONS):
+    tmp = TMP[h]
+    ax.hist(tmp.loc[tmp["y"] == 0, "p_hgb"], bins=bins, alpha=0.6, label="y = 0")
+    ax.hist(tmp.loc[tmp["y"] == 1, "p_hgb"], bins=bins, alpha=0.6, label="y = 1")
+    ax.axvline(TAU_B[h], color="k", ls=":", label=f"τ = {TAU_B[h]:.2f}")
+    ax.set(yscale="log", xlabel="p̂ (boosting)", title=f"Horizon {h} min")
+axes[0].set_ylabel("nombre de lignes (échelle log)")
+axes[-1].legend()
+fig.tight_layout()
+plt.show()
+```
+## Comparaison au même rappel que la persistance
+
+```{python}
+for h in HORIZONS:
+    res = R[h]
+    y_val = res["val"]["y"].to_numpy()
+    sc = SC_VAL[h]
+
+    r_pers = recall_score(y_val, PERS_VAL[h])
+    p_pers = precision_score(y_val, PERS_VAL[h])
+    print(f"horizon {h} min | persistance : précision {p_pers:.3f} à rappel {r_pers:.3f}")
+    for nom in res["models"]:
+        print(f"  {nom:12s} : précision {precision_at_recall(y_val, sc[nom], r_pers):.3f} au même rappel")
+```

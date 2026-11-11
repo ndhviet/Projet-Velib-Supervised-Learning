@@ -12,6 +12,7 @@ execute:
 ---
 
 ```{python}
+#| echo: false
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -32,34 +33,77 @@ le nombre moyen de vélos disponibles : les stations jaunes sont souvent
 bien remplies, les violettes souvent presque vides.
 
 ```{python}
-# Suppression des stations sans coordonnées
+#| echo: false
+import branca.colormap as cm
+import folium
+
+# 1. Nettoyage et préparation des données
 df_map = (
     raw.dropna(subset=["latitude", "longitude"])
-       .groupby("station_code", as_index=False)
-       .agg(
-           name=("name", "first"),
-           commune=("commune", "first"),capacity=("capacity", "first"),
-           latitude=("latitude", "first"),longitude=("longitude", "first"),
-           bikes_available=("bikes_available", "mean"), ) )
+    .groupby("station_code", as_index=False)
+    .agg(
+        name=("name", "first"),
+        commune=("commune", "first"),
+        capacity=("capacity", "first"),
+        latitude=("latitude", "first"),
+        longitude=("longitude", "first"),
+        bikes_available=("bikes_available", "mean"),
+    )
+)
 print("Nombre de stations :", len(df_map))
 
-fig = px.scatter_map(
-    df_map,lat="latitude",lon="longitude",hover_name="name",
-    hover_data=["station_code", "commune", "capacity"],
-    center=dict(lat=48.8566, lon=2.3522),  
-    zoom=10.5,height=700,color="bikes_available",map_style="open-street-map",
-    title="Répartition des stations Vélib' à Paris (nombre moyen de vélos)")
+# Conversion en format numérique pour un calcul précis des couleurs
+df_map["bikes_available"] = df_map["bikes_available"].astype(float)
 
-fig.update_layout(
-    map=dict(center=dict(lat=48.8566, lon=2.3522), zoom=10.5),
-    margin=dict(l=0, r=0, t=50, b=0),)
+# 2. Création de la carte centrée sur Paris
+m = folium.Map(location=[48.8566, 2.3522], zoom_start=12, tiles="OpenStreetMap")
 
-fig.show()
+# 3. Création d'une échelle de couleurs très vive et contrastée
+min_bikes = df_map["bikes_available"].min()
+max_bikes = df_map["bikes_available"].max()
+if max_bikes == min_bikes:
+  max_bikes = min_bikes + 1
+
+# Palette de couleurs néon éclatante (du violet foncé au jaune vif)
+colormap = cm.LinearColormap(
+    colors=["#0d0887", "#6a00a8", "#b12a90", "#e16462", "#fca636", "#f0f921"],
+    vmin=min_bikes,
+    vmax=max_bikes,
+)
+colormap.caption = "Nombre moyen de vélos disponibles"
+m.add_child(colormap)
+
+# 4. Ajout des stations sur la carte avec des marqueurs bien visibles et un contour noir
+for _, row in df_map.iterrows():
+  color = colormap(row["bikes_available"])
+
+  popup_html = f"""
+    <b>{row['name']}</b><br>
+    <b>Code :</b> {row['station_code']}<br>
+    <b>Commune :</b> {row['commune']}<br>
+    <b>Capacité :</b> {row['capacity']}<br>
+    <b>Vélos dispo (moy) :</b> {row['bikes_available']:.1f}
+    """
+
+  folium.CircleMarker(
+      location=[row["latitude"], row["longitude"]],
+      radius=8,  # Taille du cercle
+      color="#000000",  # Contour noir pour faire ressortir chaque station
+      weight=1,
+      fill=True,
+      fill_color=color,
+      fill_opacity=0.9,
+      popup=folium.Popup(popup_html, max_width=300),
+  ).add_to(m)
+
+# 5. Affichage de la carte dans le notebook / Quarto
+m
 ```
 
-# Localisation détaillée des stations
+## Localisation détaillée des stations
 
 ```{python}
+#| echo: false
 import folium
 from folium.plugins import MarkerCluster
 
@@ -83,6 +127,7 @@ m
 
 # Nombre de stations par commune
 ```{python}
+#| code-fold: true
 # Une ligne par station, puis comptage par commune
 stations = raw.dropna(subset=["commune"]).drop_duplicates(subset="station_code")
 counts = (stations["commune"].value_counts()
@@ -102,13 +147,7 @@ fig.show()
 # Nettoyage et agrégation des données
 
 ```{python}
-import numpy as np
-import pandas as pd
-import plotly.express as px
-
-JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
-VERT = ["#DCFCE7", "#86EFAC", "#22C55E", "#15803D", "#14532D"]
-
+#| code-fold: true
 TIME_COL = "collected_at_utc"
 
 df = raw.copy()
@@ -137,6 +176,7 @@ print("Nombre de jours :", df["ts"].dt.date.nunique())
 
 ## Vélos disponibles par heure
 ```{python}
+#| code-fold: true
 by_hour = df.groupby("hour", as_index=False)["bikes_available"].mean()
 
 fig = px.line(by_hour, x="hour", y="bikes_available", markers=True,
@@ -150,6 +190,7 @@ fig.show()
 
 ## Semaine vs week-end
 ```{python}
+#| code-fold: true
 by_hour_p = df.groupby(["hour", "periode"], as_index=False)["bikes_available"].mean()
 
 fig = px.line(by_hour_p, x="hour", y="bikes_available", color="periode", markers=True,
@@ -163,6 +204,7 @@ fig.show()
 
 ## Distribution de la capacité des stations
 ```{python}
+#| code-fold: true
 fig = px.histogram(stations, x="capacity", nbins=20,
                    color_discrete_sequence=["#15803D"],
                    labels={"capacity": "Capacité"},
@@ -175,6 +217,7 @@ fig.show()
 
 ## Taux d’occupation moyen par jour et par heure
 ```{python}
+#| code-fold: true
 pivot = (df.groupby(["weekday", "hour"])["occupancy"].mean()
            .unstack("hour").reindex(range(7)))
 pivot.index = [JOURS[i] for i in pivot.index]
@@ -187,6 +230,7 @@ fig.show()
 
 ## Répartition du taux d’occupation des stations
 ```{python}
+#| code-fold: true
 fig = px.histogram(stations, x="occupancy", nbins=30,
                    color_discrete_sequence=["#22C55E"],
                    labels={"occupancy": "Taux d'occupation moyen"},
@@ -197,6 +241,7 @@ fig.show()
 
 ## Taux d’occupation moyen par commune
 ```{python}
+#| code-fold: true
 by_commune = (stations.groupby("commune", as_index=False)
                       .agg(n_stations=("station_code", "count"),
                            occupancy=("occupancy", "mean"))
@@ -215,6 +260,7 @@ fig.show()
 
 ## Taux d’occupation par commune et par heure
 ```{python}
+#| code-fold: true
 top = stations["commune"].value_counts().head(15).index
 pv = (df[df["commune"].isin(top)]
         .groupby(["commune", "hour"])["occupancy"].mean().unstack("hour"))

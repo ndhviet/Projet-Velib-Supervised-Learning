@@ -12,6 +12,7 @@ execute:
 ---
 
 ```{python}
+#| echo: false
 import numpy as np
 import pandas as pd
 from velib_utils import (load_raw_dt, coverage, qualite, prepare_sets, population_table,
@@ -164,6 +165,7 @@ for h in HORIZONS:
 ## Distribution de la cible
 
 ```{python}
+#| code-fold: true
 tr = S[30]["train"]
 hour = tr["t"].dt.tz_convert(TZ).dt.hour
 
@@ -181,13 +183,13 @@ trval.groupby(week)["y"].mean().rename("taux de positifs par semaine ISO (train 
 ## Découpage chronologique
 
 ```{python}
+#| code-fold: true
 for h in HORIZONS:
     print(f"horizon {h} min")
     display(split_summary(S[h]))
 ```
 
 ## Variables
-
 ```{python}
 pd.Series({g: ", ".join(f) for g, f in FEATURE_GROUPS.items()}, name="variables").to_frame()
 ```

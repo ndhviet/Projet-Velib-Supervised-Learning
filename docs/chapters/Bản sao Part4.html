@@ -270,7 +270,6 @@ window.Quarto = {
   </ul></li>
   <li><a href="#sensibilité-des-résultats-de-test" id="toc-sensibilité-des-résultats-de-test" class="nav-link" data-scroll-target="#sensibilité-des-résultats-de-test"><span class="header-section-number">5</span> Sensibilité des résultats de test</a></li>
   <li><a href="#apport-des-groupes-de-variables-ablation-validation" id="toc-apport-des-groupes-de-variables-ablation-validation" class="nav-link" data-scroll-target="#apport-des-groupes-de-variables-ablation-validation"><span class="header-section-number">6</span> Apport des groupes de variables (ablation, validation)</a></li>
-  <li><a href="#annexe-expériences-exploratoires-validation-seulement" id="toc-annexe-expériences-exploratoires-validation-seulement" class="nav-link" data-scroll-target="#annexe-expériences-exploratoires-validation-seulement"><span class="header-section-number">7</span> Annexe : expériences exploratoires (validation seulement)</a></li>
   </ul>
 </nav>
     </div>
@@ -420,7 +419,7 @@ window.Quarto = {
 </header>
 
 
-<div id="58d72bc9" class="cell" data-execution_count="1">
+<div id="265abd9e" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> joblib</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -433,21 +432,22 @@ window.Quarto = {
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> velib_utils <span class="im">import</span> (load_raw_dt, prepare_sets, pipeline_horizon, evaluate_models,</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                         precision_at_recall, ablation, scored_frame, metrics_by, daily_dispersion,</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                         station_bootstrap, station_comparison, situation_table, pr_curves,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                         correlated_pairs, seed_sensitivity, pca_val, SUSPECT_STATION, TZ)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> load_raw_dt()</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>HORIZONS <span class="op">=</span> (<span class="dv">30</span>, <span class="dv">60</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>CACHE <span class="op">=</span> <span class="st">"cache/modeles_R.joblib"</span>                 <span class="co"># écrit par la Partie 3</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> os.path.exists(CACHE):</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    R <span class="op">=</span> joblib.load(CACHE)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:                                            <span class="co"># Partie 3 pas encore rendue : on réentraîne</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    R <span class="op">=</span> {h: pipeline_horizon(raw, h, criterion<span class="op">=</span><span class="st">"f1"</span>) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                         correlated_pairs, seed_sensitivity, pca_val, plot_validation_summary,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                         SUSPECT_STATION, TZ)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> load_raw_dt()</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>HORIZONS <span class="op">=</span> (<span class="dv">30</span>, <span class="dv">60</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>CACHE <span class="op">=</span> <span class="st">"cache/modeles_R.joblib"</span>                 <span class="co"># écrit par la Partie 3</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> os.path.exists(CACHE):</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    R <span class="op">=</span> joblib.load(CACHE)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:                                            <span class="co"># Partie 3 pas encore rendue : on réentraîne</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    R <span class="op">=</span> {h: pipeline_horizon(raw, h, criterion<span class="op">=</span><span class="st">"f1"</span>) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="comparaison-des-modèles-sur-la-validation" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Comparaison des modèles sur la validation</h1>
 <p>Les modèles, les seuils et les réglages viennent de la Partie 3 ; ils sont figés. Le test n’est utilisé qu’à partir de la section « Évaluation finale ».</p>
-<div id="72829a38" class="cell" data-execution_count="2">
+<div id="450648e1" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | modèle retenu (AP validation) : </span><span class="sc">{</span>R[h][<span class="st">'chosen'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    display(R[h][<span class="st">"val_table"</span>].<span class="bu">round</span>(<span class="dv">3</span>).T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -844,127 +844,125 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<section id="courbes-de-validation" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="courbes-de-validation"><span class="header-section-number">1.1</span> Courbes de validation</h2>
-<p>Quatre figures résument le choix des seuils et la qualité des scores, pour les deux horizons. Les calculs n’utilisent que la validation.</p>
-<div id="469c1fc6" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>NAMES <span class="op">=</span> <span class="bu">list</span>(R[<span class="dv">30</span>][<span class="st">"models"</span>])</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>COLORS <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(NAMES, plt.cm.tab10.colors))</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>SC_VAL <span class="op">=</span> {h: evaluate_models(R[h], R[h][<span class="st">"val"</span>])[<span class="dv">1</span>] <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}      <span class="co"># scores de chaque modèle sur la validation</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>PERS_VAL <span class="op">=</span> {h: (R[h][<span class="st">"val"</span>][<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p><strong>Courbes précision-rappel.</strong> Chaque point marque le seuil retenu ; l’étoile est la règle de persistance.</p>
-<div id="e3336f56" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="fl">5.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    res, sc <span class="op">=</span> R[h], SC_VAL[h]</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> res[<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    r_p, p_p <span class="op">=</span> recall_score(yv, PERS_VAL[h]), precision_score(yv, PERS_VAL[h])</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> res[<span class="st">"models"</span>]:</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        pr, rc, _ <span class="op">=</span> precision_recall_curve(yv, sc[n])</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        ax.plot(rc, pr, color<span class="op">=</span>COLORS[n], label<span class="op">=</span>n)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        pred <span class="op">=</span> (sc[n] <span class="op">&gt;</span> res[<span class="st">"taus"</span>][n]).astype(<span class="bu">int</span>)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        ax.scatter(recall_score(yv, pred), precision_score(yv, pred), color<span class="op">=</span>COLORS[n], edgecolor<span class="op">=</span><span class="st">"k"</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    ax.scatter(r_p, p_p, marker<span class="op">=</span><span class="st">"*"</span>, s<span class="op">=</span><span class="dv">250</span>, color<span class="op">=</span><span class="st">"k"</span>, zorder<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">"persistance (règle)"</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    ax.axvline(r_p, color<span class="op">=</span><span class="st">"gray"</span>, ls<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Rappel"</span>, xlim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>), ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Précision"</span>)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"lower left"</span>)</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Synthèse des scores de validation.</strong></p>
+<div id="56ce2221" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    plot_validation_summary(R[h], h)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-5-output-1.png" width="1242" height="518" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-4-output-1.png" width="1528" height="385" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Bản sao Part4_files/figure-html/cell-4-output-2.png" width="1528" height="385" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="courbes-de-validation" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="courbes-de-validation"><span class="header-section-number">1.1</span> Courbes de validation</h2>
+<p>Quatre figures résument le choix des seuils et la qualité des scores, pour les deux horizons. Les calculs n’utilisent que la validation.</p>
+<div id="582d4051" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>NAMES <span class="op">=</span> <span class="bu">list</span>(R[<span class="dv">30</span>][<span class="st">"models"</span>])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>COLORS <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(NAMES, plt.cm.tab10.colors))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>SC_VAL <span class="op">=</span> {h: evaluate_models(R[h], R[h][<span class="st">"val"</span>])[<span class="dv">1</span>] <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}      <span class="co"># scores de chaque modèle sur la validation</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>PERS_VAL <span class="op">=</span> {h: (R[h][<span class="st">"val"</span>][<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Courbes précision-rappel.</strong> Chaque point marque le seuil retenu ; l’étoile est la règle de persistance.</p>
+<div id="089932d4" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="fl">5.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    res, sc <span class="op">=</span> R[h], SC_VAL[h]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> res[<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    r_p, p_p <span class="op">=</span> recall_score(yv, PERS_VAL[h]), precision_score(yv, PERS_VAL[h])</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> res[<span class="st">"models"</span>]:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        pr, rc, _ <span class="op">=</span> precision_recall_curve(yv, sc[n])</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        ax.plot(rc, pr, color<span class="op">=</span>COLORS[n], label<span class="op">=</span>n)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        pred <span class="op">=</span> (sc[n] <span class="op">&gt;</span> res[<span class="st">"taus"</span>][n]).astype(<span class="bu">int</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        ax.scatter(recall_score(yv, pred), precision_score(yv, pred), color<span class="op">=</span>COLORS[n], edgecolor<span class="op">=</span><span class="st">"k"</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    ax.scatter(r_p, p_p, marker<span class="op">=</span><span class="st">"*"</span>, s<span class="op">=</span><span class="dv">250</span>, color<span class="op">=</span><span class="st">"k"</span>, zorder<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">"persistance (règle)"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    ax.axvline(r_p, color<span class="op">=</span><span class="st">"gray"</span>, ls<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Rappel"</span>, xlim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>), ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Précision"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"lower left"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Bản sao Part4_files/figure-html/cell-6-output-1.png" width="1242" height="518" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p><strong>F1 selon le seuil.</strong> Le point est le seuil choisi (F1 maximal sur la validation) ; la ligne pointillée est le F1 de la persistance.</p>
-<div id="82178003" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    res, sc <span class="op">=</span> R[h], SC_VAL[h]</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> res[<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> res[<span class="st">"models"</span>]:</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        pr, rc, th <span class="op">=</span> precision_recall_curve(yv, sc[n])</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        f1 <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> pr <span class="op">*</span> rc <span class="op">/</span> (pr <span class="op">+</span> rc <span class="op">+</span> <span class="fl">1e-12</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        ax.plot(th, f1[:<span class="op">-</span><span class="dv">1</span>], color<span class="op">=</span>COLORS[n], label<span class="op">=</span>n)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        ax.plot(res[<span class="st">"taus"</span>][n], f1_score(yv, sc[n] <span class="op">&gt;</span> res[<span class="st">"taus"</span>][n]), <span class="st">"o"</span>, color<span class="op">=</span>COLORS[n], markeredgecolor<span class="op">=</span><span class="st">"k"</span>)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ax.axhline(f1_score(yv, PERS_VAL[h]), color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"persistance"</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Seuil τ"</span>, ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="fl">0.9</span>))</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"F1 (validation)"</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"lower center"</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="2f8665bd" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    res, sc <span class="op">=</span> R[h], SC_VAL[h]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> res[<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> res[<span class="st">"models"</span>]:</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        pr, rc, th <span class="op">=</span> precision_recall_curve(yv, sc[n])</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        f1 <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> pr <span class="op">*</span> rc <span class="op">/</span> (pr <span class="op">+</span> rc <span class="op">+</span> <span class="fl">1e-12</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        ax.plot(th, f1[:<span class="op">-</span><span class="dv">1</span>], color<span class="op">=</span>COLORS[n], label<span class="op">=</span>n)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        ax.plot(res[<span class="st">"taus"</span>][n], f1_score(yv, sc[n] <span class="op">&gt;</span> res[<span class="st">"taus"</span>][n]), <span class="st">"o"</span>, color<span class="op">=</span>COLORS[n], markeredgecolor<span class="op">=</span><span class="st">"k"</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    ax.axhline(f1_score(yv, PERS_VAL[h]), color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"persistance"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Seuil τ"</span>, ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="fl">0.9</span>))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"F1 (validation)"</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"lower center"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-6-output-1.png" width="1239" height="422" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-7-output-1.png" width="1239" height="422" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p><strong>Courbes de calibration.</strong> Sur la diagonale, le score est une probabilité fiable ; au-dessus, le modèle est trop prudent, en dessous trop confiant.</p>
-<div id="4b5be42b" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bins_c <span class="op">=</span> [<span class="dv">0</span>, <span class="fl">.05</span>, <span class="fl">.1</span>, <span class="fl">.2</span>, <span class="fl">.3</span>, <span class="fl">.5</span>, <span class="fl">.7</span>, <span class="fl">.9</span>, <span class="fl">1.0</span>]</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">5.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> R[h][<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> R[h][<span class="st">"models"</span>]:</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        d <span class="op">=</span> pd.DataFrame({<span class="st">"p"</span>: SC_VAL[h][n], <span class="st">"y"</span>: yv})</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> d.groupby(pd.cut(d[<span class="st">"p"</span>], bins_c, include_lowest<span class="op">=</span><span class="va">True</span>), observed<span class="op">=</span><span class="va">True</span>).agg(p<span class="op">=</span>(<span class="st">"p"</span>, <span class="st">"mean"</span>), obs<span class="op">=</span>(<span class="st">"y"</span>, <span class="st">"mean"</span>))</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        ax.plot(c[<span class="st">"p"</span>], c[<span class="st">"obs"</span>], <span class="st">"o-"</span>, color<span class="op">=</span>COLORS[n], label<span class="op">=</span>n)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    ax.plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, label<span class="op">=</span><span class="st">"calibration parfaite"</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Probabilité prédite"</span>, xlim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>), ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Fréquence observée"</span>)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="44dd59ce" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bins_c <span class="op">=</span> [<span class="dv">0</span>, <span class="fl">.05</span>, <span class="fl">.1</span>, <span class="fl">.2</span>, <span class="fl">.3</span>, <span class="fl">.5</span>, <span class="fl">.7</span>, <span class="fl">.9</span>, <span class="fl">1.0</span>]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">5.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> R[h][<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> R[h][<span class="st">"models"</span>]:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        d <span class="op">=</span> pd.DataFrame({<span class="st">"p"</span>: SC_VAL[h][n], <span class="st">"y"</span>: yv})</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> d.groupby(pd.cut(d[<span class="st">"p"</span>], bins_c, include_lowest<span class="op">=</span><span class="va">True</span>), observed<span class="op">=</span><span class="va">True</span>).agg(p<span class="op">=</span>(<span class="st">"p"</span>, <span class="st">"mean"</span>), obs<span class="op">=</span>(<span class="st">"y"</span>, <span class="st">"mean"</span>))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        ax.plot(c[<span class="st">"p"</span>], c[<span class="st">"obs"</span>], <span class="st">"o-"</span>, color<span class="op">=</span>COLORS[n], label<span class="op">=</span>n)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ax.plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, label<span class="op">=</span><span class="st">"calibration parfaite"</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Probabilité prédite"</span>, xlim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>), ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Fréquence observée"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-7-output-1.png" width="1145" height="518" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-8-output-1.png" width="1145" height="518" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p><strong>Synthèse des scores de validation.</strong> La persistance n’a pas de probabilité calibrée : son Brier n’est pas affiché.</p>
-<div id="980e7035" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    res, sc <span class="op">=</span> R[h], SC_VAL[h]</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> res[<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    r_p <span class="op">=</span> recall_score(yv, PERS_VAL[h])</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> res[<span class="st">"val_table"</span>].drop(index<span class="op">=</span><span class="st">"majoritaire"</span>).copy()</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    t[<span class="st">"P@R_pers"</span>] <span class="op">=</span> [precision_score(yv, PERS_VAL[h]) <span class="cf">if</span> n <span class="op">==</span> <span class="st">"persistance"</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                     <span class="cf">else</span> precision_at_recall(yv, sc[n], r_p) <span class="cf">for</span> n <span class="kw">in</span> t.index]</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    t.loc[<span class="st">"persistance"</span>, <span class="st">"Brier"</span>] <span class="op">=</span> np.nan</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    metrics <span class="op">=</span> [(<span class="st">"AP"</span>, <span class="st">"AP (haut = bon)"</span>), (<span class="st">"Brier"</span>, <span class="st">"Brier (bas = bon)"</span>),</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>               (<span class="st">"cost"</span>, <span class="st">"Coût 5:1 (bas = bon)"</span>), (<span class="st">"P@R_pers"</span>, <span class="st">"Précision au rappel de la persistance"</span>)]</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="dv">4</span>))</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax, (m, titre) <span class="kw">in</span> <span class="bu">zip</span>(axes, metrics):</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        vals <span class="op">=</span> t[m].dropna()</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        bars <span class="op">=</span> ax.bar(<span class="bu">range</span>(<span class="bu">len</span>(vals)), vals.values,</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                      color<span class="op">=</span>[<span class="st">"gray"</span> <span class="cf">if</span> i <span class="op">==</span> <span class="st">"persistance"</span> <span class="cf">else</span> COLORS[i] <span class="cf">for</span> i <span class="kw">in</span> vals.index])</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        ax.set_xticks(<span class="bu">range</span>(<span class="bu">len</span>(vals)))</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        ax.set_xticklabels(vals.index, rotation<span class="op">=</span><span class="dv">60</span>, ha<span class="op">=</span><span class="st">"right"</span>)</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        ax.set_title(titre, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b, v <span class="kw">in</span> <span class="bu">zip</span>(bars, vals.values):</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>            ax.text(b.get_x() <span class="op">+</span> b.get_width() <span class="op">/</span> <span class="dv">2</span>, v, <span class="ss">f"</span><span class="sc">{</span>v<span class="sc">:.3f}</span><span class="ss">"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fdbfd22e" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    plot_validation_summary(R[h], h, COLORS)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-8-output-1.png" width="1528" height="385" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-9-output-1.png" width="1528" height="385" class="figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-8-output-2.png" width="1528" height="385" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-9-output-2.png" width="1528" height="385" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -973,124 +971,124 @@ window.Quarto = {
 <section id="lecture-des-probabilités-prédites" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="lecture-des-probabilités-prédites"><span class="header-section-number">1.2</span> Lecture des probabilités prédites</h2>
 <p>Ces figures (validation seulement) montrent ce que les scores signifient concrètement : la régression logistique et le boosting sont comparés à la fréquence réellement observée. Le seuil retenu pour le boosting est tracé en pointillés.</p>
-<div id="08adcd2d" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>SID <span class="op">=</span> <span class="dv">2102</span>      <span class="co"># station affichée dans la série temporelle (une station quelconque si elle n'existe pas)</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> table_val(h):</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> R[h][<span class="st">"val"</span>][[<span class="st">"station_code"</span>, <span class="st">"t"</span>, <span class="st">"N"</span>, <span class="st">"y"</span>]].copy()</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    t[<span class="st">"p_lr"</span>], t[<span class="st">"p_hgb"</span>] <span class="op">=</span> SC_VAL[h][<span class="st">"logreg"</span>], SC_VAL[h][<span class="st">"boosting"</span>]</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    t[<span class="st">"heure"</span>] <span class="op">=</span> t[<span class="st">"t"</span>].dt.tz_convert(TZ).dt.hour</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> t</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>TMP <span class="op">=</span> {h: table_val(h) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>TAU_B <span class="op">=</span> {h: R[h][<span class="st">"taus"</span>][<span class="st">"boosting"</span>] <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="cf2b1674" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>SID <span class="op">=</span> <span class="dv">2102</span>      <span class="co"># station affichée dans la série temporelle (une station quelconque si elle n'existe pas)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> table_val(h):</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> R[h][<span class="st">"val"</span>][[<span class="st">"station_code"</span>, <span class="st">"t"</span>, <span class="st">"N"</span>, <span class="st">"y"</span>]].copy()</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    t[<span class="st">"p_lr"</span>], t[<span class="st">"p_hgb"</span>] <span class="op">=</span> SC_VAL[h][<span class="st">"logreg"</span>], SC_VAL[h][<span class="st">"boosting"</span>]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    t[<span class="st">"heure"</span>] <span class="op">=</span> t[<span class="st">"t"</span>].dt.tz_convert(TZ).dt.hour</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> t</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>TMP <span class="op">=</span> {h: table_val(h) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>TAU_B <span class="op">=</span> {h: R[h][<span class="st">"taus"</span>][<span class="st">"boosting"</span>] <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><strong>Probabilité de pénurie selon le nombre de vélos actuel.</strong></p>
-<div id="aa9515bc" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> TMP[h][TMP[h][<span class="st">"N"</span>] <span class="op">&lt;=</span> <span class="dv">20</span>].groupby(<span class="st">"N"</span>)[[<span class="st">"y"</span>, <span class="st">"p_lr"</span>, <span class="st">"p_hgb"</span>]].mean()</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    ax.plot(c.index, c[<span class="st">"y"</span>], <span class="st">"ko"</span>, label<span class="op">=</span><span class="st">"fréquence observée (y)"</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    ax.plot(c.index, c[<span class="st">"p_lr"</span>], <span class="st">"-"</span>, label<span class="op">=</span><span class="st">"régression logistique"</span>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(c.index, c[<span class="st">"p_hgb"</span>], <span class="st">"-"</span>, label<span class="op">=</span><span class="st">"boosting"</span>)</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    ax.axhline(TAU_B[h], color<span class="op">=</span><span class="st">"gray"</span>, ls<span class="op">=</span><span class="st">":"</span>, label<span class="op">=</span><span class="ss">f"seuil τ (boosting) = </span><span class="sc">{</span>TAU_B[h]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Nombre de vélos actuel N"</span>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"p̂ moyen (probabilité de pénurie)"</span>)</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="63772b33" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> TMP[h][TMP[h][<span class="st">"N"</span>] <span class="op">&lt;=</span> <span class="dv">20</span>].groupby(<span class="st">"N"</span>)[[<span class="st">"y"</span>, <span class="st">"p_lr"</span>, <span class="st">"p_hgb"</span>]].mean()</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    ax.plot(c.index, c[<span class="st">"y"</span>], <span class="st">"ko"</span>, label<span class="op">=</span><span class="st">"fréquence observée (y)"</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    ax.plot(c.index, c[<span class="st">"p_lr"</span>], <span class="st">"-"</span>, label<span class="op">=</span><span class="st">"régression logistique"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(c.index, c[<span class="st">"p_hgb"</span>], <span class="st">"-"</span>, label<span class="op">=</span><span class="st">"boosting"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    ax.axhline(TAU_B[h], color<span class="op">=</span><span class="st">"gray"</span>, ls<span class="op">=</span><span class="st">":"</span>, label<span class="op">=</span><span class="ss">f"seuil τ (boosting) = </span><span class="sc">{</span>TAU_B[h]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Nombre de vélos actuel N"</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"p̂ moyen (probabilité de pénurie)"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-10-output-1.png" width="1144" height="422" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-11-output-1.png" width="1144" height="422" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p><strong>p̂ moyen du boosting selon l’heure et le nombre de vélos.</strong></p>
-<div id="edc56a92" class="cell" data-execution_count="10">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    pv <span class="op">=</span> TMP[h][TMP[h][<span class="st">"N"</span>] <span class="op">&lt;=</span> <span class="dv">10</span>].pivot_table(index<span class="op">=</span><span class="st">"N"</span>, columns<span class="op">=</span><span class="st">"heure"</span>, values<span class="op">=</span><span class="st">"p_hgb"</span>, aggfunc<span class="op">=</span><span class="st">"mean"</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    im <span class="op">=</span> ax.imshow(pv.values, origin<span class="op">=</span><span class="st">"lower"</span>, aspect<span class="op">=</span><span class="st">"auto"</span>, cmap<span class="op">=</span><span class="st">"viridis"</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks(<span class="bu">range</span>(<span class="bu">len</span>(pv.columns)))</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    ax.set_xticklabels(pv.columns)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    ax.set_yticks(<span class="bu">range</span>(<span class="bu">len</span>(pv.index)))</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    ax.set_yticklabels(pv.index.astype(<span class="bu">int</span>))</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Heure (Paris)"</span>, ylabel<span class="op">=</span><span class="st">"Nombre de vélos N"</span>,</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>           title<span class="op">=</span><span class="ss">f"p̂ moyen (boosting) selon l'heure et le nombre de vélos, </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    fig.colorbar(im, label<span class="op">=</span><span class="st">"p̂"</span>)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="064c8206" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    pv <span class="op">=</span> TMP[h][TMP[h][<span class="st">"N"</span>] <span class="op">&lt;=</span> <span class="dv">10</span>].pivot_table(index<span class="op">=</span><span class="st">"N"</span>, columns<span class="op">=</span><span class="st">"heure"</span>, values<span class="op">=</span><span class="st">"p_hgb"</span>, aggfunc<span class="op">=</span><span class="st">"mean"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    im <span class="op">=</span> ax.imshow(pv.values, origin<span class="op">=</span><span class="st">"lower"</span>, aspect<span class="op">=</span><span class="st">"auto"</span>, cmap<span class="op">=</span><span class="st">"viridis"</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks(<span class="bu">range</span>(<span class="bu">len</span>(pv.columns)))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    ax.set_xticklabels(pv.columns)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    ax.set_yticks(<span class="bu">range</span>(<span class="bu">len</span>(pv.index)))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    ax.set_yticklabels(pv.index.astype(<span class="bu">int</span>))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Heure (Paris)"</span>, ylabel<span class="op">=</span><span class="st">"Nombre de vélos N"</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>           title<span class="op">=</span><span class="ss">f"p̂ moyen (boosting) selon l'heure et le nombre de vélos, </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    fig.colorbar(im, label<span class="op">=</span><span class="st">"p̂"</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-11-output-1.png" width="699" height="378" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-12-output-1.png" width="699" height="378" class="figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-11-output-2.png" width="699" height="378" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-12-output-2.png" width="699" height="378" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p><strong>Exemple d’une station sur trois jours.</strong> La zone rouge marque les instants où la pénurie s’est réellement produite (<span class="math inline">\(Y=1\)</span>).</p>
-<div id="42b95c83" class="cell" data-execution_count="11">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> TMP[h]</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    sid <span class="op">=</span> SID <span class="cf">if</span> SID <span class="kw">in</span> <span class="bu">set</span>(tmp[<span class="st">"station_code"</span>]) <span class="cf">else</span> tmp.groupby(<span class="st">"station_code"</span>)[<span class="st">"y"</span>].<span class="bu">sum</span>().idxmax()</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> tmp[tmp[<span class="st">"station_code"</span>] <span class="op">==</span> sid].copy()</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    w[<span class="st">"tl"</span>] <span class="op">=</span> w[<span class="st">"t"</span>].dt.tz_convert(TZ)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    debut <span class="op">=</span> pd.Timestamp(<span class="st">"2026-09-26"</span>, tz<span class="op">=</span>TZ)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    sel <span class="op">=</span> w[(w[<span class="st">"tl"</span>] <span class="op">&gt;=</span> debut) <span class="op">&amp;</span> (w[<span class="st">"tl"</span>] <span class="op">&lt;</span> debut <span class="op">+</span> pd.Timedelta(days<span class="op">=</span><span class="dv">3</span>))]</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> sel <span class="cf">if</span> <span class="bu">len</span>(sel) <span class="cf">else</span> w.iloc[:<span class="dv">288</span>]</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">4</span>))</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    ax.plot(w[<span class="st">"tl"</span>], w[<span class="st">"p_hgb"</span>], color<span class="op">=</span><span class="st">"C1"</span>, label<span class="op">=</span><span class="st">"p̂ (boosting)"</span>)</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    ax.fill_between(w[<span class="st">"tl"</span>], <span class="dv">0</span>, <span class="dv">1</span>, where<span class="op">=</span>(w[<span class="st">"y"</span>] <span class="op">==</span> <span class="dv">1</span>).to_numpy(), color<span class="op">=</span><span class="st">"red"</span>, alpha<span class="op">=</span><span class="fl">0.15</span>,</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                    step<span class="op">=</span><span class="st">"mid"</span>, label<span class="op">=</span><span class="st">"pénurie réelle (y = 1)"</span>)</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    ax.axhline(TAU_B[h], color<span class="op">=</span><span class="st">"gray"</span>, ls<span class="op">=</span><span class="st">":"</span>)</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>), ylabel<span class="op">=</span><span class="st">"p̂"</span>, title<span class="op">=</span><span class="ss">f"Station </span><span class="sc">{</span>sid<span class="sc">}</span><span class="ss"> : probabilité de pénurie à </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    ax2 <span class="op">=</span> ax.twinx()</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    ax2.plot(w[<span class="st">"tl"</span>], w[<span class="st">"N"</span>], color<span class="op">=</span><span class="st">"C0"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"N (nombre de vélos)"</span>)</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    ax2.set_ylabel(<span class="st">"N"</span>)</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    ax2.legend(loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="e3ab2bc3" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> TMP[h]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    sid <span class="op">=</span> SID <span class="cf">if</span> SID <span class="kw">in</span> <span class="bu">set</span>(tmp[<span class="st">"station_code"</span>]) <span class="cf">else</span> tmp.groupby(<span class="st">"station_code"</span>)[<span class="st">"y"</span>].<span class="bu">sum</span>().idxmax()</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> tmp[tmp[<span class="st">"station_code"</span>] <span class="op">==</span> sid].copy()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    w[<span class="st">"tl"</span>] <span class="op">=</span> w[<span class="st">"t"</span>].dt.tz_convert(TZ)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    debut <span class="op">=</span> pd.Timestamp(<span class="st">"2026-09-26"</span>, tz<span class="op">=</span>TZ)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    sel <span class="op">=</span> w[(w[<span class="st">"tl"</span>] <span class="op">&gt;=</span> debut) <span class="op">&amp;</span> (w[<span class="st">"tl"</span>] <span class="op">&lt;</span> debut <span class="op">+</span> pd.Timedelta(days<span class="op">=</span><span class="dv">3</span>))]</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> sel <span class="cf">if</span> <span class="bu">len</span>(sel) <span class="cf">else</span> w.iloc[:<span class="dv">288</span>]</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">4</span>))</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    ax.plot(w[<span class="st">"tl"</span>], w[<span class="st">"p_hgb"</span>], color<span class="op">=</span><span class="st">"C1"</span>, label<span class="op">=</span><span class="st">"p̂ (boosting)"</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    ax.fill_between(w[<span class="st">"tl"</span>], <span class="dv">0</span>, <span class="dv">1</span>, where<span class="op">=</span>(w[<span class="st">"y"</span>] <span class="op">==</span> <span class="dv">1</span>).to_numpy(), color<span class="op">=</span><span class="st">"red"</span>, alpha<span class="op">=</span><span class="fl">0.15</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                    step<span class="op">=</span><span class="st">"mid"</span>, label<span class="op">=</span><span class="st">"pénurie réelle (y = 1)"</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    ax.axhline(TAU_B[h], color<span class="op">=</span><span class="st">"gray"</span>, ls<span class="op">=</span><span class="st">":"</span>)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>), ylabel<span class="op">=</span><span class="st">"p̂"</span>, title<span class="op">=</span><span class="ss">f"Station </span><span class="sc">{</span>sid<span class="sc">}</span><span class="ss"> : probabilité de pénurie à </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    ax2 <span class="op">=</span> ax.twinx()</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    ax2.plot(w[<span class="st">"tl"</span>], w[<span class="st">"N"</span>], color<span class="op">=</span><span class="st">"C0"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"N (nombre de vélos)"</span>)</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    ax2.set_ylabel(<span class="st">"N"</span>)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    ax2.legend(loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-12-output-1.png" width="933" height="359" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-13-output-1.png" width="933" height="359" class="figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-12-output-2.png" width="933" height="359" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-13-output-2.png" width="933" height="359" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p><strong>Distribution de p̂ selon l’étiquette réelle.</strong></p>
-<div id="c93bb863" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">51</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> TMP[h]</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    ax.hist(tmp.loc[tmp[<span class="st">"y"</span>] <span class="op">==</span> <span class="dv">0</span>, <span class="st">"p_hgb"</span>], bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">"y = 0"</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    ax.hist(tmp.loc[tmp[<span class="st">"y"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"p_hgb"</span>], bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">"y = 1"</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    ax.axvline(TAU_B[h], color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">":"</span>, label<span class="op">=</span><span class="ss">f"τ = </span><span class="sc">{</span>TAU_B[h]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(yscale<span class="op">=</span><span class="st">"log"</span>, xlabel<span class="op">=</span><span class="st">"p̂ (boosting)"</span>, title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"nombre de lignes (échelle log)"</span>)</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend()</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b1406e4a" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">51</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, h <span class="kw">in</span> <span class="bu">zip</span>(axes, HORIZONS):</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> TMP[h]</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    ax.hist(tmp.loc[tmp[<span class="st">"y"</span>] <span class="op">==</span> <span class="dv">0</span>, <span class="st">"p_hgb"</span>], bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">"y = 0"</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    ax.hist(tmp.loc[tmp[<span class="st">"y"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"p_hgb"</span>], bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">"y = 1"</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    ax.axvline(TAU_B[h], color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">":"</span>, label<span class="op">=</span><span class="ss">f"τ = </span><span class="sc">{</span>TAU_B[h]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(yscale<span class="op">=</span><span class="st">"log"</span>, xlabel<span class="op">=</span><span class="st">"p̂ (boosting)"</span>, title<span class="op">=</span><span class="ss">f"Horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"nombre de lignes (échelle log)"</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend()</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-13-output-1.png" width="1142" height="374" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-14-output-1.png" width="1142" height="374" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1098,14 +1096,14 @@ window.Quarto = {
 </section>
 <section id="comparaison-au-même-rappel-que-la-persistance" class="level2" data-number="1.3">
 <h2 data-number="1.3" class="anchored" data-anchor-id="comparaison-au-même-rappel-que-la-persistance"><span class="header-section-number">1.3</span> Comparaison au même rappel que la persistance</h2>
-<div id="8023519c" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> R[h]</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> res[<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    r_pers, p_pers <span class="op">=</span> recall_score(yv, PERS_VAL[h]), precision_score(yv, PERS_VAL[h])</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | persistance : précision </span><span class="sc">{</span>p_pers<span class="sc">:.3f}</span><span class="ss"> à rappel </span><span class="sc">{</span>r_pers<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom <span class="kw">in</span> res[<span class="st">"models"</span>]:</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>nom<span class="sc">:12s}</span><span class="ss"> : précision </span><span class="sc">{</span>precision_at_recall(yv, SC_VAL[h][nom], r_pers)<span class="sc">:.3f}</span><span class="ss"> au même rappel"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="df48dc70" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> R[h]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    yv <span class="op">=</span> res[<span class="st">"val"</span>][<span class="st">"y"</span>].to_numpy()</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    r_pers, p_pers <span class="op">=</span> recall_score(yv, PERS_VAL[h]), precision_score(yv, PERS_VAL[h])</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | persistance : précision </span><span class="sc">{</span>p_pers<span class="sc">:.3f}</span><span class="ss"> à rappel </span><span class="sc">{</span>r_pers<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom <span class="kw">in</span> res[<span class="st">"models"</span>]:</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>nom<span class="sc">:12s}</span><span class="ss"> : précision </span><span class="sc">{</span>precision_at_recall(yv, SC_VAL[h][nom], r_pers)<span class="sc">:.3f}</span><span class="ss"> au même rappel"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min | persistance : précision 0.734 à rappel 0.735
   bayes_naif   : précision 0.555 au même rappel
@@ -1130,20 +1128,20 @@ horizon 60 min | persistance : précision 0.664 à rappel 0.665
 <section id="évaluation-finale-sur-la-semaine-de-test" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Évaluation finale sur la semaine de test</h1>
 <p>Les modèles et les seuils sont <strong>figés</strong> : ils viennent de la validation. La semaine de test est notée une seule fois, pour chaque horizon.</p>
-<div id="072524dc" class="cell" data-execution_count="14">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>TE <span class="op">=</span> {h: evaluate_models(R[h], R[h][<span class="st">"test"</span>]) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}       <span class="co"># (tableau, scores, seuils)</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>COLS <span class="op">=</span> [<span class="st">"AP"</span>, <span class="st">"precision"</span>, <span class="st">"recall"</span>, <span class="st">"F1"</span>, <span class="st">"TP"</span>, <span class="st">"FP"</span>, <span class="st">"FN"</span>, <span class="st">"TN"</span>]</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    res, (table, sc, taus) <span class="op">=</span> R[h], TE[h]</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    te <span class="op">=</span> res[<span class="st">"test"</span>]</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> res[<span class="st">"chosen"</span>]</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span><span class="bu">len</span>(te)<span class="sc">}</span><span class="ss"> lignes | taux de positifs : </span><span class="sc">{</span>te[<span class="st">'y'</span>]<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss"> | modèle retenu : </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    display(table[COLS].<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    pers <span class="op">=</span> table.loc[<span class="st">"persistance"</span>]</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    at_recall <span class="op">=</span> precision_at_recall(te[<span class="st">"y"</span>], sc[chosen], pers[<span class="st">"recall"</span>])</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Même rappel (</span><span class="sc">{</span>pers[<span class="st">'recall'</span>]<span class="sc">:.3f}</span><span class="ss">) : précision </span><span class="sc">{</span>pers[<span class="st">'precision'</span>]<span class="sc">:.3f}</span><span class="ss"> pour la persistance "</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"contre </span><span class="sc">{</span>at_recall<span class="sc">:.3f}</span><span class="ss"> pour </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="720bc433" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>TE <span class="op">=</span> {h: evaluate_models(R[h], R[h][<span class="st">"test"</span>]) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}       <span class="co"># (tableau, scores, seuils)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>COLS <span class="op">=</span> [<span class="st">"AP"</span>, <span class="st">"precision"</span>, <span class="st">"recall"</span>, <span class="st">"F1"</span>, <span class="st">"TP"</span>, <span class="st">"FP"</span>, <span class="st">"FN"</span>, <span class="st">"TN"</span>]</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    res, (table, sc, taus) <span class="op">=</span> R[h], TE[h]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    te <span class="op">=</span> res[<span class="st">"test"</span>]</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> res[<span class="st">"chosen"</span>]</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span><span class="bu">len</span>(te)<span class="sc">}</span><span class="ss"> lignes | taux de positifs : </span><span class="sc">{</span>te[<span class="st">'y'</span>]<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss"> | modèle retenu : </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    display(table[COLS].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    pers <span class="op">=</span> table.loc[<span class="st">"persistance"</span>]</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    at_recall <span class="op">=</span> precision_at_recall(te[<span class="st">"y"</span>], sc[chosen], pers[<span class="st">"recall"</span>])</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Même rappel (</span><span class="sc">{</span>pers[<span class="st">'recall'</span>]<span class="sc">:.3f}</span><span class="ss">) : précision </span><span class="sc">{</span>pers[<span class="st">'precision'</span>]<span class="sc">:.3f}</span><span class="ss"> pour la persistance "</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"contre </span><span class="sc">{</span>at_recall<span class="sc">:.3f}</span><span class="ss"> pour </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min | 59574 lignes | taux de positifs : 0.122 | modèle retenu : foret</code></pre>
 </div>
@@ -1423,20 +1421,20 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <pre><code>Même rappel (0.660) : précision 0.660 pour la persistance contre 0.700 pour boosting</code></pre>
 </div>
 </div>
-<div id="c537e658" class="cell" data-execution_count="15">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"figures"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>panels <span class="op">=</span> {}</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    panels[h] <span class="op">=</span> {<span class="st">"y"</span>: te[<span class="st">"y"</span>].to_numpy(),</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"modèle"</span>: (chosen, sc[chosen], (sc[chosen] <span class="op">&gt;</span> taus[chosen]).astype(<span class="bu">int</span>)),</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: (sc[<span class="st">"persistance"</span>], (te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>))}</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>Image(pr_curves(panels, <span class="st">"figures/pr_curves_test.png"</span>), width<span class="op">=</span><span class="dv">900</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div id="9fd4b210" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"figures"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>panels <span class="op">=</span> {}</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    panels[h] <span class="op">=</span> {<span class="st">"y"</span>: te[<span class="st">"y"</span>].to_numpy(),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"modèle"</span>: (chosen, sc[chosen], (sc[chosen] <span class="op">&gt;</span> taus[chosen]).astype(<span class="bu">int</span>)),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: (sc[<span class="st">"persistance"</span>], (te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>))}</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>Image(pr_curves(panels, <span class="st">"figures/pr_curves_test.png"</span>), width<span class="op">=</span><span class="dv">900</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img" width="900"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img" width="900"></p>
 </figure>
 </div>
 </div>
@@ -1445,20 +1443,20 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 </section>
 <section id="résultats-par-groupe-dispersion-et-incertitude" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Résultats par groupe, dispersion et incertitude</h1>
-<div id="8911c00e" class="cell" data-execution_count="16">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>SCORED <span class="op">=</span> {}</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    SCORED[h] <span class="op">=</span> {chosen: scored_frame(te, sc[chosen], sc[chosen] <span class="op">&gt;</span> taus[chosen]),</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: scored_frame(te, sc[<span class="st">"persistance"</span>], te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>)}</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>GROUP_COLS <span class="op">=</span> [<span class="st">"n"</span>, <span class="st">"prévalence"</span>, <span class="st">"pr_auc"</span>, <span class="st">"précision"</span>, <span class="st">"rappel"</span>, <span class="st">"f1"</span>]</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> by <span class="kw">in</span> (<span class="st">"zone"</span>, <span class="st">"tranche"</span>, <span class="st">"jour_type"</span>):</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        display(pd.concat({nom: metrics_by(s, by)[GROUP_COLS] <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()},</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                          names<span class="op">=</span>[<span class="st">"modèle"</span>, by]).astype(<span class="bu">float</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="5f7d26b8" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>SCORED <span class="op">=</span> {}</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    SCORED[h] <span class="op">=</span> {chosen: scored_frame(te, sc[chosen], sc[chosen] <span class="op">&gt;</span> taus[chosen]),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: scored_frame(te, sc[<span class="st">"persistance"</span>], te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>)}</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>GROUP_COLS <span class="op">=</span> [<span class="st">"n"</span>, <span class="st">"prévalence"</span>, <span class="st">"pr_auc"</span>, <span class="st">"précision"</span>, <span class="st">"rappel"</span>, <span class="st">"f1"</span>]</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> by <span class="kw">in</span> (<span class="st">"zone"</span>, <span class="st">"tranche"</span>, <span class="st">"jour_type"</span>):</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>        display(pd.concat({nom: metrics_by(s, by)[GROUP_COLS] <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()},</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>                          names<span class="op">=</span>[<span class="st">"modèle"</span>, by]).astype(<span class="bu">float</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>===== horizon 30 min =====</code></pre>
 </div>
@@ -2003,13 +2001,13 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <section id="jour-par-jour-et-bootstrap-par-station" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="jour-par-jour-et-bootstrap-par-station"><span class="header-section-number">3.1</span> Jour par jour et bootstrap par station</h2>
 <p>Jour par jour : une mesure de dispersion qui respecte le temps. Bootstrap : les 80 stations sont rééchantillonnées avec remise (les lignes d’une même station sont dépendantes, rééchantillonner les lignes sous-estimerait l’incertitude). La différence modèle − persistance est calculée sur les mêmes stations tirées.</p>
-<div id="0361ca0d" class="cell" data-execution_count="17">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    display(pd.concat({nom: daily_dispersion(s) <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()}, names<span class="op">=</span>[<span class="st">"modèle"</span>, <span class="st">"jour"</span>]).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    display(station_bootstrap(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>],</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>                              labels<span class="op">=</span>(chosen, <span class="st">"persistance"</span>), B<span class="op">=</span><span class="dv">500</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="acb8ab76" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    display(pd.concat({nom: daily_dispersion(s) <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()}, names<span class="op">=</span>[<span class="st">"modèle"</span>, <span class="st">"jour"</span>]).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    display(station_bootstrap(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>],</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                              labels<span class="op">=</span>(chosen, <span class="st">"persistance"</span>), B<span class="op">=</span><span class="dv">500</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>===== horizon 30 min =====</code></pre>
 </div>
@@ -2632,14 +2630,14 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 </section>
 <section id="station-par-station" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="station-par-station"><span class="header-section-number">3.2</span> Station par station</h2>
-<div id="a27c439a" class="cell" data-execution_count="18">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    st <span class="op">=</span> station_comparison(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>])</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    avec_pos <span class="op">=</span> st[st[<span class="st">"positifs"</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss"> : F1 &gt;= F1 de la persistance sur </span><span class="sc">{</span>(avec_pos[<span class="st">'gain_f1'</span>] <span class="op">&gt;=</span> <span class="dv">0</span>)<span class="sc">.</span>mean()<span class="sc">:.0%}</span><span class="ss"> "</span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"des </span><span class="sc">{</span><span class="bu">len</span>(avec_pos)<span class="sc">}</span><span class="ss"> stations ayant au moins un positif ; plus fortes pertes :"</span>)</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    display(avec_pos.head(<span class="dv">5</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="4de6df19" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    st <span class="op">=</span> station_comparison(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>])</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    avec_pos <span class="op">=</span> st[st[<span class="st">"positifs"</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss"> : F1 &gt;= F1 de la persistance sur </span><span class="sc">{</span>(avec_pos[<span class="st">'gain_f1'</span>] <span class="op">&gt;=</span> <span class="dv">0</span>)<span class="sc">.</span>mean()<span class="sc">:.0%}</span><span class="ss"> "</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"des </span><span class="sc">{</span><span class="bu">len</span>(avec_pos)<span class="sc">}</span><span class="ss"> stations ayant au moins un positif ; plus fortes pertes :"</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    display(avec_pos.head(<span class="dv">5</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min | foret : F1 &gt;= F1 de la persistance sur 65% des 69 stations ayant au moins un positif ; plus fortes pertes :</code></pre>
 </div>
@@ -2798,28 +2796,28 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <section id="erreurs-caractéristiques" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Erreurs caractéristiques</h1>
 <p>La persistance a raison par construction quand l’état ne change pas, et tort à chaque changement. Découper les lignes de test par situation (état maintenant → état à <span class="math inline">\(t+h\)</span>) montre où un modèle apporte quelque chose : anticiper les stations qui se vident, au prix de fausses alarmes sur celles qui restent disponibles.</p>
-<div id="216fb2e4" class="cell" data-execution_count="19">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    tab <span class="op">=</span> situation_table(SCORED[h])</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    display(tab.<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># part de lignes prédites « vide » dans chaque situation : modèle retenu vs persistance</span></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.5</span>))</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.arange(<span class="bu">len</span>(tab))</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, (nom, couleur) <span class="kw">in</span> <span class="bu">enumerate</span>([(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]):</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>        v_ <span class="op">=</span> tab[<span class="ss">f"prédit vide : </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss">"</span>].to_numpy()</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>        bars <span class="op">=</span> ax.bar(x <span class="op">+</span> (k <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="fl">0.38</span>, v_, width<span class="op">=</span><span class="fl">0.38</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b, val_ <span class="kw">in</span> <span class="bu">zip</span>(bars, v_):</span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>            ax.text(b.get_x() <span class="op">+</span> b.get_width() <span class="op">/</span> <span class="dv">2</span>, val_, <span class="ss">f"</span><span class="sc">{</span>val_<span class="sc">:.0%}</span><span class="ss">"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks(x)</span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xticklabels([<span class="ss">f"</span><span class="sc">{</span>sit<span class="sc">}</span><span class="ch">\n</span><span class="ss">(n=</span><span class="sc">{</span><span class="bu">int</span>(n)<span class="sc">}</span><span class="ss">)"</span> <span class="cf">for</span> sit, n <span class="kw">in</span> <span class="bu">zip</span>(tab.index, tab[<span class="st">"n"</span>])])</span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="fl">1.1</span>), ylabel<span class="op">=</span><span class="st">"part prédite « vide »"</span>,</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>           title<span class="op">=</span><span class="ss">f"Où se trouvent les erreurs — semaine de test, </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min (état maintenant → état à t+h)"</span>)</span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="6e2deb2e" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    tab <span class="op">=</span> situation_table(SCORED[h])</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    display(tab.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># part de lignes prédites « vide » dans chaque situation : modèle retenu vs persistance</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.5</span>))</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.arange(<span class="bu">len</span>(tab))</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, (nom, couleur) <span class="kw">in</span> <span class="bu">enumerate</span>([(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]):</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>        v_ <span class="op">=</span> tab[<span class="ss">f"prédit vide : </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss">"</span>].to_numpy()</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>        bars <span class="op">=</span> ax.bar(x <span class="op">+</span> (k <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="fl">0.38</span>, v_, width<span class="op">=</span><span class="fl">0.38</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b, val_ <span class="kw">in</span> <span class="bu">zip</span>(bars, v_):</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>            ax.text(b.get_x() <span class="op">+</span> b.get_width() <span class="op">/</span> <span class="dv">2</span>, val_, <span class="ss">f"</span><span class="sc">{</span>val_<span class="sc">:.0%}</span><span class="ss">"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks(x)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xticklabels([<span class="ss">f"</span><span class="sc">{</span>sit<span class="sc">}</span><span class="ch">\n</span><span class="ss">(n=</span><span class="sc">{</span><span class="bu">int</span>(n)<span class="sc">}</span><span class="ss">)"</span> <span class="cf">for</span> sit, n <span class="kw">in</span> <span class="bu">zip</span>(tab.index, tab[<span class="st">"n"</span>])])</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="fl">1.1</span>), ylabel<span class="op">=</span><span class="st">"part prédite « vide »"</span>,</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>           title<span class="op">=</span><span class="ss">f"Où se trouvent les erreurs — semaine de test, </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min (état maintenant → état à t+h)"</span>)</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min</code></pre>
 </div>
@@ -2881,7 +2879,7 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-20-output-3.png" width="760" height="421" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-21-output-3.png" width="760" height="421" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -2946,39 +2944,39 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-20-output-6.png" width="760" height="421" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-21-output-6.png" width="760" height="421" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <section id="rappel-et-précision-selon-lheure" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="rappel-et-précision-selon-lheure"><span class="header-section-number">4.1</span> Rappel et précision selon l’heure</h2>
-<div id="9a803309" class="cell" data-execution_count="20">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, couleur <span class="kw">in</span> [(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]:</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        par_h <span class="op">=</span> metrics_by(SCORED[h][nom], <span class="st">"heure"</span>)[[<span class="st">"rappel"</span>, <span class="st">"précision"</span>]].astype(<span class="bu">float</span>)</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ax, col <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"rappel"</span>, <span class="st">"précision"</span>]):</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>            ax.plot(par_h.index, par_h[col], <span class="st">"o-"</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax, titre <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"Rappel"</span>, <span class="st">"Précision"</span>]):</span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>titre<span class="sc">}</span><span class="ss"> selon l'heure (heure de Paris), </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Heure (Europe/Paris)"</span>,</span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>               ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>        ax.set_xticks(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">24</span>, <span class="dv">3</span>))</span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>)</span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="4884d3fc" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, couleur <span class="kw">in</span> [(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]:</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>        par_h <span class="op">=</span> metrics_by(SCORED[h][nom], <span class="st">"heure"</span>)[[<span class="st">"rappel"</span>, <span class="st">"précision"</span>]].astype(<span class="bu">float</span>)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ax, col <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"rappel"</span>, <span class="st">"précision"</span>]):</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>            ax.plot(par_h.index, par_h[col], <span class="st">"o-"</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax, titre <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"Rappel"</span>, <span class="st">"Précision"</span>]):</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>titre<span class="sc">}</span><span class="ss"> selon l'heure (heure de Paris), </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Heure (Europe/Paris)"</span>,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>               ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        ax.set_xticks(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">24</span>, <span class="dv">3</span>))</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-21-output-1.png" width="1144" height="374" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-22-output-1.png" width="1144" height="374" class="figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Bản sao Part4_files/figure-html/cell-21-output-2.png" width="1144" height="374" class="figure-img"></p>
+<p><img src="Bản sao Part4_files/figure-html/cell-22-output-2.png" width="1144" height="374" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -2988,19 +2986,19 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <section id="sensibilité-des-résultats-de-test" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Sensibilité des résultats de test</h1>
 <p>Les modèles restent figés ; on change seulement la population de test : (i) une fermeture à <span class="math inline">\(t+h\)</span> compte comme « départ impossible » (<span class="math inline">\(Y=1\)</span>) au lieu d’être exclue ; (ii) la station 45504, peut-être figée dans le flux, est retirée.</p>
-<div id="e03b1494" class="cell" data-execution_count="21">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> R[h]</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> res[<span class="st">"chosen"</span>]</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    te <span class="op">=</span> res[<span class="st">"test"</span>]</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    variantes <span class="op">=</span> {</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"fermeture à t+h comptée comme positive"</span>: prepare_sets(raw, h, closed_as_positive<span class="op">=</span><span class="va">True</span>, rate<span class="op">=</span>res[<span class="st">"rate"</span>])[<span class="st">"test"</span>],</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"sans la station </span><span class="sc">{</span>SUSPECT_STATION<span class="sc">}</span><span class="ss">"</span>: te[te[<span class="st">"station_code"</span>] <span class="op">!=</span> SUSPECT_STATION],</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, d <span class="kw">in</span> variantes.items():</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        table, _, _ <span class="op">=</span> evaluate_models(res, d, names<span class="op">=</span>[<span class="st">"persistance"</span>, chosen])</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss"> : </span><span class="sc">{</span><span class="bu">len</span>(d)<span class="sc">}</span><span class="ss"> lignes (référence : </span><span class="sc">{</span><span class="bu">len</span>(te)<span class="sc">}</span><span class="ss">)"</span>)</span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>        display(table[COLS].<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="1b63c89f" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> R[h]</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> res[<span class="st">"chosen"</span>]</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    te <span class="op">=</span> res[<span class="st">"test"</span>]</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    variantes <span class="op">=</span> {</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"fermeture à t+h comptée comme positive"</span>: prepare_sets(raw, h, closed_as_positive<span class="op">=</span><span class="va">True</span>, rate<span class="op">=</span>res[<span class="st">"rate"</span>])[<span class="st">"test"</span>],</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"sans la station </span><span class="sc">{</span>SUSPECT_STATION<span class="sc">}</span><span class="ss">"</span>: te[te[<span class="st">"station_code"</span>] <span class="op">!=</span> SUSPECT_STATION],</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, d <span class="kw">in</span> variantes.items():</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>        table, _, _ <span class="op">=</span> evaluate_models(res, d, names<span class="op">=</span>[<span class="st">"persistance"</span>, chosen])</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss"> : </span><span class="sc">{</span><span class="bu">len</span>(d)<span class="sc">}</span><span class="ss"> lignes (référence : </span><span class="sc">{</span><span class="bu">len</span>(te)<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>        display(table[COLS].<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min | fermeture à t+h comptée comme positive : 59578 lignes (référence : 59574)</code></pre>
 </div>
@@ -3246,10 +3244,10 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <section id="apport-des-groupes-de-variables-ablation-validation" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Apport des groupes de variables (ablation, validation)</h1>
 <p>Une forêt est ajustée de nouveau sans chaque groupe de variables. La forêt est utilisée car elle est stable d’une graine à l’autre. À la différence de l’importance par permutation, le réajustement laisse des variables corrélées se remplacer : un faible écart signifie que le groupe est redondant, pas forcément inutile.</p>
-<div id="2235f2c7" class="cell" data-execution_count="22">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    display(ablation(R[h]).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="c7b4b510" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    display(ablation(R[h]).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min</code></pre>
 </div>
@@ -3377,33 +3375,6 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 </table>
 
 </div>
-</div>
-</div>
-</section>
-<section id="annexe-expériences-exploratoires-validation-seulement" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> Annexe : expériences exploratoires (validation seulement)</h1>
-<p>Paires de variables corrélées, importance par permutation du modèle retenu, sensibilité des deux ensembles à la graine (quand deux modèles sont à quelques millièmes d’AP, une seule graine ne permet pas de les classer), et ACP suivie de k-NN et de Bayes naïf. Mettre <code>RUN_EXTRAS = True</code> pour les lancer.</p>
-<div id="de4ffb3a" class="cell" data-execution_count="23">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>RUN_EXTRAS <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> RUN_EXTRAS:</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    display(correlated_pairs(R[<span class="dv">30</span>][<span class="st">"train"</span>], R[<span class="dv">30</span>][<span class="st">"FEATS"</span>]).to_frame(<span class="st">"|r| (train)"</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>        res, chosen <span class="op">=</span> R[h], R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>        F <span class="op">=</span> res[<span class="st">"feats"</span>].get(chosen, res[<span class="st">"FEATS"</span>])</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>        pi <span class="op">=</span> permutation_importance(res[<span class="st">"models"</span>][chosen], res[<span class="st">"val"</span>][F], res[<span class="st">"val"</span>][<span class="st">"y"</span>],</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>                                    scoring<span class="op">=</span><span class="st">"average_precision"</span>, n_repeats<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">0</span>, n_jobs<span class="op">=-</span><span class="dv">1</span>)</span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | importance par permutation de </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss"> (validation)"</span>)</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>        display(pd.DataFrame({<span class="st">"moyenne"</span>: pi.importances_mean, <span class="st">"écart-type"</span>: pi.importances_std}, index<span class="op">=</span>F)</span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>                  .sort_values(<span class="st">"moyenne"</span>, ascending<span class="op">=</span><span class="va">False</span>).<span class="bu">round</span>(<span class="dv">4</span>))</span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | AP validation sur 5 graines"</span>)</span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>        display(seed_sensitivity(res).<span class="bu">round</span>(<span class="dv">4</span>))</span>
-<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | ACP"</span>)</span>
-<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>        display(pca_val(res).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
-<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"ignoré (RUN_EXTRAS = False)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>ignoré (RUN_EXTRAS = False)</code></pre>
 </div>
 </div>
 

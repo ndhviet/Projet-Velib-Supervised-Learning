@@ -12,6 +12,7 @@ execute:
 ---
 
 ```{python}
+#| code-fold: true
 import os
 import joblib
 import numpy as np
@@ -24,238 +25,39 @@ from sklearn.metrics import precision_score, recall_score, f1_score, precision_r
 from velib_utils import (load_raw_dt, prepare_sets, pipeline_horizon, evaluate_models,
                          precision_at_recall, ablation, scored_frame, metrics_by, daily_dispersion,
                          station_bootstrap, station_comparison, situation_table, pr_curves,
-                         correlated_pairs, seed_sensitivity, pca_val, SUSPECT_STATION, TZ)
+                         correlated_pairs, seed_sensitivity, pca_val, plot_validation_summary,  
+                         SUSPECT_STATION, TZ)
 
 raw = load_raw_dt()
 HORIZONS = (30, 60)
+os.makedirs("cache", exist_ok=True)
 
-CACHE = "cache/modeles_R.joblib"                 # écrit par la Partie 3
-if os.path.exists(CACHE):
-    R = joblib.load(CACHE)
-else:                                            # Partie 3 pas encore rendue : on réentraîne
-    R = {h: pipeline_horizon(raw, h, criterion="f1") for h in HORIZONS}
+
+def cached(path, fn):
+    """Calcule fn() une seule fois et relit le résultat ensuite.
+    Supprimer le dossier cache/ après toute modification de velib_utils.py ou des données."""
+    if os.path.exists(path):
+        return joblib.load(path)
+    out = fn()
+    joblib.dump(out, path)
+    return out
+
+
+CRITERION = "f1"                                  # doit être le même qu'en Partie 3
+CACHE = f"cache/modeles_R_{CRITERION}.joblib"     # même nom que la Partie 3
+R = cached(CACHE, lambda: {h: pipeline_horizon(raw, h, criterion=CRITERION) for h in HORIZONS})
 ```
 
-# Comparaison des modèles sur la validation
-
-Les modèles, les seuils et les réglages viennent de la Partie 3 ; ils sont figés. Le test n'est utilisé qu'à partir de la section « Évaluation finale ».
-
-```{python}
-for h in HORIZONS:
-    print(f"horizon {h} min | modèle retenu (AP validation) : {R[h]['chosen']}")
-    display(R[h]["val_table"].round(3).T)
-```
-
-## Courbes de validation
-
-Quatre figures résument le choix des seuils et la qualité des scores, pour les deux horizons. Les calculs n'utilisent que la validation.
-
-```{python}
-NAMES = list(R[30]["models"])
-COLORS = dict(zip(NAMES, plt.cm.tab10.colors))
-SC_VAL = {h: evaluate_models(R[h], R[h]["val"])[1] for h in HORIZONS}      # scores de chaque modèle sur la validation
-PERS_VAL = {h: (R[h]["val"]["N"].to_numpy() < 2).astype(int) for h in HORIZONS}
-```
-
-**Courbes précision-rappel.** Chaque point marque le seuil retenu ; l'étoile est la règle de persistance.
-
-```{python}
-fig, axes = plt.subplots(1, len(HORIZONS), figsize=(13, 5.5), sharey=True)
-for ax, h in zip(axes, HORIZONS):
-    res, sc = R[h], SC_VAL[h]
-    yv = res["val"]["y"].to_numpy()
-    r_p, p_p = recall_score(yv, PERS_VAL[h]), precision_score(yv, PERS_VAL[h])
-    for n in res["models"]:
-        pr, rc, _ = precision_recall_curve(yv, sc[n])
-        ax.plot(rc, pr, color=COLORS[n], label=n)
-        pred = (sc[n] > res["taus"][n]).astype(int)
-        ax.scatter(recall_score(yv, pred), precision_score(yv, pred), color=COLORS[n], edgecolor="k", zorder=3)
-    ax.scatter(r_p, p_p, marker="*", s=250, color="k", zorder=4, label="persistance (règle)")
-    ax.axvline(r_p, color="gray", ls=":", lw=1)
-    ax.set(title=f"Horizon {h} min", xlabel="Rappel", xlim=(0, 1), ylim=(0, 1))
-axes[0].set_ylabel("Précision")
-axes[-1].legend(fontsize=8, loc="lower left")
-fig.tight_layout()
-plt.show()
-```
-
-**F1 selon le seuil.** Le point est le seuil choisi (F1 maximal sur la validation) ; la ligne pointillée est le F1 de la persistance.
-
-```{python}
-fig, axes = plt.subplots(1, len(HORIZONS), figsize=(13, 4.5), sharey=True)
-for ax, h in zip(axes, HORIZONS):
-    res, sc = R[h], SC_VAL[h]
-    yv = res["val"]["y"].to_numpy()
-    for n in res["models"]:
-        pr, rc, th = precision_recall_curve(yv, sc[n])
-        f1 = 2 * pr * rc / (pr + rc + 1e-12)
-        ax.plot(th, f1[:-1], color=COLORS[n], label=n)
-        ax.plot(res["taus"][n], f1_score(yv, sc[n] > res["taus"][n]), "o", color=COLORS[n], markeredgecolor="k")
-    ax.axhline(f1_score(yv, PERS_VAL[h]), color="k", ls="--", label="persistance")
-    ax.set(title=f"Horizon {h} min", xlabel="Seuil τ", ylim=(0, 0.9))
-axes[0].set_ylabel("F1 (validation)")
-axes[-1].legend(fontsize=8, loc="lower center")
-fig.tight_layout()
-plt.show()
-```
-
-**Courbes de calibration.** Sur la diagonale, le score est une probabilité fiable ; au-dessus, le modèle est trop prudent, en dessous trop confiant.
-
-```{python}
-bins_c = [0, .05, .1, .2, .3, .5, .7, .9, 1.0]
-fig, axes = plt.subplots(1, len(HORIZONS), figsize=(12, 5.5), sharey=True)
-for ax, h in zip(axes, HORIZONS):
-    yv = R[h]["val"]["y"].to_numpy()
-    for n in R[h]["models"]:
-        d = pd.DataFrame({"p": SC_VAL[h][n], "y": yv})
-        c = d.groupby(pd.cut(d["p"], bins_c, include_lowest=True), observed=True).agg(p=("p", "mean"), obs=("y", "mean"))
-        ax.plot(c["p"], c["obs"], "o-", color=COLORS[n], label=n)
-    ax.plot([0, 1], [0, 1], "k--", label="calibration parfaite")
-    ax.set(title=f"Horizon {h} min", xlabel="Probabilité prédite", xlim=(0, 1), ylim=(0, 1))
-axes[0].set_ylabel("Fréquence observée")
-axes[-1].legend(fontsize=8, loc="upper left")
-fig.tight_layout()
-plt.show()
-```
-
-**Synthèse des scores de validation.** La persistance n'a pas de probabilité calibrée : son Brier n'est pas affiché.
-
-```{python}
-for h in HORIZONS:
-    res, sc = R[h], SC_VAL[h]
-    yv = res["val"]["y"].to_numpy()
-    r_p = recall_score(yv, PERS_VAL[h])
-    t = res["val_table"].drop(index="majoritaire").copy()
-    t["P@R_pers"] = [precision_score(yv, PERS_VAL[h]) if n == "persistance"
-                     else precision_at_recall(yv, sc[n], r_p) for n in t.index]
-    t.loc["persistance", "Brier"] = np.nan
-    metrics = [("AP", "AP (haut = bon)"), ("Brier", "Brier (bas = bon)"),
-               ("cost", "Coût 5:1 (bas = bon)"), ("P@R_pers", "Précision au rappel de la persistance")]
-    fig, axes = plt.subplots(1, 4, figsize=(16, 4))
-    for ax, (m, titre) in zip(axes, metrics):
-        vals = t[m].dropna()
-        bars = ax.bar(range(len(vals)), vals.values,
-                      color=["gray" if i == "persistance" else COLORS[i] for i in vals.index])
-        ax.set_xticks(range(len(vals)))
-        ax.set_xticklabels(vals.index, rotation=60, ha="right")
-        ax.set_title(titre, fontsize=10)
-        for b, v in zip(bars, vals.values):
-            ax.text(b.get_x() + b.get_width() / 2, v, f"{v:.3f}", ha="center", va="bottom", fontsize=8)
-    fig.suptitle(f"Horizon {h} min")
-    fig.tight_layout()
-    plt.show()
-```
-
-## Lecture des probabilités prédites
-
-Ces figures (validation seulement) montrent ce que les scores signifient concrètement : la régression logistique et le boosting sont comparés à la fréquence réellement observée. Le seuil retenu pour le boosting est tracé en pointillés.
-
-```{python}
-SID = 2102      # station affichée dans la série temporelle (une station quelconque si elle n'existe pas)
-
-def table_val(h):
-    t = R[h]["val"][["station_code", "t", "N", "y"]].copy()
-    t["p_lr"], t["p_hgb"] = SC_VAL[h]["logreg"], SC_VAL[h]["boosting"]
-    t["heure"] = t["t"].dt.tz_convert(TZ).dt.hour
-    return t
-TMP = {h: table_val(h) for h in HORIZONS}
-TAU_B = {h: R[h]["taus"]["boosting"] for h in HORIZONS}
-```
-
-**Probabilité de pénurie selon le nombre de vélos actuel.**
-
-```{python}
-fig, axes = plt.subplots(1, len(HORIZONS), figsize=(12, 4.5), sharey=True)
-for ax, h in zip(axes, HORIZONS):
-    c = TMP[h][TMP[h]["N"] <= 20].groupby("N")[["y", "p_lr", "p_hgb"]].mean()
-    ax.plot(c.index, c["y"], "ko", label="fréquence observée (y)")
-    ax.plot(c.index, c["p_lr"], "-", label="régression logistique")
-    ax.plot(c.index, c["p_hgb"], "-", label="boosting")
-    ax.axhline(TAU_B[h], color="gray", ls=":", label=f"seuil τ (boosting) = {TAU_B[h]:.2f}")
-    ax.set(title=f"Horizon {h} min", xlabel="Nombre de vélos actuel N")
-axes[0].set_ylabel("p̂ moyen (probabilité de pénurie)")
-axes[-1].legend(fontsize=8)
-fig.tight_layout()
-plt.show()
-```
-
-**p̂ moyen du boosting selon l'heure et le nombre de vélos.**
-
-```{python}
-for h in HORIZONS:
-    pv = TMP[h][TMP[h]["N"] <= 10].pivot_table(index="N", columns="heure", values="p_hgb", aggfunc="mean")
-    fig, ax = plt.subplots(figsize=(9, 4))
-    im = ax.imshow(pv.values, origin="lower", aspect="auto", cmap="viridis", vmin=0, vmax=1)
-    ax.set_xticks(range(len(pv.columns)))
-    ax.set_xticklabels(pv.columns)
-    ax.set_yticks(range(len(pv.index)))
-    ax.set_yticklabels(pv.index.astype(int))
-    ax.set(xlabel="Heure (Paris)", ylabel="Nombre de vélos N",
-           title=f"p̂ moyen (boosting) selon l'heure et le nombre de vélos, {h} min")
-    fig.colorbar(im, label="p̂")
-    plt.show()
-```
-
-**Exemple d'une station sur trois jours.** La zone rouge marque les instants où la pénurie s'est réellement produite ($Y=1$).
-
-```{python}
-for h in HORIZONS:
-    tmp = TMP[h]
-    sid = SID if SID in set(tmp["station_code"]) else tmp.groupby("station_code")["y"].sum().idxmax()
-    w = tmp[tmp["station_code"] == sid].copy()
-    w["tl"] = w["t"].dt.tz_convert(TZ)
-    debut = pd.Timestamp("2026-09-26", tz=TZ)
-    sel = w[(w["tl"] >= debut) & (w["tl"] < debut + pd.Timedelta(days=3))]
-    w = sel if len(sel) else w.iloc[:288]
-
-    fig, ax = plt.subplots(figsize=(11, 4))
-    ax.plot(w["tl"], w["p_hgb"], color="C1", label="p̂ (boosting)")
-    ax.fill_between(w["tl"], 0, 1, where=(w["y"] == 1).to_numpy(), color="red", alpha=0.15,
-                    step="mid", label="pénurie réelle (y = 1)")
-    ax.axhline(TAU_B[h], color="gray", ls=":")
-    ax.set(ylim=(0, 1), ylabel="p̂", title=f"Station {sid} : probabilité de pénurie à {h} min")
-    ax2 = ax.twinx()
-    ax2.plot(w["tl"], w["N"], color="C0", alpha=0.5, label="N (nombre de vélos)")
-    ax2.set_ylabel("N")
-    ax.legend(loc="upper left")
-    ax2.legend(loc="upper right")
-    plt.show()
-```
-
-**Distribution de p̂ selon l'étiquette réelle.**
-
-```{python}
-fig, axes = plt.subplots(1, len(HORIZONS), figsize=(12, 4), sharey=True)
-bins = np.linspace(0, 1, 51)
-for ax, h in zip(axes, HORIZONS):
-    tmp = TMP[h]
-    ax.hist(tmp.loc[tmp["y"] == 0, "p_hgb"], bins=bins, alpha=0.6, label="y = 0")
-    ax.hist(tmp.loc[tmp["y"] == 1, "p_hgb"], bins=bins, alpha=0.6, label="y = 1")
-    ax.axvline(TAU_B[h], color="k", ls=":", label=f"τ = {TAU_B[h]:.2f}")
-    ax.set(yscale="log", xlabel="p̂ (boosting)", title=f"Horizon {h} min")
-axes[0].set_ylabel("nombre de lignes (échelle log)")
-axes[-1].legend()
-fig.tight_layout()
-plt.show()
-```
-## Comparaison au même rappel que la persistance
-
-```{python}
-for h in HORIZONS:
-    res = R[h]
-    yv = res["val"]["y"].to_numpy()
-    r_pers, p_pers = recall_score(yv, PERS_VAL[h]), precision_score(yv, PERS_VAL[h])
-    print(f"horizon {h} min | persistance : précision {p_pers:.3f} à rappel {r_pers:.3f}")
-    for nom in res["models"]:
-        print(f"  {nom:12s} : précision {precision_at_recall(yv, SC_VAL[h][nom], r_pers):.3f} au même rappel")
-```
 
 # Évaluation finale sur la semaine de test
 
-Les modèles et les seuils sont **figés** : ils viennent de la validation. La semaine de test est notée une seule fois, pour chaque horizon.
+Les modèles et les seuils sont **fixés** : ils viennent de la validation. La semaine de test est notée une seule fois, pour chaque horizon.
 
 ```{python}
-TE = {h: evaluate_models(R[h], R[h]["test"]) for h in HORIZONS}       # (tableau, scores, seuils)
+#| code-fold: true
+# Prédictions sur le test : calculées une seule fois, puis relues depuis le cache
+TE = cached(f"cache/TE_{CRITERION}.joblib",
+            lambda: {h: evaluate_models(R[h], R[h]["test"]) for h in HORIZONS})       # (tableau, scores, seuils)
 COLS = ["AP", "precision", "recall", "F1", "TP", "FP", "FN", "TN"]
 
 for h in HORIZONS:
@@ -268,9 +70,11 @@ for h in HORIZONS:
     at_recall = precision_at_recall(te["y"], sc[chosen], pers["recall"])
     print(f"Même rappel ({pers['recall']:.3f}) : précision {pers['precision']:.3f} pour la persistance "
           f"contre {at_recall:.3f} pour {chosen}")
+    print()
 ```
 
 ```{python}
+#| code-fold: true
 os.makedirs("figures", exist_ok=True)
 panels = {}
 for h in HORIZONS:
@@ -287,6 +91,7 @@ La courbe de la persistance classe les lignes selon le nombre de vélos actuel (
 # Résultats par groupe, dispersion et incertitude
 
 ```{python}
+#| code-fold: true
 SCORED = {}
 for h in HORIZONS:
     _, sc, taus = TE[h]
@@ -300,6 +105,7 @@ for h in HORIZONS:
     for by in ("zone", "tranche", "jour_type"):
         display(pd.concat({nom: metrics_by(s, by)[GROUP_COLS] for nom, s in SCORED[h].items()},
                           names=["modèle", by]).astype(float).round(3))
+        print()
 ```
 
 ## Jour par jour et bootstrap par station
@@ -307,17 +113,22 @@ for h in HORIZONS:
 Jour par jour : une mesure de dispersion qui respecte le temps. Bootstrap : les 80 stations sont rééchantillonnées avec remise (les lignes d'une même station sont dépendantes, rééchantillonner les lignes sous-estimerait l'incertitude). La différence modèle − persistance est calculée sur les mêmes stations tirées.
 
 ```{python}
+#| code-fold: true
+B_BOOT = 100      # 100 pour travailler vite ; mettre 500 pour le rendu final
+
 for h in HORIZONS:
     chosen = R[h]["chosen"]
     print(f"===== horizon {h} min =====")
     display(pd.concat({nom: daily_dispersion(s) for nom, s in SCORED[h].items()}, names=["modèle", "jour"]).round(3))
     display(station_bootstrap(SCORED[h][chosen], SCORED[h]["persistance"],
-                              labels=(chosen, "persistance"), B=500).round(3))
+                              labels=(chosen, "persistance"), B=B_BOOT).round(3))
+    print()
 ```
 
 ## Station par station
 
 ```{python}
+#| code-fold: true
 for h in HORIZONS:
     chosen = R[h]["chosen"]
     st = station_comparison(SCORED[h][chosen], SCORED[h]["persistance"])
@@ -325,6 +136,7 @@ for h in HORIZONS:
     print(f"horizon {h} min | {chosen} : F1 >= F1 de la persistance sur {(avec_pos['gain_f1'] >= 0).mean():.0%} "
           f"des {len(avec_pos)} stations ayant au moins un positif ; plus fortes pertes :")
     display(avec_pos.head(5).round(3))
+    print()
 ```
 
 # Erreurs caractéristiques
@@ -332,11 +144,13 @@ for h in HORIZONS:
 La persistance a raison par construction quand l'état ne change pas, et tort à chaque changement. Découper les lignes de test par situation (état maintenant → état à $t+h$) montre où un modèle apporte quelque chose : anticiper les stations qui se vident, au prix de fausses alarmes sur celles qui restent disponibles.
 
 ```{python}
+#| code-fold: true
 for h in HORIZONS:
     chosen = R[h]["chosen"]
     tab = situation_table(SCORED[h])
     print(f"horizon {h} min")
     display(tab.round(3))
+    print()
 
     # part de lignes prédites « vide » dans chaque situation : modèle retenu vs persistance
     fig, ax = plt.subplots(figsize=(8, 4.5))
@@ -358,6 +172,7 @@ for h in HORIZONS:
 ## Rappel et précision selon l'heure
 
 ```{python}
+#| code-fold: true
 for h in HORIZONS:
     chosen = R[h]["chosen"]
     fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True)
@@ -379,6 +194,7 @@ for h in HORIZONS:
 Les modèles restent figés ; on change seulement la population de test : (i) une fermeture à $t+h$ compte comme « départ impossible » ($Y=1$) au lieu d'être exclue ; (ii) la station 45504, peut-être figée dans le flux, est retirée.
 
 ```{python}
+#| code-fold: true
 for h in HORIZONS:
     res = R[h]
     chosen = res["chosen"]
@@ -391,6 +207,7 @@ for h in HORIZONS:
         table, _, _ = evaluate_models(res, d, names=["persistance", chosen])
         print(f"horizon {h} min | {nom} : {len(d)} lignes (référence : {len(te)})")
         display(table[COLS].round(3))
+        print()
 ```
 
 # Apport des groupes de variables (ablation, validation)
@@ -398,32 +215,13 @@ for h in HORIZONS:
 Une forêt est ajustée de nouveau sans chaque groupe de variables. La forêt est utilisée car elle est stable d'une graine à l'autre. À la différence de l'importance par permutation, le réajustement laisse des variables corrélées se remplacer : un faible écart signifie que le groupe est redondant, pas forcément inutile.
 
 ```{python}
+#| code-fold: true
+# Ablation : réajustement coûteux, calculé une seule fois puis relu depuis le cache
+ABL = cached(f"cache/ablation_{CRITERION}.joblib",
+             lambda: {h: ablation(R[h]) for h in HORIZONS})
+
 for h in HORIZONS:
     print(f"horizon {h} min")
-    display(ablation(R[h]).round(3))
-```
-
-# Annexe : expériences exploratoires (validation seulement)
-
-Paires de variables corrélées, importance par permutation du modèle retenu, sensibilité des deux ensembles à la graine (quand deux modèles sont à quelques millièmes d'AP, une seule graine ne permet pas de les classer), et ACP suivie de k-NN et de Bayes naïf. Mettre `RUN_EXTRAS = True` pour les lancer.
-
-```{python}
-RUN_EXTRAS = False
-
-if RUN_EXTRAS:
-    display(correlated_pairs(R[30]["train"], R[30]["FEATS"]).to_frame("|r| (train)").round(3))
-    for h in HORIZONS:
-        res, chosen = R[h], R[h]["chosen"]
-        F = res["feats"].get(chosen, res["FEATS"])
-        pi = permutation_importance(res["models"][chosen], res["val"][F], res["val"]["y"],
-                                    scoring="average_precision", n_repeats=5, random_state=0, n_jobs=-1)
-        print(f"horizon {h} min | importance par permutation de {chosen} (validation)")
-        display(pd.DataFrame({"moyenne": pi.importances_mean, "écart-type": pi.importances_std}, index=F)
-                  .sort_values("moyenne", ascending=False).round(4))
-        print(f"horizon {h} min | AP validation sur 5 graines")
-        display(seed_sensitivity(res).round(4))
-        print(f"horizon {h} min | ACP")
-        display(pca_val(res).round(3))
-else:
-    print("ignoré (RUN_EXTRAS = False)")
+    display(ABL[h].round(3))
+    print()
 ```
