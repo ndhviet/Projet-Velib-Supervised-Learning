@@ -206,7 +206,7 @@ def qualite(raw):
 # ---------------------------------------------------------------------------
 # Grille, cible et variables
 # ---------------------------------------------------------------------------
-def build_features(raw, h=30, closed_as_positive=False):
+def build_features(raw, h=30, closed_as_positive=False, live=False):
     """Grille de 15 minutes, cible y (à t + h), variables construites avec le passé seul.
 
     Renvoie (feat, FEATS, reason). `reason` donne, pour chaque créneau (station, t) de la grille,
@@ -256,6 +256,8 @@ def build_features(raw, h=30, closed_as_positive=False):
     valid = g["N"].notna() & g["N_future"].notna() & ~g["closed"]
     if not closed_as_positive:
         valid &= ~fut_closed
+    if live:    # dernier relevé de la grille : l'avenir n'est pas encore connu, pas de cible
+         valid = g["N"].notna() & ~g["closed"] & (g.index.get_level_values("t") == grid[-1])
 
     # Raison d'exclusion : la première condition vraie l'emporte
     r = np.select([g["N"].isna().to_numpy(), g["closed"].to_numpy(),
@@ -789,3 +791,188 @@ def plot_validation_summary(res, h, colors=None):
     fig.suptitle(f"Horizon {h} min")
     fig.tight_layout()
     plt.show()
+
+
+
+
+
+# Resultat simule 
+def predict_now(res, raw):
+    """Probabilité que chaque station ait moins de 2 vélos dans h minutes, à partir du DERNIER relevé.
+
+    Utilise les modèles déjà ajustés dans `res` (sortie de pipeline_horizon) : mêmes variables,
+    même st_empty_rate (figé sur le train), seuil de chaque modèle. Renvoie une ligne par station.
+    """
+    h = res["h"]
+    feat, _, _ = build_features(raw, h=h, live=True)
+    feat = feat.assign(st_empty_rate=feat["station_code"].map(res["rate"]))
+    out = feat[["station_code", "t", "N"]].copy()
+    out["zone"] = np.where(feat["paris"].to_numpy() == 1, "Paris", "banlieue")
+    out = feat[["station_code", "name", "commune", "t", "N"]].copy()
+    out = feat[["station_code", "name", "commune", "latitude", "longitude", "t", "N"]].copy()
+    for n, m in res["models"].items():
+        out[f"p_{n}"] = m.predict_proba(feat[res["feats"].get(n, res["FEATS"])])[:, 1]
+    c = res["chosen"]
+    out["p"] = out[f"p_{c}"]
+    out["alerte"] = (out["p"] > res["taus"][c]).astype(int)
+    out["horizon"] = h
+    return out.sort_values("p", ascending=False).reset_index(drop=True)
+  
+  
+# Plot des resultats 
+def summary_predictions(preds, by="zone"):
+    """Résumé des prédictions du dernier relevé : par zone (ou autre colonne) et par horizon.
+    n_stations, part de stations en alerte (p > tau), p moyen."""
+    g = preds.groupby(["horizon", by])
+    return g.agg(n_stations=("station_code", "size"),
+                 en_alerte=("alerte", "sum"),
+                 part_alerte=("alerte", "mean"),
+                 p_moyen=("p", "mean")).round(3)
+
+
+def plot_predictions_zone(preds, colors=("#4C72B0", "#DD8452")):
+    """Barres : part de stations en alerte et p moyen, par zone, pour chaque horizon."""
+    import matplotlib.pyplot as plt
+    s = summary_predictions(preds)
+    hs = sorted(preds["horizon"].unique())
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    for ax, col, titre in zip(axes, ["part_alerte", "p_moyen"],
+                              ["Part de stations en alerte", "Probabilité moyenne de pénurie"]):
+        w = s[col].unstack("horizon").loc[["Paris", "banlieue"]]
+        w.plot.bar(ax=ax, color=list(colors), rot=0)
+        ax.set(title=titre, xlabel="", ylabel="", ylim=(0, 1))
+        ax.legend([f"{h} min" for h in hs], title="Horizon")
+        for c in ax.containers:
+            ax.bar_label(c, labels=[f"{v:.0%}" if col == "part_alerte" else f"{v:.2f}"
+                                    for v in c.datavalues])
+    fig.tight_layout()
+    return fig
+  
+  
+def summary_zone_test(SCORED, R, by="zone"):
+    """Semaine de test, par zone et horizon : taux de pénurie réel, taux d'alerte du modèle retenu
+    et de la persistance, rappel et F1 du modèle retenu."""
+    rows = []
+    for h, sc in SCORED.items():
+        c = R[h]["chosen"]
+        for z, g in sc[c].groupby(by, observed=True):
+            gp = sc["persistance"].loc[g.index]
+            m = class_metrics(g["y"], g["score"], g["pred"])
+            rows.append({"horizon": h, by: z, "n": m["n"], "pénurie réelle": g["y"].mean(),
+                         "alerte modèle": g["pred"].mean(), "alerte persistance": gp["pred"].mean(),
+                         "rappel modèle": m["rappel"], "F1 modèle": m["f1"]})
+    return pd.DataFrame(rows).set_index(["horizon", by]).round(3)
+
+
+def plot_zone_test(SCORED, R, order=("Paris", "banlieue"), colors=("#555555", "#4C72B0", "#C9C9C9")):
+    """Barres par zone : pénurie réelle, alerte du modèle retenu, alerte de la persistance (test)."""
+    import matplotlib.pyplot as plt
+    s = summary_zone_test(SCORED, R)
+    cols = ["pénurie réelle", "alerte modèle", "alerte persistance"]
+    hs = list(SCORED)
+    fig, axes = plt.subplots(1, len(hs), figsize=(5.5 * len(hs), 4), sharey=True)
+    for ax, h in zip(np.atleast_1d(axes), hs):
+        w = s.loc[h, cols].loc[list(order)]
+        w.plot.bar(ax=ax, color=list(colors), rot=0)
+        ax.set(title=f"Horizon {h} min", xlabel="")
+        for c in ax.containers:
+            ax.bar_label(c, labels=[f"{v:.1%}" for v in c.datavalues], fontsize=8)
+        ax.legend(fontsize=8)
+    np.atleast_1d(axes)[0].set_ylabel("Part des lignes (semaine de test)")
+    fig.tight_layout()
+    return fig
+  
+def plot_predictions_commune(preds, top=None, min_stations=1):
+    """Barres horizontales par commune : probabilité moyenne de pénurie à 30 et 60 min (dernier relevé).
+    L'étiquette indique le nombre de stations en alerte / le nombre de stations de la commune.
+    top : ne garder que les `top` communes les plus à risque ; min_stations : taille minimale."""
+    import matplotlib.pyplot as plt
+    hs = sorted(preds["horizon"].unique())
+    g = preds.groupby(["commune", "horizon"]).agg(p=("p", "mean"), alerte=("alerte", "sum"),
+                                                 n=("station_code", "size")).reset_index()
+    n_com = g.groupby("commune")["n"].first()
+    order = (g[g["horizon"] == hs[-1]].set_index("commune")["p"]
+             .loc[n_com[n_com >= min_stations].index].sort_values(ascending=False))
+    if top:
+        order = order.head(top)
+    order = order.index[::-1]                       # la plus à risque en haut
+    fig, ax = plt.subplots(figsize=(9, max(3, 0.32 * len(order) * len(hs) / 1.6)))
+    hgt = 0.8 / len(hs)
+    for i, h in enumerate(hs):
+        d = g[g["horizon"] == h].set_index("commune").loc[order]
+        y = np.arange(len(order)) + (i - (len(hs) - 1) / 2) * hgt
+        ax.barh(y, d["p"], height=hgt, label=f"{h} min")
+        for yy, p, a, n in zip(y, d["p"], d["alerte"], d["n"]):
+            ax.text(p + 0.005, yy, f"{a}/{n}", va="center", fontsize=7)
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels(order)
+    ax.set(xlabel="Probabilité moyenne de pénurie (étiquette : stations en alerte / stations)",
+           title="Prévision par commune, dernier relevé")
+    ax.legend(title="Horizon")
+    fig.tight_layout()
+    return fig
+  
+  
+def top_alertes(preds, n=15):
+    """Stations les plus à risque au dernier relevé : N actuel, p à 30 et 60 min, alerte à chaque horizon.
+    Triées par la probabilité la plus élevée sur les deux horizons."""
+    base = preds.drop_duplicates("station_code").set_index("station_code")[["name", "commune", "N"]]
+    p = preds.pivot(index="station_code", columns="horizon", values="p")
+    a = preds.pivot(index="station_code", columns="horizon", values="alerte")
+    out = base.join(p.add_prefix("p_").add_suffix(" min")).join(a.add_prefix("alerte_").add_suffix(" min"))
+    pcols = [c for c in out if c.startswith("p_")]
+    out = out.assign(_max=out[pcols].max(axis=1)).sort_values("_max", ascending=False).drop(columns="_max")
+    return out.head(n).round(3)
+
+
+def map_predictions(preds):
+    """Carte des stations coloriées par la probabilité de pénurie (un panneau par horizon).
+    Les stations en alerte (p > tau) sont cerclées de noir."""
+    import matplotlib.pyplot as plt
+    hs = sorted(preds["horizon"].unique())
+    fig, axes = plt.subplots(1, len(hs), figsize=(6.5 * len(hs), 6), sharex=True, sharey=True)
+    for ax, h in zip(np.atleast_1d(axes), hs):
+        d = preds[preds["horizon"] == h].sort_values("p")
+        sc = ax.scatter(d["longitude"], d["latitude"], c=d["p"], cmap="YlOrRd", vmin=0, vmax=1, s=45,
+                        edgecolor=np.where(d["alerte"] == 1, "k", "none"), linewidth=1.2)
+        ax.set(title=f"Horizon {h} min", xlabel="longitude")
+        ax.set_aspect(1 / np.cos(np.radians(d["latitude"].mean())))
+    np.atleast_1d(axes)[0].set_ylabel("latitude")
+    fig.colorbar(sc, ax=axes, label="Probabilité de pénurie (cerclé : station en alerte)", shrink=0.8)
+    return fig
+  
+def map_predictions_folium(preds, zoom=12):
+    """Carte folium des stations, coloriées par la probabilité de pénurie.
+    Un calque par horizon (30 / 60 min), à choisir avec le sélecteur en haut à droite.
+    Les stations en alerte (p > tau) ont un contour noir. Clic sur un point : détails de la station."""
+    import folium
+    from branca.colormap import LinearColormap
+
+    hs = sorted(preds["horizon"].unique())
+    cmap = LinearColormap(
+    colors=["#1D4ED8","#38BDF8","#7DD3FC","#FDE047","#FB923C","#DC2626" ],vmin=0, vmax=1, 
+          caption="Probabilité de pénurie")
+    wide = preds.pivot(index="station_code", columns="horizon", values="p")
+    info = preds.drop_duplicates("station_code").set_index("station_code")
+
+    m = folium.Map(location=[info["latitude"].mean(), info["longitude"].mean()],
+                   zoom_start=zoom, tiles="OpenStreetMap")
+    for i, h in enumerate(hs):
+        fg = folium.FeatureGroup(name=f"Horizon {h} min", show=(i == 0))
+        d = preds[preds["horizon"] == h].sort_values("p")          # les plus risquées dessinées en dernier
+        for _, r in d.iterrows():
+            lignes = "".join(f"<br>p ({k} min) : {wide.loc[r['station_code'], k]:.2f}" for k in hs)
+            html = (f"<b>{r['name']}</b><br>{r['commune']}<br>Vélos actuels : {int(r['N'])}{lignes}"
+                    f"<br>{'⚠ en alerte' if r['alerte'] == 1 else 'pas d alerte'} à {h} min")
+            folium.CircleMarker(
+                location=[r["latitude"], r["longitude"]],
+                radius=8 if r["alerte"] == 1 else 6,
+                color="black" if r["alerte"] == 1 else "white",
+                weight=2 if r["alerte"] == 1 else 1,
+                fill=True, fill_color=cmap(r["p"]), fill_opacity=0.85,
+                tooltip=f"{r['name']} : p = {r['p']:.2f}",
+                popup=folium.Popup(html, max_width=260)).add_to(fg)
+        fg.add_to(m)
+    cmap.add_to(m)
+    folium.LayerControl(collapsed=False).add_to(m)
+    return m

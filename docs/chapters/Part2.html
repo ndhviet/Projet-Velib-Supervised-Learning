@@ -393,7 +393,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="extraction-et-vérification-des-données" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Extraction et vérification des données</h1>
 <p>Les données sont téléchargées depuis <code>docs.ambroise.cloud</code> ; leur empreinte MD5 est vérifiée à chaque chargement (le calcul s’arrête si elle ne correspond pas).</p>
-<div id="b3594def" class="cell" data-execution_count="2">
+<div id="3a0b3d74" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> load_raw_dt(verbose<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>raw.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -403,7 +403,7 @@ Calculated MD5: 02ab1e3fdac10579e4ce93d1540a5dc7
 Expected MD5:   02ab1e3fdac10579e4ce93d1540a5dc7
 MD5 OK!</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="142">
 <div>
 
 
@@ -498,7 +498,7 @@ MD5 OK!</code></pre>
 <h1 data-number="2"><span class="header-section-number">2</span> Résumé des données</h1>
 <section id="aperçu-des-données" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="aperçu-des-données"><span class="header-section-number">2.1</span> Aperçu des données</h2>
-<div id="f3f614e4" class="cell" data-execution_count="3">
+<div id="682770fe" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Nombre de lignes :"</span>, raw.shape[<span class="dv">0</span>])</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Nombre de colonnes :"</span>, raw.shape[<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -506,7 +506,7 @@ MD5 OK!</code></pre>
 Nombre de colonnes : 16</code></pre>
 </div>
 </div>
-<div id="78740c2b" class="cell" data-execution_count="4">
+<div id="26adbd17" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>raw.info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class 'pandas.DataFrame'&gt;
@@ -534,9 +534,9 @@ dtypes: datetime64[us, UTC](2), float64(3), int64(9), str(2)
 memory usage: 40.2 MB</code></pre>
 </div>
 </div>
-<div id="b06b97cb" class="cell" data-execution_count="5">
+<div id="39cf9b44" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>coverage(raw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="145">
 <pre><code>rows                                              329680
 stations                                              80
 snapshots                                           4139
@@ -554,7 +554,7 @@ dtype: object</code></pre>
 <p>Avant toute analyse, on vérifie la qualité du jeu de données : présence de doublons et de valeurs manquantes.</p>
 <section id="lignes-dupliquées" class="level3" data-number="2.2.1">
 <h3 data-number="2.2.1" class="anchored" data-anchor-id="lignes-dupliquées"><span class="header-section-number">2.2.1</span> Lignes dupliquées</h3>
-<div id="66ff2166" class="cell" data-execution_count="6">
+<div id="288a098f" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Nombre de lignes dupliquées :"</span>, raw.duplicated().<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Nombre de lignes dupliquées : 0</code></pre>
@@ -563,10 +563,10 @@ dtype: object</code></pre>
 </section>
 <section id="valeurs-manquantes" class="level3" data-number="2.2.2">
 <h3 data-number="2.2.2" class="anchored" data-anchor-id="valeurs-manquantes"><span class="header-section-number">2.2.2</span> Valeurs manquantes</h3>
-<div id="9b1f421e" class="cell" data-execution_count="7">
+<div id="79b92c5a" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>na <span class="op">=</span> raw.isna().<span class="bu">sum</span>()</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>na[na <span class="op">&gt;</span> <span class="dv">0</span>].to_frame(<span class="st">"manquantes"</span>).assign(part<span class="op">=</span><span class="kw">lambda</span> d: (d[<span class="st">"manquantes"</span>] <span class="op">/</span> <span class="bu">len</span>(raw)).<span class="bu">round</span>(<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="147">
 <div>
 
 
@@ -593,13 +593,16 @@ dtype: object</code></pre>
 <p>Seule la colonne <code>capacity</code> contient des valeurs manquantes (1 920 lignes, soit environ 0,6 % des données). Toutes les autres colonnes sont complètes.</p>
 <section id="où-manque-la-capacité" class="level4" data-number="2.2.2.1">
 <h4 data-number="2.2.2.1" class="anchored" data-anchor-id="où-manque-la-capacité"><span class="header-section-number">2.2.2.1</span> Où manque la capacité ?</h4>
-<div id="f35e33e8" class="cell" data-execution_count="8">
+<div id="e046260e" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>missing_capacity <span class="op">=</span> raw[raw[<span class="st">"capacity"</span>].isna()]</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Stations concernées :"</span>, missing_capacity[<span class="st">"station_code"</span>].nunique())</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Observations par station :"</span>, missing_capacity[<span class="st">"station_code"</span>].value_counts().unique())</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> missing_capacity.groupby(<span class="st">"collected_at_utc"</span>)[<span class="st">"station_code"</span>].nunique()</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Nombre de stations concernées, par horodatage :"</span>)</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(g.value_counts())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Stations concernées : 80
 Observations par station : [24]
@@ -617,10 +620,10 @@ Name: count, dtype: int64</code></pre>
 </section>
 <section id="sec-coherence" class="level3" data-number="2.2.3">
 <h3 data-number="2.2.3" class="anchored" data-anchor-id="sec-coherence"><span class="header-section-number">2.2.3</span> Cohérence interne et statut des stations</h3>
-<div id="b6f4e83d" class="cell" data-execution_count="9">
+<div id="bb30498a" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> qualite(raw)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Q[<span class="st">"coherence"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="149">
 <pre><code>bikes != mécaniques + électriques         0
 vélos + bornettes &gt; capacité           2256
 vélos + bornettes &lt; capacité         168340
@@ -638,11 +641,11 @@ dtype: int64</code></pre>
 </ul>
 <section id="stations-quasi-figées-et-incohérences-de-capacité" class="level4" data-number="2.2.3.1">
 <h4 data-number="2.2.3.1" class="anchored" data-anchor-id="stations-quasi-figées-et-incohérences-de-capacité"><span class="header-section-number">2.2.3.1</span> Stations quasi figées et incohérences de capacité</h4>
-<div id="356c11a1" class="cell" data-execution_count="10">
+<div id="478e2b99" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>S_ <span class="op">=</span> Q[<span class="st">"static_stations"</span>]</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>top <span class="op">=</span> S_.nlargest(<span class="dv">5</span>, <span class="st">"unchanged_share"</span>).index.union(S_.nlargest(<span class="dv">5</span>, <span class="st">"over_capacity_rows"</span>).index)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>S_.loc[top].sort_values(<span class="st">"unchanged_share"</span>, ascending<span class="op">=</span><span class="va">False</span>).<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="150">
 <div>
 
 
@@ -710,13 +713,16 @@ dtype: int64</code></pre>
 </section>
 <section id="statut-des-stations" class="level4" data-number="2.2.3.2">
 <h4 data-number="2.2.3.2" class="anchored" data-anchor-id="statut-des-stations"><span class="header-section-number">2.2.3.2</span> Statut des stations</h4>
-<div id="f9b38b4f" class="cell" data-execution_count="11">
+<div id="b63473d0" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>closed <span class="op">=</span> raw[<span class="st">"is_renting"</span>] <span class="op">==</span> <span class="dv">0</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(raw[[<span class="st">"is_installed"</span>, <span class="st">"is_renting"</span>, <span class="st">"is_returning"</span>]].<span class="bu">apply</span>(<span class="kw">lambda</span> s: s.value_counts()))</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Lignes hors service : </span><span class="sc">{</span>closed<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>closed<span class="sc">.</span>mean()<span class="sc">:.2%}</span><span class="ss">)"</span>)</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"is_renting == 0 et is_returning == 0 sur les mêmes lignes :"</span>,</span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>      (closed <span class="op">==</span> (raw[<span class="st">"is_returning"</span>] <span class="op">==</span> <span class="dv">0</span>)).<span class="bu">all</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>   is_installed  is_renting  is_returning
 0           NaN         812           812
@@ -733,9 +739,9 @@ is_renting == 0 et is_returning == 0 sur les mêmes lignes : True</code></pre>
 <h3 data-number="2.2.4" class="anchored" data-anchor-id="sec-collecte"><span class="header-section-number">2.2.4</span> Fiabilité de la collecte</h3>
 <section id="interruptions-de-collecte" class="level4" data-number="2.2.4.1">
 <h4 data-number="2.2.4.1" class="anchored" data-anchor-id="interruptions-de-collecte"><span class="header-section-number">2.2.4.1</span> Interruptions de collecte</h4>
-<div id="1345299d" class="cell" data-execution_count="12">
+<div id="3d03a7f3" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>Q[<span class="st">"gaps"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="152">
 <div>
 
 
@@ -818,13 +824,13 @@ is_renting == 0 et is_returning == 0 sur les mêmes lignes : True</code></pre>
 </section>
 <section id="relevés-incomplets" class="level4" data-number="2.2.4.2">
 <h4 data-number="2.2.4.2" class="anchored" data-anchor-id="relevés-incomplets"><span class="header-section-number">2.2.4.2</span> Relevés incomplets</h4>
-<div id="adc1952e" class="cell" data-execution_count="13">
+<div id="05f9c269" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>Q[<span class="st">'n_incomplets'</span>]<span class="sc">}</span><span class="ss"> relevés incomplets ; ensembles de stations disjoints et couvrant les 80 stations : </span><span class="sc">{</span>Q[<span class="st">'complementaires'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>Q[<span class="st">"ensembles_incomplets"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>36 relevés incomplets ; ensembles de stations disjoints et couvrant les 80 stations : True</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="153">
 <div>
 
 
@@ -859,9 +865,9 @@ is_renting == 0 et is_returning == 0 sur les mêmes lignes : True</code></pre>
 </section>
 <section id="stations-fermées-is_renting-0" class="level4" data-number="2.2.4.3">
 <h4 data-number="2.2.4.3" class="anchored" data-anchor-id="stations-fermées-is_renting-0"><span class="header-section-number">2.2.4.3</span> Stations fermées (<code>is_renting = 0</code>)</h4>
-<div id="90399681" class="cell" data-execution_count="14">
+<div id="81cc913f" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>Q[<span class="st">"fermetures"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="154">
 <div>
 
 
@@ -958,11 +964,14 @@ is_renting == 0 et is_returning == 0 sur les mêmes lignes : True</code></pre>
 </section>
 <section id="fiabilité-de-source_updated_at" class="level4" data-number="2.2.4.4">
 <h4 data-number="2.2.4.4" class="anchored" data-anchor-id="fiabilité-de-source_updated_at"><span class="header-section-number">2.2.4.4</span> Fiabilité de <code>source_updated_at</code></h4>
-<div id="7720e8d8" class="cell" data-execution_count="15">
+<div id="ccf105b0" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"collected_at_utc - source_updated_at (minutes):"</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>display(Q[<span class="st">"retard_source"</span>].<span class="bu">round</span>(<span class="dv">1</span>).to_frame(<span class="st">"minutes"</span>).T)</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"rows whose source timestamp did not change while the bike count did:"</span>,</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>      Q[<span class="st">"source_figee_mais_velos_changent"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>collected_at_utc - source_updated_at (minutes):</code></pre>
 </div>
@@ -1017,16 +1026,22 @@ is_renting == 0 et is_returning == 0 sur les mêmes lignes : True</code></pre>
 </section>
 <section id="grille-régulière-cible-et-population" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Grille régulière, cible et population</h1>
-<div id="7aaf41ae" class="cell" data-execution_count="16">
+<div id="3970783c" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>HORIZONS <span class="op">=</span> (<span class="dv">30</span>, <span class="dv">60</span>)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>S <span class="op">=</span> {h: prepare_sets(raw, h) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS}</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Lignes brutes écartées car hors grille de 15 minutes :"</span>, n_unaligned(raw))</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    display(population_table(S[h][<span class="st">"reason"</span>], h))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    display(population_table(S[h][<span class="st">"reason"</span>], h))</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Lignes brutes écartées car hors grille de 15 minutes : 80
+
 horizon 30 min</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -1099,7 +1114,8 @@ horizon 30 min</code></pre>
 </div>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>horizon 60 min</code></pre>
+<pre><code>
+horizon 60 min</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1170,24 +1186,27 @@ horizon 30 min</code></pre>
 
 </div>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code></code></pre>
+</div>
 </div>
 <section id="distribution-de-la-cible" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="distribution-de-la-cible"><span class="header-section-number">3.1</span> Distribution de la cible</h2>
-<div id="df4a6efe" class="cell" data-execution_count="17">
+<div id="ea87a7b6" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>tr <span class="op">=</span> S[<span class="dv">30</span>][<span class="st">"train"</span>]</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>hour <span class="op">=</span> tr[<span class="st">"t"</span>].dt.tz_convert(TZ).dt.hour</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(hour)[<span class="st">"y"</span>].mean().rename(<span class="st">"taux de positifs par heure (Paris), train"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(np.where(tr[<span class="st">"paris"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"Paris"</span>, <span class="st">"banlieue"</span>))[<span class="st">"y"</span>].mean()</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>          .rename(<span class="st">"taux de positifs, train"</span>).to_frame().<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(<span class="st">"station_code"</span>)[<span class="st">"y"</span>].mean().describe()</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>          .rename(<span class="st">"taux de positifs par station, train"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>trval <span class="op">=</span> pd.concat([S[<span class="dv">30</span>][<span class="st">"train"</span>], S[<span class="dv">30</span>][<span class="st">"val"</span>]])</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>week <span class="op">=</span> trval[<span class="st">"t"</span>].dt.tz_convert(TZ).dt.isocalendar().week.to_numpy()</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>trval.groupby(week)[<span class="st">"y"</span>].mean().rename(<span class="st">"taux de positifs par semaine ISO (train + val)"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>tr <span class="op">=</span> S[<span class="dv">30</span>][<span class="st">"train"</span>]</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>hour <span class="op">=</span> tr[<span class="st">"t"</span>].dt.tz_convert(TZ).dt.hour</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(hour)[<span class="st">"y"</span>].mean().rename(<span class="st">"taux de positifs par heure (Paris), train"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(np.where(tr[<span class="st">"paris"</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">"Paris"</span>, <span class="st">"banlieue"</span>))[<span class="st">"y"</span>].mean()</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>          .rename(<span class="st">"taux de positifs, train"</span>).to_frame().<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(<span class="st">"station_code"</span>)[<span class="st">"y"</span>].mean().describe()</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>          .rename(<span class="st">"taux de positifs par station, train"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>trval <span class="op">=</span> pd.concat([S[<span class="dv">30</span>][<span class="st">"train"</span>], S[<span class="dv">30</span>][<span class="st">"val"</span>]])</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>week <span class="op">=</span> trval[<span class="st">"t"</span>].dt.tz_convert(TZ).dt.isocalendar().week.to_numpy()</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>trval.groupby(week)[<span class="st">"y"</span>].mean().rename(<span class="st">"taux de positifs par semaine ISO (train + val)"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -1311,7 +1330,7 @@ horizon 30 min</code></pre>
 
 </div>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="157">
 <div>
 
 
@@ -1346,12 +1365,12 @@ horizon 30 min</code></pre>
 </section>
 <section id="découpage-chronologique" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="découpage-chronologique"><span class="header-section-number">3.2</span> Découpage chronologique</h2>
-<div id="379bceba" class="cell" data-execution_count="18">
+<div id="bdd41d2d" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    display(split_summary(S[h]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    display(split_summary(S[h]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min</code></pre>
@@ -1445,9 +1464,9 @@ horizon 30 min</code></pre>
 </section>
 <section id="variables" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="variables"><span class="header-section-number">3.3</span> Variables</h2>
-<div id="59161fbd" class="cell" data-execution_count="19">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>pd.Series({g: <span class="st">", "</span>.join(f) <span class="cf">for</span> g, f <span class="kw">in</span> FEATURE_GROUPS.items()}, name<span class="op">=</span><span class="st">"variables"</span>).to_frame()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div id="d9bfdd45" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>pd.Series({g: <span class="st">", "</span>.join(f) <span class="cf">for</span> g, f <span class="kw">in</span> FEATURE_GROUPS.items()}, name<span class="op">=</span><span class="st">"variables"</span>).to_frame()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="159">
 <div>
 
 
@@ -1481,12 +1500,12 @@ horizon 30 min</code></pre>
 </div>
 </div>
 </div>
-<div id="8c6d4df0" class="cell" data-execution_count="20">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>FEATS <span class="op">=</span> S[<span class="dv">30</span>][<span class="st">"FEATS"</span>]</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>display(tr[FEATS].isna().mean().rename(<span class="st">"part de valeurs manquantes (train)"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(pd.cut(tr[<span class="st">"N"</span>], [<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">100</span>]), observed<span class="op">=</span><span class="va">True</span>)[<span class="st">"y"</span>].mean()</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>          .rename(<span class="st">"P(y = 1 | vélos maintenant), train"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="1e5d07dd" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>FEATS <span class="op">=</span> S[<span class="dv">30</span>][<span class="st">"FEATS"</span>]</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>display(tr[FEATS].isna().mean().rename(<span class="st">"part de valeurs manquantes (train)"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>display(tr.groupby(pd.cut(tr[<span class="st">"N"</span>], [<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">100</span>]), observed<span class="op">=</span><span class="va">True</span>)[<span class="st">"y"</span>].mean()</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>          .rename(<span class="st">"P(y = 1 | vélos maintenant), train"</span>).to_frame().T.<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 

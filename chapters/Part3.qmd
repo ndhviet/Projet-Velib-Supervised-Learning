@@ -64,7 +64,7 @@ from velib_utils import (load_raw_dt, prepare_sets, pipeline_horizon, evaluate_m
                          precision_at_recall, BayesNaifGaussien, scored_frame, metrics_by,daily_dispersion,
                          station_bootstrap, station_comparison, situation_table, pr_curves,
                          correlated_pairs, seed_sensitivity, pca_val, plot_validation_summary,  
-                         SUSPECT_STATION, TZ)
+                         SUSPECT_STATION, TZ, predict_now,summary_predictions,plot_predictions_zone)
                          
 
 raw = load_raw_dt()
@@ -483,6 +483,7 @@ plt.show()
 ## Comparaison au même rappel que la persistance
 
 ```{python}
+#| code-fold: true
 for h in HORIZONS:
     res = R[h]
     y_val = res["val"]["y"].to_numpy()
@@ -493,4 +494,19 @@ for h in HORIZONS:
     print(f"horizon {h} min | persistance : précision {p_pers:.3f} à rappel {r_pers:.3f}")
     for nom in res["models"]:
         print(f"  {nom:12s} : précision {precision_at_recall(y_val, sc[nom], r_pers):.3f} au même rappel")
+    print()
 ```
+
+
+```{python}
+preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
+preds.groupby("horizon").head(10)[["horizon", "station_code", "N", "p", "alerte"]].round(3)
+```
+
+```{python}
+preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
+display(summary_predictions(preds))
+plot_predictions_zone(preds)
+plt.show()
+```
+

@@ -12,7 +12,7 @@ execute:
 ---
 
 ```{python}
-#| code-fold: true
+#| echo: false
 import os
 import joblib
 import numpy as np
@@ -26,7 +26,8 @@ from velib_utils import (load_raw_dt, prepare_sets, pipeline_horizon, evaluate_m
                          precision_at_recall, ablation, scored_frame, metrics_by, daily_dispersion,
                          station_bootstrap, station_comparison, situation_table, pr_curves,
                          correlated_pairs, seed_sensitivity, pca_val, plot_validation_summary,  
-                         SUSPECT_STATION, TZ)
+                         SUSPECT_STATION, TZ,predict_now, summary_zone_test,plot_zone_test,
+                         plot_predictions_commune,top_alertes, map_predictions, map_predictions_folium)
 
 raw = load_raw_dt()
 HORIZONS = (30, 60)
@@ -225,3 +226,40 @@ for h in HORIZONS:
     display(ABL[h].round(3))
     print()
 ```
+
+
+
+
+```{python}
+preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
+
+for h in HORIZONS:
+    p = preds[preds["horizon"] == h]
+    print(f"Horizon {h} min | relevé du {p['t'].iloc[0]} | stations en alerte : {p['alerte'].sum()}")
+    display(p[["station_code", "N", "p", "alerte"]].head(10).round(3))
+```
+
+```{python}
+display(summary_zone_test(SCORED, R))
+plot_zone_test(SCORED, R)
+plt.show()
+```
+
+```{python}
+preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
+plot_predictions_commune(preds)
+plt.show()
+```
+
+
+```{python}
+preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
+
+display(top_alertes(preds, n=15))      # bảng các station nguy cơ cao nhất
+```
+
+```{python}
+preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
+map_predictions_folium(preds)
+```
+

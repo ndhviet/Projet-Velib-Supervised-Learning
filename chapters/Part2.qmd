@@ -67,6 +67,7 @@ Seule la colonne `capacity` contient des valeurs manquantes (1 920 lignes, soit 
 #### Où manque la capacité ?
 
 ```{python}
+#| code-fold: true
 missing_capacity = raw[raw["capacity"].isna()]
 print("Stations concernées :", missing_capacity["station_code"].nunique())
 print("Observations par station :", missing_capacity["station_code"].value_counts().unique())
@@ -103,6 +104,7 @@ Une station typique est inchangée d'un relevé à l'autre dans 38 % des cas (m�
 #### Statut des stations
 
 ```{python}
+#| code-fold: true
 closed = raw["is_renting"] == 0
 print(raw[["is_installed", "is_renting", "is_returning"]].apply(lambda s: s.value_counts()))
 print()
@@ -137,6 +139,7 @@ Q["fermetures"]
 #### Fiabilité de `source_updated_at`
 
 ```{python}
+#| code-fold: true
 print("collected_at_utc - source_updated_at (minutes):")
 display(Q["retard_source"].round(1).to_frame("minutes").T)
 print("rows whose source timestamp did not change while the bike count did:",
@@ -153,13 +156,16 @@ Nous utilisons donc `collected_at_utc` comme seule référence temporelle et n'e
 # Grille régulière, cible et population
 
 ```{python}
+#| code-fold: true
 HORIZONS = (30, 60)
 S = {h: prepare_sets(raw, h) for h in HORIZONS}
 
 print("Lignes brutes écartées car hors grille de 15 minutes :", n_unaligned(raw))
+print()
 for h in HORIZONS:
     print(f"horizon {h} min")
     display(population_table(S[h]["reason"], h))
+    print()
 ```
 
 ## Distribution de la cible
