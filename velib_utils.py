@@ -807,9 +807,10 @@ def predict_now(res, raw):
     feat, _, _ = build_features(raw, h=h, live=True)
     feat = feat.assign(st_empty_rate=feat["station_code"].map(res["rate"]))
     out = feat[["station_code", "t", "N"]].copy()
-    out["zone"] = np.where(feat["paris"].to_numpy() == 1, "Paris", "banlieue")
+    #out["zone"] = np.where(feat["paris"].to_numpy() == 1, "Paris", "banlieue")
     out = feat[["station_code", "name", "commune", "t", "N"]].copy()
     out = feat[["station_code", "name", "commune", "latitude", "longitude", "t", "N"]].copy()
+    out["zone"] = np.where(feat["paris"].to_numpy() == 1, "Paris", "banlieue")
     for n, m in res["models"].items():
         out[f"p_{n}"] = m.predict_proba(feat[res["feats"].get(n, res["FEATS"])])[:, 1]
     c = res["chosen"]
@@ -976,3 +977,50 @@ def map_predictions_folium(preds, zoom=12):
     cmap.add_to(m)
     folium.LayerControl(collapsed=False).add_to(m)
     return m
+
+def ap_ci_table(res, scores, B=200, seed=2026):
+    """AP sur le test de chaque modèle (et de la persistance) avec IC à 95 % par bootstrap de STATIONS.
+    Les mêmes stations sont tirées pour tous les modèles : les intervalles sont comparables."""
+    d = res["test"]
+    y, st = d["y"].to_numpy(), d["station_code"].to_numpy()
+    codes = np.unique(st)
+    rows = {c: np.flatnonzero(st == c) for c in codes}
+    names = list(res["models"]) + ["persistance"]
+    rng = np.random.default_rng(seed)
+    boots = {n: [] for n in names}
+    for _ in range(B):
+        idx = np.concatenate([rows[c] for c in rng.choice(codes, len(codes), replace=True)])
+        for n in names:
+            boots[n].append(average_precision_score(y[idx], scores[n][idx]))
+    return pd.DataFrame({n: {"AP": average_precision_score(y, scores[n]),
+                             "ic_bas": np.quantile(b, 0.025), "ic_haut": np.quantile(b, 0.975)}
+                         for n, b in boots.items()}).T
+
+
+def plot_ap_ci(R, TE, B=200):
+    """AP de chaque modèle sur la semaine de test, avec IC bootstrap par station.
+    Le modèle retenu est en couleur, la persistance est la ligne verticale (avec son IC en bande).
+    Renvoie (figure, {horizon: tableau})."""
+    import matplotlib.pyplot as plt
+    hs = list(R)
+    fig, axes = plt.subplots(1, len(hs), figsize=(6 * len(hs), 4), sharex=True)
+    tables = {}
+    for ax, h in zip(np.atleast_1d(axes), hs):
+        t = ap_ci_table(R[h], TE[h][1], B=B)
+        tables[h] = t.round(3)
+        pers = t.loc["persistance"]
+        m = t.drop(index="persistance").sort_values("AP")
+        y = np.arange(len(m))
+        ax.axvspan(pers["ic_bas"], pers["ic_haut"], color="#bbbbbb", alpha=0.4)
+        ax.axvline(pers["AP"], color="k", ls="--", label=f"persistance ({pers['AP']:.3f})")
+        for yy, (n, r) in zip(y, m.iterrows()):
+            chosen = n == R[h]["chosen"]
+            ax.errorbar(r["AP"], yy, xerr=[[r["AP"] - r["ic_bas"]], [r["ic_haut"] - r["AP"]]], fmt="o",
+                        color="#C44E52" if chosen else "#4C72B0", capsize=3,
+                        label="modèle retenu" if chosen else None)
+        ax.set_yticks(y)
+        ax.set_yticklabels(m.index)
+        ax.set(title=f"Horizon {h} min", xlabel="AP sur la semaine de test (IC 95 % bootstrap)")
+        ax.legend(fontsize=8, loc="lower right")
+    fig.tight_layout()
+    return fig, tables

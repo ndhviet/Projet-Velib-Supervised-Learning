@@ -4,12 +4,82 @@ author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
 date: "2026-10-27"
 
 jupyter: projet-velib
-number-sections: true 
+number-sections: true
 code-fold: false
 execute:
   warning: false
   message: false
 ---
 
-# Conclusions et limites
+# Prévision pour le dernier relevé
 
+Les modèles retenus en Partie 3 sont appliqués au dernier relevé disponible (8 octobre 2026, 20 h 15 UTC) : pour chaque station, on estime la probabilité d'avoir moins de deux vélos dans 30 et 60 minutes. Une station est en alerte si cette probabilité dépasse le seuil choisi sur la validation. Il s'agit d'une photographie à un instant donné, pas d'une statistique générale.
+
+```{python}
+#| echo: false
+import os
+import joblib
+import pandas as pd
+import matplotlib.pyplot as plt
+from velib_utils import (load_raw_dt, pipeline_horizon, predict_now, top_alertes,
+                         summary_predictions, plot_predictions_zone,
+                         plot_predictions_commune, map_predictions_folium)
+
+raw = load_raw_dt()
+HORIZONS = (30, 60)
+os.makedirs("cache", exist_ok=True)
+
+
+def cached(path, fn):
+    if os.path.exists(path):
+        return joblib.load(path)
+    out = fn()
+    joblib.dump(out, path)
+    return out
+
+
+CRITERION = "f1"
+R = cached(f"cache/modeles_R_{CRITERION}.joblib",
+           lambda: {h: pipeline_horizon(raw, h, criterion=CRITERION) for h in HORIZONS})
+preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
+```
+
+## Stations les plus à risque
+
+```{python}
+#| code-fold: true
+top_alertes(preds, n=15)
+```
+
+## Carte
+
+```{python}
+#| code-fold: true
+map_predictions_folium(preds)
+```
+
+## Par commune
+
+```{python}
+#| code-fold: true
+plot_predictions_commune(preds)
+plt.show()
+```
+
+## Par zone
+
+```{python}
+#| code-fold: true
+display(summary_predictions(preds))
+plot_predictions_zone(preds)
+plt.show()
+```
+
+
+# Conclusions
+
+(Résultats chiffrés de la semaine de test : voir ci-dessous.)
+
+# Limites
+
+(...)

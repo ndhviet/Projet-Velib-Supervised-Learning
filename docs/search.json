@@ -193,7 +193,7 @@
     "href": "chapters/Part5.html",
     "title": "Partie 5 Conclusion",
     "section": "",
-    "text": "NGUYEN DUC HOANG VIET & SUN ZHENXUAN\n  Projet Vélib · Supervised Learning\n  \n\n\n\n\n\n\n\n\n1 Conclusions et limites\n\n\n\n\n Back to top"
+    "text": "NGUYEN DUC HOANG VIET & SUN ZHENXUAN\n  Projet Vélib · Supervised Learning"
   },
   {
     "objectID": "chapters/Part3.html#loi-de-y",
@@ -347,7 +347,7 @@
     "href": "chapters/Part3.html#comparaison-au-même-rappel-que-la-persistance",
     "title": "Partie 3 Modèles supervisés",
     "section": "9.3 Comparaison au même rappel que la persistance",
-    "text": "9.3 Comparaison au même rappel que la persistance\n\n\nCode\nfor h in HORIZONS:\n    res = R[h]\n    y_val = res[\"val\"][\"y\"].to_numpy()\n    sc = SC_VAL[h]\n\n    r_pers = recall_score(y_val, PERS_VAL[h])\n    p_pers = precision_score(y_val, PERS_VAL[h])\n    print(f\"horizon {h} min | persistance : précision {p_pers:.3f} à rappel {r_pers:.3f}\")\n    for nom in res[\"models\"]:\n        print(f\"  {nom:12s} : précision {precision_at_recall(y_val, sc[nom], r_pers):.3f} au même rappel\")\n    print()\n\n\nhorizon 30 min | persistance : précision 0.734 à rappel 0.735\n  bayes_naif   : précision 0.555 au même rappel\n  knn          : précision 0.570 au même rappel\n  arbre        : précision 0.737 au même rappel\n  knn_pondere  : précision 0.742 au même rappel\n  foret        : précision 0.750 au même rappel\n  boosting     : précision 0.752 au même rappel\n\nhorizon 60 min | persistance : précision 0.664 à rappel 0.665\n  bayes_naif   : précision 0.495 au même rappel\n  knn          : précision 0.570 au même rappel\n  arbre        : précision 0.675 au même rappel\n  knn_pondere  : précision 0.688 au même rappel\n  foret        : précision 0.702 au même rappel\n  boosting     : précision 0.704 au même rappel\n\n\n\n\npreds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])\npreds.groupby(\"horizon\").head(10)[[\"horizon\", \"station_code\", \"N\", \"p\", \"alerte\"]].round(3)\n\n\n\n\n\n\n\n\nhorizon\nstation_code\nN\np\nalerte\n\n\n\n\n0\n30\n23805\n0.0\n0.871\n1\n\n\n1\n30\n8053\n1.0\n0.825\n1\n\n\n2\n30\n9022\n1.0\n0.825\n1\n\n\n3\n30\n10017\n0.0\n0.776\n1\n\n\n4\n30\n32604\n1.0\n0.733\n1\n\n\n5\n30\n48008\n1.0\n0.645\n1\n\n\n6\n30\n20045\n1.0\n0.611\n1\n\n\n7\n30\n9104\n1.0\n0.543\n1\n\n\n8\n30\n31001\n1.0\n0.528\n1\n\n\n9\n30\n42707\n0.0\n0.499\n1\n\n\n0\n60\n23805\n0.0\n0.863\n1\n\n\n1\n60\n9022\n1.0\n0.755\n1\n\n\n2\n60\n8053\n1.0\n0.689\n1\n\n\n3\n60\n20045\n1.0\n0.563\n1\n\n\n4\n60\n32604\n1.0\n0.482\n1\n\n\n5\n60\n48008\n1.0\n0.450\n1\n\n\n6\n60\n9035\n1.0\n0.445\n1\n\n\n7\n60\n9104\n1.0\n0.440\n1\n\n\n8\n60\n9023\n2.0\n0.401\n1\n\n\n9\n60\n31001\n1.0\n0.308\n0\n\n\n\n\n\n\n\n\npreds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])\ndisplay(summary_predictions(preds))\nplot_predictions_zone(preds)\nplt.show()\n\n\n\n\n\n\n\n\n\nn_stations\nen_alerte\npart_alerte\np_moyen\n\n\nhorizon\nzone\n\n\n\n\n\n\n\n\n30\nParis\n50\n7\n0.140\n0.102\n\n\nbanlieue\n30\n5\n0.167\n0.121\n\n\n60\nParis\n50\n6\n0.120\n0.085\n\n\nbanlieue\n30\n3\n0.100\n0.095"
+    "text": "9.3 Comparaison au même rappel que la persistance\n\n\nCode\nfor h in HORIZONS:\n    res = R[h]\n    y_val = res[\"val\"][\"y\"].to_numpy()\n    sc = SC_VAL[h]\n\n    r_pers = recall_score(y_val, PERS_VAL[h])\n    p_pers = precision_score(y_val, PERS_VAL[h])\n    print(f\"horizon {h} min | persistance : précision {p_pers:.3f} à rappel {r_pers:.3f}\")\n    for nom in res[\"models\"]:\n        print(f\"  {nom:12s} : précision {precision_at_recall(y_val, sc[nom], r_pers):.3f} au même rappel\")\n    print()\n\n\nhorizon 30 min | persistance : précision 0.734 à rappel 0.735\n  bayes_naif   : précision 0.555 au même rappel\n  knn          : précision 0.570 au même rappel\n  arbre        : précision 0.737 au même rappel\n  knn_pondere  : précision 0.742 au même rappel\n  foret        : précision 0.750 au même rappel\n  boosting     : précision 0.752 au même rappel\n\nhorizon 60 min | persistance : précision 0.664 à rappel 0.665\n  bayes_naif   : précision 0.495 au même rappel\n  knn          : précision 0.570 au même rappel\n  arbre        : précision 0.675 au même rappel\n  knn_pondere  : précision 0.688 au même rappel\n  foret        : précision 0.702 au même rappel\n  boosting     : précision 0.704 au même rappel"
   },
   {
     "objectID": "chapters/Part3.html#apport-des-groupes-de-variables-ablation-validation",
@@ -1174,5 +1174,33 @@
     "title": "Partie 1 Exploration visuelle du réseau Vélib’",
     "section": "5.2 Répartition du taux de disponibilité",
     "text": "5.2 Répartition du taux de disponibilité\n\n\nCode\nimport plotly.express as px\nimport pandas as pd\n\n# Calcul du nombre moyen de vélos par station\ndispo = (\n    raw.groupby(\"station_code\", as_index=False)\n    .agg(\n        bikes_available=(\"bikes_available\", \"mean\"),\n        capacity=(\"capacity\", \"first\")\n    )\n)\n\n# Éviter les divisions par zéro\ndispo = dispo[dispo[\"capacity\"] &gt; 0].copy()\n\n# Taux de disponibilité en pourcentage\ndispo[\"taux_dispo\"] = (\n    dispo[\"bikes_available\"] / dispo[\"capacity\"] * 100\n)\n\n# Création des catégories\nbins = [0, 20, 40, 60, 80, 100]\nlabels = [\"0–20%\", \"20–40%\", \"40–60%\",\n          \"60–80%\", \"80–100%\"]\n\ndispo[\"categorie\"] = pd.cut(\n    dispo[\"taux_dispo\"].clip(0, 100),\n    bins=bins,\n    labels=labels,\n    include_lowest=True\n)\n\ncounts = (\n    dispo[\"categorie\"]\n    .value_counts()\n    .reindex(labels, fill_value=0)\n    .reset_index()\n)\n\ncounts.columns = [\"Taux de disponibilité\", \"Nombre de stations\"]\n\n# Création du graphique\nfig = px.bar(\n    counts,\n    x=\"Taux de disponibilité\",\n    y=\"Nombre de stations\",\n    color=\"Taux de disponibilité\",\n    color_discrete_sequence=VERT,\n    text=\"Nombre de stations\",\n    title=\"Répartition des stations selon le taux de disponibilité\"\n)\n\nfig.update_traces(\n    textposition=\"outside\",\n    marker_line_width=0\n)\n\nfig.update_layout(\n    template=\"plotly_white\",\n    height=450,\n    showlegend=False,\n    xaxis_title=\"Taux moyen de disponibilité\",\n    yaxis_title=\"Nombre de stations\"\n)\n\nfig.show()"
+  },
+  {
+    "objectID": "chapters/Part5.html#stations-les-plus-à-risque",
+    "href": "chapters/Part5.html#stations-les-plus-à-risque",
+    "title": "Partie 5 Conclusion",
+    "section": "1.1 Stations les plus à risque",
+    "text": "1.1 Stations les plus à risque\n\n\nCode\ntop_alertes(preds, n=15)\n\n\n\n\n\n\n\n\n\nname\ncommune\nN\np_30 min\np_60 min\nalerte_30 min\nalerte_60 min\n\n\nstation_code\n\n\n\n\n\n\n\n\n\n\n\n23805\nSuresnes - Place du Souvenir Français\nGarches\n0.0\n0.871\n0.863\n1\n1\n\n\n8053\nPlace Georges Guillaumin\nParis\n1.0\n0.825\n0.689\n1\n1\n\n\n9022\nRossini - Laffitte\nParis\n1.0\n0.825\n0.755\n1\n1\n\n\n10017\nGare de l'Est - Fidélité\nParis\n0.0\n0.776\n0.145\n1\n0\n\n\n32604\nSquare du Théâtre du Garde-Chasse\nLes Lilas\n1.0\n0.733\n0.482\n1\n1\n\n\n48008\nGuy Môquet - Parvis Georges Marchais\nVillejuif\n1.0\n0.645\n0.450\n1\n1\n\n\n20045\nLouis Ganne - Davout\nParis\n1.0\n0.611\n0.563\n1\n1\n\n\n9104\nCaumartin - Provence\nParis\n1.0\n0.543\n0.440\n1\n1\n\n\n31001\nLagny - Auguste Blanqui\nMontreuil\n1.0\n0.528\n0.308\n1\n0\n\n\n42707\nPlace Jean-Baptiste Clément\nLe Kremlin-Bicêtre\n0.0\n0.499\n0.305\n1\n0\n\n\n9035\nGare Saint-Lazare - Place de Budapest\nParis\n1.0\n0.441\n0.445\n1\n1\n\n\n20006\nPyrénées - Plaine\nParis\n1.0\n0.429\n0.288\n1\n0\n\n\n9023\nLaffitte - Italiens\nParis\n2.0\n0.233\n0.401\n0\n1\n\n\n7004\nRaspail - Varenne\nParis\n3.0\n0.125\n0.244\n0\n0\n\n\n23702\nHôtel de Ville de Chaville\nChaville\n2.0\n0.100\n0.244\n0\n0"
+  },
+  {
+    "objectID": "chapters/Part5.html#carte",
+    "href": "chapters/Part5.html#carte",
+    "title": "Partie 5 Conclusion",
+    "section": "1.2 Carte",
+    "text": "1.2 Carte\n\n\nCode\nmap_predictions_folium(preds)\n\n\nMake this Notebook Trusted to load map: File -&gt; Trust Notebook"
+  },
+  {
+    "objectID": "chapters/Part5.html#par-commune",
+    "href": "chapters/Part5.html#par-commune",
+    "title": "Partie 5 Conclusion",
+    "section": "1.3 Par commune",
+    "text": "1.3 Par commune\n\n\nCode\nplot_predictions_commune(preds)\nplt.show()"
+  },
+  {
+    "objectID": "chapters/Part5.html#par-zone",
+    "href": "chapters/Part5.html#par-zone",
+    "title": "Partie 5 Conclusion",
+    "section": "1.4 Par zone",
+    "text": "1.4 Par zone\n\n\nCode\ndisplay(summary_predictions(preds))\nplot_predictions_zone(preds)\nplt.show()\n\n\n\n\n\n\n\n\n\n\nn_stations\nen_alerte\npart_alerte\np_moyen\n\n\nhorizon\nzone\n\n\n\n\n\n\n\n\n30\nParis\n50\n7\n0.140\n0.102\n\n\nbanlieue\n30\n5\n0.167\n0.121\n\n\n60\nParis\n50\n6\n0.120\n0.085\n\n\nbanlieue\n30\n3\n0.100\n0.095"
   }
 ]

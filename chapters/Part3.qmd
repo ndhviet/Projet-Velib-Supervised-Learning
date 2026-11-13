@@ -498,15 +498,3 @@ for h in HORIZONS:
 ```
 
 
-```{python}
-preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
-preds.groupby("horizon").head(10)[["horizon", "station_code", "N", "p", "alerte"]].round(3)
-```
-
-```{python}
-preds = pd.concat([predict_now(R[h], raw) for h in HORIZONS])
-display(summary_predictions(preds))
-plot_predictions_zone(preds)
-plt.show()
-```
-

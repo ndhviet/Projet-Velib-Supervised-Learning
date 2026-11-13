@@ -456,7 +456,7 @@ p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
 <section id="préparation-des-données" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="préparation-des-données"><span class="header-section-number">1.1</span> Préparation des données</h2>
 <p>La grille, la cible, la population et le découpage chronologique sont décrits en Partie 2. Ici, on construit simplement les jeux de données des deux horizons.</p>
-<div id="1c215cbb" class="cell" data-execution_count="2">
+<div id="be06c759" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -488,7 +488,7 @@ horizon 60 min | nombre de variables : 16
 \hat y^{\text{maj}}(x) = \mathbf 1\{\hat\pi &gt; 1/2\}, \qquad
 \hat y^{\text{pers}}_{s,t} = \mathbf 1\{N_{s,t} &lt; 2\}.
 \]</span></p>
-<div id="23e83661" class="cell" data-execution_count="3">
+<div id="3b057fb4" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
@@ -567,7 +567,7 @@ p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
 <p>Les paramètres <span class="math inline">\(\pi\)</span>, <span class="math inline">\(\mu_{j,y}\)</span>, <span class="math inline">\(\sigma^2_{j,y}\)</span> sont estimés sur le jeu d’apprentissage uniquement. La variable <code>dow</code> (0 à 6) n’est pas utilisée : un modèle gaussien la lirait comme une grandeur ordonnée (dimanche « loin » de lundi) ; on garde <code>weekend</code> et l’heure.</p>
 <section id="la-classe" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="la-classe"><span class="header-section-number">3.1</span> La classe</h2>
-<div id="e0de81c5" class="cell" data-execution_count="4">
+<div id="8e5566be" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inspect.getsource(BayesNaifGaussien))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>class BayesNaifGaussien:
@@ -611,7 +611,7 @@ p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
 </section>
 <section id="ce-que-le-modèle-a-appris" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="ce-que-le-modèle-a-appris"><span class="header-section-number">3.2</span> Ce que le modèle a appris</h2>
-<div id="357c34ea" class="cell" data-execution_count="5">
+<div id="076c3551" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>S30 <span class="op">=</span> S[<span class="dv">30</span>]</span>
@@ -762,7 +762,7 @@ Proportions de classes (pi_) : [0.8969 0.1031]</code></pre>
 </section>
 <section id="vérification-de-la-formule-à-la-main" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="vérification-de-la-formule-à-la-main"><span class="header-section-number">3.3</span> Vérification de la formule à la main</h2>
-<div id="79a6ad2e" class="cell" data-execution_count="6">
+<div id="e5f6eec3" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> X_val[:<span class="dv">1</span>]</span>
@@ -780,7 +780,7 @@ predict_proba     : 2.5582950287150643e-111</code></pre>
 </section>
 <section id="deux-erreurs-pas-une" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="deux-erreurs-pas-une"><span class="header-section-number">3.4</span> Deux erreurs, pas une</h2>
-<div id="14df70b5" class="cell" data-execution_count="7">
+<div id="808d19ac" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>erreur_apprentissage <span class="op">=</span> np.mean(bayes.predict(X_train) <span class="op">!=</span> y_train)</span>
@@ -821,7 +821,7 @@ d(x, x') = \Big(\sum_{j} (x_j - x'_j)^2\Big)^{1/2}.
 <section id="poids-du-k-nn-pondéré" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="poids-du-k-nn-pondéré"><span class="header-section-number">4.1</span> Poids du K-NN pondéré</h2>
 <p>Le k-NN usuel donne le même poids à toutes les variables, ce qui bruite la distance. Le k-NN pondéré multiplie chaque variable standardisée par un poids appris <strong>dans le train seul</strong> : la dernière semaine du train est mise de côté, une forêt est ajustée sur le reste, et le poids d’une variable est son importance par permutation (baisse de l’AP quand on la mélange) sur cette semaine. Les poids sont normalisés (poids moyen = 1) ; <span class="math inline">\(k\)</span> est celui du k-NN usuel.</p>
-<div id="04a60709" class="cell" data-execution_count="8">
+<div id="7414c24b" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>poids <span class="op">=</span> pd.DataFrame({<span class="ss">f"</span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>: R[h][<span class="st">"selection"</span>][<span class="st">"poids_knn"</span>] <span class="cf">for</span> h <span class="kw">in</span> HORIZONS})</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>poids.sort_values(<span class="st">"30 min"</span>, ascending<span class="op">=</span><span class="va">False</span>).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
@@ -977,7 +977,7 @@ y_i - \hat p_m(x_i),
 <section id="comparaison-des-modèles-sur-la-validation" class="level1" data-number="9">
 <h1 data-number="9"><span class="header-section-number">9</span> Comparaison des modèles sur la validation</h1>
 <p>Pour chaque horizon, tous les modèles sont ajustés sur le train. Le réglage de <span class="math inline">\(k\)</span> (k-NN, repris pour le k-NN pondéré) et de la profondeur (arbre) se fait sur la validation, par la précision moyenne (AP). Le seuil de chaque modèle est choisi sur la validation, par la même règle pour tous. Le test n’est pas utilisé ici.</p>
-<div id="e9dcae12" class="cell" data-execution_count="9">
+<div id="e8fd9c45" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    sel <span class="op">=</span> R[h][<span class="st">"selection"</span>]</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | k retenu : </span><span class="sc">{</span>sel[<span class="st">'k'</span>]<span class="sc">}</span><span class="ss"> | profondeur retenue : </span><span class="sc">{</span>sel[<span class="st">'profondeur'</span>]<span class="sc">}</span><span class="ss"> "</span></span>
@@ -1350,7 +1350,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </div>
 </div>
 <p><strong>Synthèse des scores de validation.</strong></p>
-<div id="b8205402" class="cell" data-execution_count="10">
+<div id="56def313" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1372,7 +1372,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 <section id="courbes-précision-rappel" class="level3" data-number="9.1.1">
 <h3 data-number="9.1.1" class="anchored" data-anchor-id="courbes-précision-rappel"><span class="header-section-number">9.1.1</span> Courbes précision-rappel</h3>
 <p>Chaque point marque le seuil retenu ; l’étoile est la règle de persistance.</p>
-<div id="7eed378d" class="cell" data-execution_count="12">
+<div id="3ddef685" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="fl">5.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1405,7 +1405,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 <section id="f1-selon-le-seuil" class="level3" data-number="9.1.2">
 <h3 data-number="9.1.2" class="anchored" data-anchor-id="f1-selon-le-seuil"><span class="header-section-number">9.1.2</span> F1 selon le seuil</h3>
 <p>Le point est le seuil choisi (F1 maximal sur la validation) ; la ligne pointillée est le F1 de la persistance.</p>
-<div id="418d929f" class="cell" data-execution_count="13">
+<div id="2968f2ca" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1436,7 +1436,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 <section id="courbes-de-calibration" class="level3" data-number="9.1.3">
 <h3 data-number="9.1.3" class="anchored" data-anchor-id="courbes-de-calibration"><span class="header-section-number">9.1.3</span> Courbes de calibration</h3>
 <p>Sur la diagonale, le score est une probabilité fiable ; au-dessus, le modèle est trop prudent, en dessous trop confiant.</p>
-<div id="4f2ac690" class="cell" data-execution_count="14">
+<div id="c7baa758" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>bins_c <span class="op">=</span> [<span class="dv">0</span>, <span class="fl">.05</span>, <span class="fl">.1</span>, <span class="fl">.2</span>, <span class="fl">.3</span>, <span class="fl">.5</span>, <span class="fl">.7</span>, <span class="fl">.9</span>, <span class="fl">1.0</span>]</span>
@@ -1468,7 +1468,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 <h2 data-number="9.2" class="anchored" data-anchor-id="lecture-des-probabilités-prédites"><span class="header-section-number">9.2</span> Lecture des probabilités prédites</h2>
 <p>Ces figures (validation seulement) montrent ce que les scores signifient concrètement : la régression logistique et le boosting sont comparés à la fréquence réellement observée. Le seuil retenu pour le boosting est tracé en pointillés.</p>
 <p><strong>Probabilité de pénurie selon le nombre de vélos actuel.</strong></p>
-<div id="6d1724a1" class="cell" data-execution_count="16">
+<div id="1a2766ba" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1493,7 +1493,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </div>
 </div>
 <p><strong>p̂ moyen du boosting selon l’heure et le nombre de vélos.</strong></p>
-<div id="317045c7" class="cell" data-execution_count="17">
+<div id="90d832b3" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -1526,7 +1526,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </div>
 <p><strong>Exemple d’une station sur trois jours</strong></p>
 <p>La zone rouge marque les instants où la pénurie s’est réellement produite (<span class="math inline">\(Y=1\)</span>).</p>
-<div id="eeacc5fa" class="cell" data-execution_count="18">
+<div id="3b4af2b4" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -1567,7 +1567,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </div>
 </div>
 <p><strong>Distribution de p̂ selon l’étiquette réelle.</strong></p>
-<div id="46b31338" class="cell" data-execution_count="19">
+<div id="3f01d25f" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1594,7 +1594,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </section>
 <section id="comparaison-au-même-rappel-que-la-persistance" class="level2" data-number="9.3">
 <h2 data-number="9.3" class="anchored" data-anchor-id="comparaison-au-même-rappel-que-la-persistance"><span class="header-section-number">9.3</span> Comparaison au même rappel que la persistance</h2>
-<div id="577683d8" class="cell" data-execution_count="20">
+<div id="9c0f26c6" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -1626,263 +1626,6 @@ horizon 60 min | persistance : précision 0.664 à rappel 0.665
   foret        : précision 0.702 au même rappel
   boosting     : précision 0.704 au même rappel
 </code></pre>
-</div>
-</div>
-<div id="0c9542a2" class="cell" data-execution_count="21">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> pd.concat([predict_now(R[h], raw) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS])</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>preds.groupby(<span class="st">"horizon"</span>).head(<span class="dv">10</span>)[[<span class="st">"horizon"</span>, <span class="st">"station_code"</span>, <span class="st">"N"</span>, <span class="st">"p"</span>, <span class="st">"alerte"</span>]].<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">horizon</th>
-<th data-quarto-table-cell-role="th">station_code</th>
-<th data-quarto-table-cell-role="th">N</th>
-<th data-quarto-table-cell-role="th">p</th>
-<th data-quarto-table-cell-role="th">alerte</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>30</td>
-<td>23805</td>
-<td>0.0</td>
-<td>0.871</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>30</td>
-<td>8053</td>
-<td>1.0</td>
-<td>0.825</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>30</td>
-<td>9022</td>
-<td>1.0</td>
-<td>0.825</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>30</td>
-<td>10017</td>
-<td>0.0</td>
-<td>0.776</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>30</td>
-<td>32604</td>
-<td>1.0</td>
-<td>0.733</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
-<td>30</td>
-<td>48008</td>
-<td>1.0</td>
-<td>0.645</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">6</th>
-<td>30</td>
-<td>20045</td>
-<td>1.0</td>
-<td>0.611</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">7</th>
-<td>30</td>
-<td>9104</td>
-<td>1.0</td>
-<td>0.543</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">8</th>
-<td>30</td>
-<td>31001</td>
-<td>1.0</td>
-<td>0.528</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">9</th>
-<td>30</td>
-<td>42707</td>
-<td>0.0</td>
-<td>0.499</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>60</td>
-<td>23805</td>
-<td>0.0</td>
-<td>0.863</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>60</td>
-<td>9022</td>
-<td>1.0</td>
-<td>0.755</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>60</td>
-<td>8053</td>
-<td>1.0</td>
-<td>0.689</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>60</td>
-<td>20045</td>
-<td>1.0</td>
-<td>0.563</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>60</td>
-<td>32604</td>
-<td>1.0</td>
-<td>0.482</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
-<td>60</td>
-<td>48008</td>
-<td>1.0</td>
-<td>0.450</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">6</th>
-<td>60</td>
-<td>9035</td>
-<td>1.0</td>
-<td>0.445</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">7</th>
-<td>60</td>
-<td>9104</td>
-<td>1.0</td>
-<td>0.440</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">8</th>
-<td>60</td>
-<td>9023</td>
-<td>2.0</td>
-<td>0.401</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">9</th>
-<td>60</td>
-<td>31001</td>
-<td>1.0</td>
-<td>0.308</td>
-<td>0</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="44739feb" class="cell" data-execution_count="22">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> pd.concat([predict_now(R[h], raw) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS])</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>display(summary_predictions(preds))</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>plot_predictions_zone(preds)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">n_stations</th>
-<th data-quarto-table-cell-role="th">en_alerte</th>
-<th data-quarto-table-cell-role="th">part_alerte</th>
-<th data-quarto-table-cell-role="th">p_moyen</th>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">horizon</th>
-<th data-quarto-table-cell-role="th">zone</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th rowspan="2" data-quarto-table-cell-role="th" data-valign="top">30</th>
-<th data-quarto-table-cell-role="th">Paris</th>
-<td>50</td>
-<td>7</td>
-<td>0.140</td>
-<td>0.102</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">banlieue</th>
-<td>30</td>
-<td>5</td>
-<td>0.167</td>
-<td>0.121</td>
-</tr>
-<tr class="odd">
-<th rowspan="2" data-quarto-table-cell-role="th" data-valign="top">60</th>
-<th data-quarto-table-cell-role="th">Paris</th>
-<td>50</td>
-<td>6</td>
-<td>0.120</td>
-<td>0.085</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">banlieue</th>
-<td>30</td>
-<td>3</td>
-<td>0.100</td>
-<td>0.095</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Part3_files/figure-html/cell-23-output-2.png" width="952" height="374" class="figure-img"></p>
-</figure>
-</div>
 </div>
 </div>
 
