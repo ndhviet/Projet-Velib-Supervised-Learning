@@ -711,8 +711,9 @@ def ablation(res, seed=0):
     return pd.DataFrame(rows, columns=["configuration", "n_variables", "pr_auc_val", "écart"]).set_index("configuration")
 
 
-def pr_curves(panels, path):
-    """panels : {h: {"y": ..., "modèle": (nom, score, pred), "persistance": (score, pred)}}"""
+def pr_curves(panels):
+    """panels : {h: {"y": ..., "modèle": (nom, score, pred), "persistance": (score, pred)}}
+    Affiche les courbes précision-rappel (aucun fichier n'est écrit)."""
     import matplotlib.pyplot as plt
     fig, axes = plt.subplots(1, len(panels), figsize=(4.4 * len(panels), 3.8), sharey=True, squeeze=False)
     for ax, (h, p) in zip(axes[0], panels.items()):
@@ -728,9 +729,7 @@ def pr_curves(panels, path):
         ax.legend(loc="lower left", fontsize=8)
     axes[0][0].set_ylabel("précision")
     fig.tight_layout()
-    fig.savefig(path, dpi=150)
-    plt.close(fig)
-    return path
+    plt.show()
 
 
 # ---------------------------------------------------------------------------

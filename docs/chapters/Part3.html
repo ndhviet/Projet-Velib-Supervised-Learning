@@ -446,7 +446,7 @@ p(x) = \mathbb{P}(Y_{s,t}=1 \mid X_{s,t}=x).
 <section id="préparation-des-données" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="préparation-des-données"><span class="header-section-number">1.1</span> Préparation des données</h2>
 <p>La grille, la cible, la population et le découpage chronologique sont décrits en Partie 2. Ici, on construit simplement les jeux de données des deux horizons.</p>
-<div id="98cf8b13" class="cell" data-execution_count="2">
+<div id="f2ebcdcf" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -478,7 +478,7 @@ horizon 60 min | nombre de variables : 16
 \hat y^{\text{maj}}(x) = \mathbf 1\{\hat\pi &gt; 1/2\}, \qquad
 \hat y^{\text{pers}}_{s,t} = \mathbf 1\{N_{s,t} &lt; 2\}.
 \]</span></p>
-<div id="34b221ad" class="cell" data-execution_count="3">
+<div id="678bde83" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
@@ -555,7 +555,7 @@ p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
 <li><strong>Indépendance conditionnelle</strong> (le côté « naïf ») : <span class="math inline">\(f_y(x) = \prod_j f_{j,y}(x_j)\)</span>.</li>
 </ol>
 <p>Les paramètres <span class="math inline">\(\pi\)</span>, <span class="math inline">\(\mu_{j,y}\)</span>, <span class="math inline">\(\sigma^2_{j,y}\)</span> sont estimés sur le jeu d’apprentissage uniquement. La variable <code>dow</code> (0 à 6) n’est pas utilisée : un modèle gaussien la lirait comme une grandeur ordonnée (dimanche « loin » de lundi) ; on garde <code>weekend</code> et l’heure.</p>
-<div id="3a2c56c8" class="cell" data-execution_count="4">
+<div id="34da1d9f" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code du Bayes naïf</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BayesNaifGaussien:</span>
@@ -608,7 +608,7 @@ p(x) = \frac{\pi f_1(x)}{\pi f_1(x) + (1-\pi) f_0(x)},
 </details>
 </div>
 <p><strong>Ce que le modèle a appris</strong></p>
-<div id="6683ce47" class="cell" data-execution_count="5">
+<div id="a4859b66" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>S30 <span class="op">=</span> S[<span class="dv">30</span>]</span>
@@ -757,7 +757,7 @@ Proportions de classes (pi_) : [0.8969 0.1031]</code></pre>
 </div>
 </div>
 <p><strong><em>Vérification de la formule à la main</em></strong></p>
-<div id="08eea982" class="cell" data-execution_count="6">
+<div id="8e724063" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> X_val[:<span class="dv">1</span>]</span>
@@ -773,7 +773,7 @@ predict_proba     : 2.5582950287150643e-111</code></pre>
 </div>
 </div>
 <p><strong><em>Erreurs( apprentissage, validation, val sklearn)</em></strong></p>
-<div id="8332442c" class="cell" data-execution_count="7">
+<div id="49870e64" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>erreur_apprentissage <span class="op">=</span> np.mean(bayes.predict(X_train) <span class="op">!=</span> y_train)</span>
@@ -796,7 +796,7 @@ Erreur val sklearn : 0.16 | ma classe : 0.16</code></pre>
 </section>
 <section id="k-nn" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> K-NN</h1>
-<div id="ca6597a2" class="cell" data-execution_count="8">
+<div id="6da4b34c" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code du k-NN</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _knn(k):</span>
@@ -818,7 +818,7 @@ d(x, x') = \Big(\sum_{j} (x_j - x'_j)^2\Big)^{1/2}.
 <li>La distance souffre de la dimension (ici une vingtaine de variables) et de variables redondantes (les retards successifs de <code>N</code>).</li>
 </ul>
 <p><strong>Poids du K-NN pondéré</strong></p>
-<div id="b0a56ff4" class="cell" data-execution_count="9">
+<div id="6441b0f9" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code du k-NN</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FeatureWeighter(TransformerMixin, BaseEstimator):</span>
@@ -856,7 +856,7 @@ d(x, x') = \Big(\sum_{j} (x_j - x'_j)^2\Big)^{1/2}.
 </details>
 </div>
 <p>Le k-NN usuel donne le même poids à toutes les variables, ce qui bruite la distance. Le k-NN pondéré multiplie chaque variable standardisée par un poids appris <strong>dans le train seul</strong> : la dernière semaine du train est mise de côté, une forêt est ajustée sur le reste, et le poids d’une variable est son importance par permutation (baisse de l’AP quand on la mélange) sur cette semaine. Les poids sont normalisés (poids moyen = 1) ; <span class="math inline">\(k\)</span> est celui du k-NN usuel.</p>
-<div id="97c71b9f" class="cell" data-execution_count="10">
+<div id="e7210f34" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>poids <span class="op">=</span> pd.DataFrame({<span class="ss">f"</span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>: R[h][<span class="st">"selection"</span>][<span class="st">"poids_knn"</span>] <span class="cf">for</span> h <span class="kw">in</span> HORIZONS})</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>poids.sort_values(<span class="st">"30 min"</span>, ascending<span class="op">=</span><span class="va">False</span>).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
@@ -957,7 +957,7 @@ d(x, x') = \Big(\sum_{j} (x_j - x'_j)^2\Big)^{1/2}.
 <section id="arbre-de-décision" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Arbre de décision</h1>
 <!-- Arbre de décision -->
-<div id="c244a9f2" class="cell" data-execution_count="11">
+<div id="7d1ecbcd" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code de l’arbre</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _arbre(depth):</span>
@@ -992,7 +992,7 @@ d(x, x') = \Big(\sum_{j} (x_j - x'_j)^2\Big)^{1/2}.
 <section id="forêt-aléatoire" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Forêt aléatoire</h1>
 <!-- Forêt aléatoire -->
-<div id="47aec5a3" class="cell" data-execution_count="12">
+<div id="6d2434a1" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code de la forêt</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foret(seed<span class="op">=</span><span class="dv">0</span>):</span>
@@ -1018,7 +1018,7 @@ d(x, x') = \Big(\sum_{j} (x_j - x'_j)^2\Big)^{1/2}.
 <section id="gradient-boosting" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Gradient boosting</h1>
 <!-- Gradient boosting -->
-<div id="5ed013ea" class="cell" data-execution_count="13">
+<div id="60fb40b7" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code du boosting</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boosting(seed<span class="op">=</span><span class="dv">0</span>):</span>
@@ -1050,7 +1050,7 @@ y_i - \hat p_m(x_i),
 <section id="comparaison-des-modèles-sur-la-validation" class="level1" data-number="9">
 <h1 data-number="9"><span class="header-section-number">9</span> Comparaison des modèles sur la validation</h1>
 <p>Pour chaque horizon, tous les modèles sont ajustés sur le train. Le réglage de <span class="math inline">\(k\)</span> (k-NN, repris pour le k-NN pondéré) et de la profondeur (arbre) se fait sur la validation, par la précision moyenne (AP). Le seuil de chaque modèle est choisi sur la validation, par la même règle pour tous. Le test n’est pas utilisé ici.</p>
-<div id="2eee9f7b" class="cell" data-execution_count="14">
+<div id="529c9a77" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1070,7 +1070,7 @@ y_i - \hat p_m(x_i),
 <summary>
 Voir les tableaux détaillés de validation
 </summary>
-<div id="d89be03a" class="cell" data-execution_count="15">
+<div id="aa30d8fb" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min | k retenu : 50 | profondeur retenue : 8 | modèle retenu (AP validation) : foret
 seuils : {'bayes_naif': 0.97, 'knn': 0.24, 'arbre': 0.3, 'knn_pondere': 0.32, 'foret': 0.35, 'boosting': 0.36}</code></pre>
@@ -1534,7 +1534,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </div>
 </div>
 </div>
-<div id="e4cf5622" class="cell" data-execution_count="16">
+<div id="0a4a0a8b" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
@@ -1578,7 +1578,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 <h2 data-number="9.1" class="anchored" data-anchor-id="courbes-de-validation"><span class="header-section-number">9.1</span> Courbes de validation</h2>
 <p>Deux figures résument le choix des seuils et la qualité des scores, pour les deux horizons. Les calculs n’utilisent que la validation.</p>
 <p><strong>Précision-rappel</strong></p>
-<div id="83ad191d" class="cell" data-execution_count="18">
+<div id="33e61049" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1632,7 +1632,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </div>
 </div>
 <p><strong>F1 selon le seuil</strong></p>
-<div id="c808ad5d" class="cell" data-execution_count="19">
+<div id="8b939364" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1691,7 +1691,7 @@ seuils : {'bayes_naif': 0.92, 'knn': 0.26, 'arbre': 0.3, 'knn_pondere': 0.28, 'f
 </section>
 <section id="comparaison-au-même-rappel-que-la-persistance" class="level2" data-number="9.2">
 <h2 data-number="9.2" class="anchored" data-anchor-id="comparaison-au-même-rappel-que-la-persistance"><span class="header-section-number">9.2</span> Comparaison au même rappel que la persistance</h2>
-<div id="e1f1e21b" class="cell" data-execution_count="20">
+<div id="ac2b385d" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -1761,7 +1761,7 @@ horizon 60 min | persistance : précision 0.664 à rappel 0.665
 <div class="callout-body-container callout-body">
 <p>Ces figures (validation seulement) montrent ce que les scores signifient concrètement : la forêt aléatoire et le boosting sont comparés à la fréquence réellement observée. Le seuil retenu pour le boosting est tracé en pointillés.</p>
 <p><strong>Probabilité de pénurie selon le nombre de vélos actuel.</strong></p>
-<div id="49176fd6" class="cell" data-execution_count="22">
+<div id="96ea2c98" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -1786,7 +1786,7 @@ horizon 60 min | persistance : précision 0.664 à rappel 0.665
 </div>
 </div>
 <p><strong>p̂ moyen du boosting selon l’heure et le nombre de vélos.</strong></p>
-<div id="f3e77ae6" class="cell" data-execution_count="23">
+<div id="07bdd5de" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -1818,7 +1818,7 @@ horizon 60 min | persistance : précision 0.664 à rappel 0.665
 </div>
 </div>
 <p><strong>Exemple d’une station sur trois jours.</strong> La zone rouge marque les instants où la pénurie s’est réellement produite (<span class="math inline">\(Y=1\)</span>).</p>
-<div id="084279cc" class="cell" data-execution_count="24">
+<div id="b15aaff2" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -1859,7 +1859,7 @@ horizon 60 min | persistance : précision 0.664 à rappel 0.665
 </div>
 </div>
 <p><strong>Distribution de p̂ selon l’étiquette réelle.</strong></p>
-<div id="d3886fba" class="cell" data-execution_count="25">
+<div id="44d8c723" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(HORIZONS), figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>

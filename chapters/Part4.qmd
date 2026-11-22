@@ -139,7 +139,6 @@ Comme sur la validation, le test donne la meilleure AP à la forêt aléatoire �
 ```{python}
 #| code-fold: true
 #| out-width: 70%
-os.makedirs("figures", exist_ok=True)
 panels = {}
 for h in HORIZONS:
     _, sc, taus = TE[h]
@@ -147,7 +146,7 @@ for h in HORIZONS:
     panels[h] = {"y": te["y"].to_numpy(),
                  "modèle": (chosen, sc[chosen], (sc[chosen] > taus[chosen]).astype(int)),
                  "persistance": (sc["persistance"], (te["N"].to_numpy() < 2).astype(int))}
-Image(pr_curves(panels, "figures/pr_curves_test.png"), width=900)
+pr_curves(panels)
 ```
 
 La courbe de la persistance classe les lignes selon le nombre de vélos actuel (moins de vélos = risque plus élevé). Ce score gradué est généreux pour la référence : avec la seule règle binaire, son AP serait bien plus faible.

@@ -422,7 +422,7 @@ window.Quarto = {
 <section id="évaluation-finale-sur-la-semaine-de-test" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Évaluation finale sur la semaine de test</h1>
 <p>Les modèles sont ajustés sur le train ; leurs hyperparamètres, leurs seuils et le choix du modèle retenu sont fixés sur la validation. La semaine de test n’est utilisée qu’une seule fois, pour chaque horizon.</p>
-<div id="d070ffc6" class="cell" data-execution_count="2">
+<div id="3db74e0f" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -442,7 +442,7 @@ window.Quarto = {
 <summary>
 Voir les tableaux détaillés du test
 </summary>
-<div id="8c1298e1" class="cell" data-execution_count="3">
+<div id="ad5ffc7d" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prédictions sur le test : calculées une seule fois, puis relues depuis le cache</span></span>
@@ -819,7 +819,7 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 </div>
 </div>
 </div>
-<div id="f40dc901" class="cell" data-execution_count="4">
+<div id="31eb0210" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
@@ -877,23 +877,22 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <p>Comme sur la validation, le test donne la meilleure AP à la forêt aléatoire à 30 min (0.816 contre 0.802) et au gradient boosting à 60 min (0.755 contre 0.748). L’écart entre les deux reste faible (≈ 0,01 en AP, F1 quasi identique).</p>
 <section id="courbes-précision-rappel-test" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="courbes-précision-rappel-test"><span class="header-section-number">1.1</span> Courbes précision-rappel (test)</h2>
-<div id="1ea7293b" class="cell" data-execution_count="5">
+<div id="ef78af0e" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"figures"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>panels <span class="op">=</span> {}</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    panels[h] <span class="op">=</span> {<span class="st">"y"</span>: te[<span class="st">"y"</span>].to_numpy(),</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"modèle"</span>: (chosen, sc[chosen], (sc[chosen] <span class="op">&gt;</span> taus[chosen]).astype(<span class="bu">int</span>)),</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: (sc[<span class="st">"persistance"</span>], (te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>))}</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Image(pr_curves(panels, <span class="st">"figures/pr_curves_test.png"</span>), width<span class="op">=</span><span class="dv">900</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>panels <span class="op">=</span> {}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    panels[h] <span class="op">=</span> {<span class="st">"y"</span>: te[<span class="st">"y"</span>].to_numpy(),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"modèle"</span>: (chosen, sc[chosen], (sc[chosen] <span class="op">&gt;</span> taus[chosen]).astype(<span class="bu">int</span>)),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: (sc[<span class="st">"persistance"</span>], (te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>))}</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>pr_curves(panels)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Part4_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img" width="900"></p>
+<p><img src="Part4_files/figure-html/cell-6-output-1.png" width="838" height="355" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -925,7 +924,7 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <section id="intervalles-de-confiance-de-lap" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="intervalles-de-confiance-de-lap"><span class="header-section-number">1.2</span> Intervalles de confiance de l’AP</h2>
 <p>L’AP de chaque modèle est calculée sur la semaine de test, avec un intervalle à 95 % obtenu par bootstrap des stations (les mêmes stations sont tirées pour tous les modèles). Le modèle retenu sur la validation est en rouge ; la ligne pointillée est la persistance, avec son intervalle en gris. Quand les intervalles de deux modèles se chevauchent, le test ne permet pas de les départager.</p>
-<div id="12b44ac0" class="cell" data-execution_count="6">
+<div id="00e221c7" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, tables <span class="op">=</span> plot_ap_ci(R, TE, B<span class="op">=</span><span class="dv">200</span>)</span>
@@ -943,7 +942,7 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <summary>
 Valeurs de l’AP et intervalles
 </summary>
-<div id="1bb4d2d5" class="cell" data-execution_count="7">
+<div id="8832965a" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min</code></pre>
 </div>
@@ -1078,7 +1077,7 @@ Valeurs de l’AP et intervalles
 </section>
 <section id="résultats-par-groupe-dispersion-et-incertitude" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Résultats par groupe, dispersion et incertitude</h1>
-<div id="d87b516e" class="cell" data-execution_count="8">
+<div id="483747ab" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
@@ -1217,7 +1216,7 @@ Valeurs de l’AP et intervalles
 <summary>
 Détaillé
 </summary>
-<div id="dc431626" class="cell" data-execution_count="9">
+<div id="bcf45470" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>SCORED <span class="op">=</span> {}</span>
@@ -1896,7 +1895,7 @@ Détaillé
 <section id="jour-par-jour-et-bootstrap-par-station" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="jour-par-jour-et-bootstrap-par-station"><span class="header-section-number">2.1</span> Jour par jour et bootstrap par station</h2>
 <p>Jour par jour : une mesure de dispersion qui respecte le temps. Bootstrap : les 80 stations sont rééchantillonnées avec remise (les lignes d’une même station sont dépendantes, rééchantillonner les lignes sous-estimerait l’incertitude). La différence modèle − persistance est calculée sur les mêmes stations tirées.</p>
-<div id="b0d881ad" class="cell" data-execution_count="10">
+<div id="b13f83c3" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>B_BOOT <span class="op">=</span> <span class="dv">100</span>      <span class="co"># 100 pour travailler vite ; mettre 500 pour le rendu final</span></span>
@@ -2650,7 +2649,7 @@ Détaillé
 <section id="station-par-station" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="station-par-station"><span class="header-section-number">2.2</span> Station par station</h2>
 <p>Les résultats précédents sont des moyennes. Cette section compare le modèle et la persistance <strong>station par station</strong>, pour vérifier que le gain est réparti sur l’ensemble des stations. On indique la part des stations où le F1 du modèle est au moins égal à celui de la persistance (stations ayant au moins un positif), puis les cinq stations où le modèle perd le plus (<code>gain_f1</code> = F1 modèle − F1 persistance).</p>
-<div id="4bf8c235" class="cell" data-execution_count="11">
+<div id="63cf4b5b" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -2853,7 +2852,7 @@ horizon 60 min | boosting : F1 &gt;= F1 de la persistance sur 61% des 69 station
 <section id="erreurs-caractéristiques" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Erreurs caractéristiques</h1>
 <p>La persistance a raison par construction quand l’état ne change pas, et tort à chaque changement. On classe donc chaque ligne du test selon l’état de la station maintenant et son état réel à <span class="math inline">\(t+h\)</span> ; le tableau donne, pour chaque situation, la part de lignes prédites « vide » (toujours 0 % ou 100 % pour la persistance, qui ne regarde que l’état actuel).</p>
-<div id="0b873782" class="cell" data-execution_count="12">
+<div id="20fd5c8f" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -3039,7 +3038,7 @@ horizon 60 min | boosting : F1 &gt;= F1 de la persistance sur 61% des 69 station
 </div>
 </div>
 <p><strong>Rappel et précision selon l’heure</strong></p>
-<div id="8965315a" class="cell" data-execution_count="13">
+<div id="d41a411d" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -3113,7 +3112,7 @@ horizon 60 min | boosting : F1 &gt;= F1 de la persistance sur 61% des 69 station
 <li>la station 45504, dont les valeurs semblent figées dans le flux de données, est retirée.</li>
 </ol></li>
 </ul>
-<div id="93ca1f5e" class="cell" data-execution_count="14">
+<div id="8435f608" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
@@ -3382,7 +3381,7 @@ horizon 60 min | sans la station 45504 : 58578 lignes (référence : 59322)</cod
 <section id="apport-des-groupes-de-variables-ablation-validation" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Apport des groupes de variables (ablation, validation)</h1>
 <p>Une forêt est ajustée de nouveau sans chaque groupe de variables. La forêt est utilisée car elle est stable d’une graine à l’autre. À la différence de l’importance par permutation, le réajustement laisse des variables corrélées se remplacer : un faible écart signifie que le groupe est redondant, pas forcément inutile.</p>
-<div id="7018c122" class="cell" data-execution_count="15">
+<div id="3be382c5" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ablation : réajustement coûteux, calculé une seule fois puis relu depuis le cache</span></span>
