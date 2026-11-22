@@ -39,11 +39,6 @@ bash setup.sh          # crée .venv, installe les paquets, enregistre le noyau 
 quarto render          # génère le site dans docs/
 ```
 
-Les données (`velib-2026-10-08.csv.gz`) sont téléchargées automatiquement, et leur empreinte MD5 est vérifiée à chaque chargement. Le code commun est dans `velib_utils.py`.
-
-
-
-
 ## Définition exacte de la variable cible
 
 Pour une station `s` et un instant `t` (grille temporelle UTC à pas de 15 minutes), avec `h` ∈ {30, 60} minutes:
