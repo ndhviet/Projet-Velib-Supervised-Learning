@@ -1,23 +1,23 @@
+
 <div align="center">
 
 <h1>Projet Vélib' — Supervised Learning</h1>
 
-<p><em>Prédire, 30 et 60 minutes à l'avance, les stations Vélib' qui n'auront presque plus de vélos</em></p>
+<p>
+  <em>Prédiction des stations Vélib' à risque de pénurie de vélos à horizons de 30 et 60 minutes</em>
+</p>
 
-<a href="#"><img src="https://img.shields.io/badge/Python-3-3776AB?logo=python&logoColor=white&style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/scikit--learn-Supervised%20Learning-F7931E?logo=scikitlearn&logoColor=white&style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/Quarto-Website-75AADB?logo=quarto&logoColor=white&style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/Spatio--Temporal-Forecasting-success?style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/Status-In%20progress-yellow?style=flat-square"></a>
-<a href="#"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square"></a>
+<p>
+  <img src="https://img.shields.io/badge/Python-3-3776AB?logo=python&logoColor=white&style=flat-square" alt="Python">
+  <img src="https://img.shields.io/badge/scikit--learn-ML-F7931E?logo=scikitlearn&logoColor=white&style=flat-square" alt="scikit-learn">
+</p>
 
 <a href="https://ndhviet.github.io/Projet-Velib-Supervised-Learning/">
-  <img src="https://img.shields.io/badge/Demo-Live%20Website-brightgreen?style=for-the-badge&logo=googlechrome&logoColor=white">
+  <img src="https://img.shields.io/badge/View-Live%20Demo-2ea44f?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Demo">
 </a>
 
 </div>
 <br>
-
 
 
 <h2 align="center">Réalisé par</h2>
