@@ -10,13 +10,13 @@
 <h3>Réalisé par</h3>
 
 <p>
-  <strong>Duc Hoang Viet NGUYEN</strong> ·
-  <a href="https://ndhviet.github.io/">Portfolio</a>
-  <br>
-  <strong>Zhenxuan SUN</strong>
+  <a href="https://ndhviet.github.io/">Duc Hoang Viet NGUYEN</a>
+  ·
+  Zhenxuan SUN
 </p>
 
 </div>
+
 
 
 # Vélib' sous tension — Question A: *departure impossible*
