@@ -1285,6 +1285,6 @@
     "href": "index.html#objectif",
     "title": "Bienvenue sur le projet Velib Surpervised Learning",
     "section": "Objectif",
-    "text": "Objectif\nLe projet développe et compare des modèles d’apprentissage supervisé pour cette prévision, formulée comme une classification binaire :\n\\[\nY_{t+h} = \\mathbb{1}\\{N_{t+h} &lt; 2\\}, \\qquad h \\in \\{30, 60\\} \\text{ minutes},\n\\]\noù \\(N_{t+h}\\) est le nombre de vélos disponibles dans la station à l’horizon \\(t+h\\). L’étude porte sur 80 stations réparties entre Paris et la banlieue. L’objectif est d’identifier les approches les plus pertinentes pour fournir une information prédictive utile à la gestion et à l’usage du service."
+    "text": "Objectif\nLe projet compare des modèles d’apprentissage supervisé pour cette prévision, formulée comme une classification binaire :\n\\[\nY_{s,t} = \\mathbb{1}\\{N_{s,t+h} &lt; 2\\}, \\qquad h \\in \\{30, 60\\} \\text{ minutes},\n\\]\noù \\(N_{s,t+h}\\) est le nombre de vélos disponibles dans la station \\(s\\) à l’instant \\(t+h\\). L’étude porte sur 80 stations de Paris et de banlieue."
   }
 ]
