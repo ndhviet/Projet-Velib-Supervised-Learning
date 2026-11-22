@@ -8,8 +8,20 @@ title-block-published: "Publié le"
 
 # Présentation du projet
 
-Ce cours est enseigné par [Christophe Ambroise](https://ambroise.cloud/), professeur de statistique à l'Université d'Évry Paris-Saclay. Ce site rassemble mes travaux pratiques réalisés dans ce cadre.
+Le système Vélib' est un service de vélos en libre-service essentiel à la mobilité urbaine à Paris et en banlieue. Son bon fonctionnement dépend de la disponibilité des vélos dans chaque station : une station vide empêche de prendre un vélo, une station pleine empêche d'en déposer un. Observer l'état actuel d'une station ne suffit pas, il faut anticiper son évolution.
 
+
+Comment prédire, à partir des données historiques de disponibilité, si une station Vélib' risque de compter moins de deux vélos dans les 30 ou 60 prochaines minutes ?
+
+## Objectif
+
+Le projet développe et compare des modèles d'apprentissage supervisé pour cette prévision, formulée comme une classification binaire :
+
+$$
+Y_{t+h} = \mathbb{1}\{N_{t+h} < 2\}, \qquad h \in \{30, 60\} \text{ minutes},
+$$
+
+où $N_{t+h}$ est le nombre de vélos disponibles dans la station à l'horizon $t+h$. L'étude porte sur 80 stations réparties entre Paris et la banlieue. L'objectif est d'identifier les approches les plus pertinentes pour fournir une information prédictive utile à la gestion et à l'usage du service.
 
 # Liste des parties
 
@@ -19,3 +31,21 @@ Ce cours est enseigné par [Christophe Ambroise](https://ambroise.cloud/), profe
 -   [Partie 4 : Comparaison des modèles](chapters/Part4.qmd)
 -   [Partie 5 : Conclusion](chapters/Part5.qmd)
 
+
+::: callout-note
+## Consulter le rapport complet
+
+Vous pouvez consulter le rapport détaillé du projet (format PDF) en cliquant sur le lien ci-dessous :
+
+<a href="Rapport.pdf" target="_blank" style="font-weight: bold; text-decoration: underline;">  Ouvrir le rapport PDF </a>
+:::
+
+::: callout-note
+## Consulter le dashboard
+
+<a href="rapport/dashboard_velib.html" target="_blank">
+  <img src="rapport/dashboard_velib.png"
+       alt="Dashboard du projet"
+       style="max-width:100%; height:auto; border-radius:8px;">
+</a>
+:::

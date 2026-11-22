@@ -1,0 +1,2048 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "53880b01",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "title: \"Partie 2 Qualité et préparation des données\"\n",
+    "author: \"NGUYEN Duc Hoang Viet  & Sun Zhenxuan\"\n",
+    "date: \"2026-10-27\"\n",
+    "\n",
+    "jupyter: projet-velib\n",
+    "number-sections: true \n",
+    "code-fold: false\n",
+    "execute:\n",
+    "  warning: false\n",
+    "  message: false\n",
+    "---"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "c2a9578e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#| echo: false\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "from velib_utils import (load_raw_dt, coverage, qualite, prepare_sets, population_table,\n",
+    "                         split_summary, n_unaligned, FEATURE_GROUPS, TZ)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7b4a1790",
+   "metadata": {},
+   "source": [
+    "# Extraction et vérification des données\n",
+    "\n",
+    "Les données sont téléchargées depuis `docs.ambroise.cloud` ; leur empreinte MD5 est vérifiée à chaque chargement (le calcul s'arrête si elle ne correspond pas)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "5efdfd3f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "File already downloaded: data/velib-2026-10-08.csv.gz\n",
+      "-------------------------------------------------\n",
+      "Calculated MD5: 02ab1e3fdac10579e4ce93d1540a5dc7\n",
+      "Expected MD5:   02ab1e3fdac10579e4ce93d1540a5dc7\n",
+      "MD5 OK!\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>collected_at_utc</th>\n",
+       "      <th>source_updated_at</th>\n",
+       "      <th>station_code</th>\n",
+       "      <th>name</th>\n",
+       "      <th>commune</th>\n",
+       "      <th>insee_code</th>\n",
+       "      <th>latitude</th>\n",
+       "      <th>longitude</th>\n",
+       "      <th>capacity</th>\n",
+       "      <th>bikes_available</th>\n",
+       "      <th>mechanical_bikes</th>\n",
+       "      <th>electric_bikes</th>\n",
+       "      <th>docks_available</th>\n",
+       "      <th>is_installed</th>\n",
+       "      <th>is_renting</th>\n",
+       "      <th>is_returning</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2026-08-25 11:57:26+00:00</td>\n",
+       "      <td>2026-08-25 11:35:29+00:00</td>\n",
+       "      <td>10017</td>\n",
+       "      <td>Gare de l'Est - Fidélité</td>\n",
+       "      <td>Paris</td>\n",
+       "      <td>75056</td>\n",
+       "      <td>48.874575</td>\n",
+       "      <td>2.356796</td>\n",
+       "      <td>15.0</td>\n",
+       "      <td>8</td>\n",
+       "      <td>1</td>\n",
+       "      <td>7</td>\n",
+       "      <td>5</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2026-08-25 11:57:26+00:00</td>\n",
+       "      <td>2026-08-25 11:34:30+00:00</td>\n",
+       "      <td>10042</td>\n",
+       "      <td>Enghien - Faubourg Poissonnière</td>\n",
+       "      <td>Paris</td>\n",
+       "      <td>75056</td>\n",
+       "      <td>48.872420</td>\n",
+       "      <td>2.348395</td>\n",
+       "      <td>33.0</td>\n",
+       "      <td>30</td>\n",
+       "      <td>22</td>\n",
+       "      <td>8</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>2026-08-25 11:57:26+00:00</td>\n",
+       "      <td>2026-08-25 11:32:01+00:00</td>\n",
+       "      <td>10163</td>\n",
+       "      <td>Gare du Nord - Demarquay</td>\n",
+       "      <td>Paris</td>\n",
+       "      <td>75056</td>\n",
+       "      <td>48.881154</td>\n",
+       "      <td>2.358411</td>\n",
+       "      <td>30.0</td>\n",
+       "      <td>2</td>\n",
+       "      <td>0</td>\n",
+       "      <td>2</td>\n",
+       "      <td>28</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "           collected_at_utc         source_updated_at  station_code  \\\n",
+       "0 2026-08-25 11:57:26+00:00 2026-08-25 11:35:29+00:00         10017   \n",
+       "1 2026-08-25 11:57:26+00:00 2026-08-25 11:34:30+00:00         10042   \n",
+       "2 2026-08-25 11:57:26+00:00 2026-08-25 11:32:01+00:00         10163   \n",
+       "\n",
+       "                              name commune  insee_code   latitude  longitude  \\\n",
+       "0         Gare de l'Est - Fidélité   Paris       75056  48.874575   2.356796   \n",
+       "1  Enghien - Faubourg Poissonnière   Paris       75056  48.872420   2.348395   \n",
+       "2         Gare du Nord - Demarquay   Paris       75056  48.881154   2.358411   \n",
+       "\n",
+       "   capacity  bikes_available  mechanical_bikes  electric_bikes  \\\n",
+       "0      15.0                8                 1               7   \n",
+       "1      33.0               30                22               8   \n",
+       "2      30.0                2                 0               2   \n",
+       "\n",
+       "   docks_available  is_installed  is_renting  is_returning  \n",
+       "0                5             1           1             1  \n",
+       "1                3             1           1             1  \n",
+       "2               28             1           1             1  "
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#| echo: false\n",
+    "raw = load_raw_dt(verbose=True)\n",
+    "raw.head(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f516b3b7",
+   "metadata": {},
+   "source": [
+    "# Résumé des données\n",
+    "\n",
+    "## Aperçu des données"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "c603d0b8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Nombre de lignes : 329680\n",
+      "Nombre de colonnes : 16\n"
+     ]
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "print(\"Nombre de lignes :\", raw.shape[0])\n",
+    "print(\"Nombre de colonnes :\", raw.shape[1])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1e497f2b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.DataFrame'>\n",
+      "RangeIndex: 329680 entries, 0 to 329679\n",
+      "Data columns (total 16 columns):\n",
+      " #   Column             Non-Null Count   Dtype              \n",
+      "---  ------             --------------   -----              \n",
+      " 0   collected_at_utc   329680 non-null  datetime64[us, UTC]\n",
+      " 1   source_updated_at  329680 non-null  datetime64[us, UTC]\n",
+      " 2   station_code       329680 non-null  int64              \n",
+      " 3   name               329680 non-null  str                \n",
+      " 4   commune            329680 non-null  str                \n",
+      " 5   insee_code         329680 non-null  int64              \n",
+      " 6   latitude           329680 non-null  float64            \n",
+      " 7   longitude          329680 non-null  float64            \n",
+      " 8   capacity           327760 non-null  float64            \n",
+      " 9   bikes_available    329680 non-null  int64              \n",
+      " 10  mechanical_bikes   329680 non-null  int64              \n",
+      " 11  electric_bikes     329680 non-null  int64              \n",
+      " 12  docks_available    329680 non-null  int64              \n",
+      " 13  is_installed       329680 non-null  int64              \n",
+      " 14  is_renting         329680 non-null  int64              \n",
+      " 15  is_returning       329680 non-null  int64              \n",
+      "dtypes: datetime64[us, UTC](2), float64(3), int64(9), str(2)\n",
+      "memory usage: 40.2 MB\n"
+     ]
+    }
+   ],
+   "source": [
+    "raw.info()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "005974a8",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "rows                                              329680\n",
+       "stations                                              80\n",
+       "snapshots                                           4139\n",
+       "first_snapshot_utc             2026-08-25 11:57:26+00:00\n",
+       "last_snapshot_utc              2026-10-08 20:15:01+00:00\n",
+       "rows_per_station_min                                4121\n",
+       "rows_per_station_max                                4121\n",
+       "duplicated_station_snapshot                            0\n",
+       "dtype: object"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "coverage(raw)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "16b40b38",
+   "metadata": {},
+   "source": [
+    "## Contrôle de la qualité des données\n",
+    "\n",
+    "Avant toute analyse, on vérifie la qualité du jeu de données : présence de doublons et de valeurs manquantes.\n",
+    "\n",
+    "### Lignes dupliquées"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "56a6fb6a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Nombre de lignes dupliquées : 0\n"
+     ]
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "print(\"Nombre de lignes dupliquées :\", raw.duplicated().sum())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "13601fb3",
+   "metadata": {},
+   "source": [
+    "### Valeurs manquantes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "feea8d9f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>manquantes</th>\n",
+       "      <th>part</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>capacity</th>\n",
+       "      <td>1920</td>\n",
+       "      <td>0.0058</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "          manquantes    part\n",
+       "capacity        1920  0.0058"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "na = raw.isna().sum()\n",
+    "na[na > 0].to_frame(\"manquantes\").assign(part=lambda d: (d[\"manquantes\"] / len(raw)).round(4))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b1cbda12",
+   "metadata": {},
+   "source": [
+    "Seule la colonne `capacity` contient des valeurs manquantes (1 920 lignes, soit environ 0,6 % des données). Toutes les autres colonnes sont complètes.\n",
+    "\n",
+    "#### Où manque la capacité ?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "f6927c42",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Stations concernées : 80\n",
+      "Observations par station : [24]\n",
+      "Nombre de stations concernées, par horodatage :\n",
+      "station_code\n",
+      "80    22\n",
+      "30     2\n",
+      "50     2\n",
+      "Name: count, dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "missing_capacity = raw[raw[\"capacity\"].isna()]\n",
+    "print(\"Stations concernées :\", missing_capacity[\"station_code\"].nunique())\n",
+    "print(\"Observations par station :\", missing_capacity[\"station_code\"].value_counts().unique())\n",
+    "g = missing_capacity.groupby(\"collected_at_utc\")[\"station_code\"].nunique()\n",
+    "print(\"Nombre de stations concernées, par horodatage :\")\n",
+    "print(g.value_counts())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56b709cd",
+   "metadata": {},
+   "source": [
+    "Les valeurs manquantes ne sont pas dispersées au hasard : elles concernent **les 80 stations**, chacune ayant exactement **24 observations** sans capacité. Il s'agit donc d'un problème lié à une **période de collecte** (24 relevés par station, sur 26 horodatages : 22 communs aux 80 stations et 4 où seul un des deux groupes, Paris ou banlieue, a été collecté), et non à certaines stations ni à des erreurs ponctuelles de mesure.\n",
+    "\n",
+    "La capacité est constante pour une station donnée : c'est un attribut statique. On la complète donc par station à partir de ses autres relevés (maximum observé). Ce n'est ni une interpolation ni une fuite d'information du futur. La variable n'intervient pas dans la définition de la cible, qui repose sur `mechanical_bikes + electric_bikes`.\n",
+    "\n",
+    "### Cohérence interne et statut des stations {#sec-coherence}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "f51a4e43",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "bikes != mécaniques + électriques         0\n",
+       "vélos + bornettes > capacité           2256\n",
+       "vélos + bornettes < capacité         168340\n",
+       "vélos + bornettes == 0                    0\n",
+       "vélos > capacité                         86\n",
+       "capacité == 0                             0\n",
+       "capacité manquante                     1920\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Q = qualite(raw)\n",
+    "Q[\"coherence\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a8ce5c9",
+   "metadata": {},
+   "source": [
+    "- **`vélos + bornettes > capacité`** (2 256 lignes) est concentré sur quelques stations : la station 45504 en regroupe à elle seule 1 641 (environ 73 %), suivie des stations 9104 (400) et 40007 (145). La capacité déclarée y est peu fiable. C'est pourquoi le taux de remplissage est calculé par `vélos / (vélos + bornettes)` plutôt que par rapport à `capacity`.\n",
+    "- **`vélos + bornettes < capacité`** (168 340 lignes, environ la moitié du jeu) reflète simplement des bornettes hors service.\n",
+    "- **`vélos > capacité`** (86 lignes) et **`capacité manquante`** (1 920 lignes, soit 80 stations × 24 relevés) sont marginaux. Aucune ligne n'a `capacité == 0`, ni `vélos + bornettes == 0`.\n",
+    "\n",
+    "#### Stations quasi figées et incohérences de capacité"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "53f7cf02",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>unchanged_share</th>\n",
+       "      <th>over_capacity_rows</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>station_code</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>45504</th>\n",
+       "      <td>0.891</td>\n",
+       "      <td>1641</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>40007</th>\n",
+       "      <td>0.767</td>\n",
+       "      <td>145</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>23702</th>\n",
+       "      <td>0.730</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>23805</th>\n",
+       "      <td>0.724</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25008</th>\n",
+       "      <td>0.717</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>20006</th>\n",
+       "      <td>0.422</td>\n",
+       "      <td>57</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9104</th>\n",
+       "      <td>0.411</td>\n",
+       "      <td>400</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>21030</th>\n",
+       "      <td>0.371</td>\n",
+       "      <td>5</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "              unchanged_share  over_capacity_rows\n",
+       "station_code                                     \n",
+       "45504                   0.891                1641\n",
+       "40007                   0.767                 145\n",
+       "23702                   0.730                   0\n",
+       "23805                   0.724                   0\n",
+       "25008                   0.717                   0\n",
+       "20006                   0.422                  57\n",
+       "9104                    0.411                 400\n",
+       "21030                   0.371                   5"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "S_ = Q[\"static_stations\"]\n",
+    "top = S_.nlargest(5, \"unchanged_share\").index.union(S_.nlargest(5, \"over_capacity_rows\").index)\n",
+    "S_.loc[top].sort_values(\"unchanged_share\", ascending=False).round(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "771d5018",
+   "metadata": {},
+   "source": [
+    "Une station typique est inchangée d'un relevé à l'autre dans 38 % des cas (médiane sur les 80 stations) ; la station **45504** l'est dans 89 % des cas et concentre l'essentiel des incohérences de capacité. Elle est traitée comme suspecte et écartée dans l'analyse de sensibilité (Partie 3).\n",
+    "\n",
+    "#### Statut des stations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "754740ef",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   is_installed  is_renting  is_returning\n",
+      "0           NaN         812           812\n",
+      "1      329680.0      328868        328868\n",
+      "\n",
+      "Lignes hors service : 812 (0.25%)\n",
+      "is_renting == 0 et is_returning == 0 sur les mêmes lignes : True\n"
+     ]
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "closed = raw[\"is_renting\"] == 0\n",
+    "print(raw[[\"is_installed\", \"is_renting\", \"is_returning\"]].apply(lambda s: s.value_counts()))\n",
+    "print()\n",
+    "print(f\"Lignes hors service : {closed.sum()} ({closed.mean():.2%})\")\n",
+    "print(\"is_renting == 0 et is_returning == 0 sur les mêmes lignes :\",\n",
+    "      (closed == (raw[\"is_returning\"] == 0)).all())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "82f2ec87",
+   "metadata": {},
+   "source": [
+    "Les stations hors service représentent 812 lignes (0,25 %). Elles ont `is_renting = is_returning = 0` sur exactement les mêmes lignes ; une seule des deux variables suffit donc.\n",
+    "\n",
+    "### Fiabilité de la collecte {#sec-collecte}\n",
+    "\n",
+    "#### Interruptions de collecte"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "b0aa6e32",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>début</th>\n",
+       "      <th>fin</th>\n",
+       "      <th>minutes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>2771</th>\n",
+       "      <td>2026-09-23 09:45:01+00:00</td>\n",
+       "      <td>2026-09-24 13:45:03+00:00</td>\n",
+       "      <td>1680.033333</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>78</th>\n",
+       "      <td>2026-08-26 07:00:02+00:00</td>\n",
+       "      <td>2026-08-26 07:30:07+00:00</td>\n",
+       "      <td>30.083333</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3437</th>\n",
+       "      <td>2026-10-01 12:15:01+00:00</td>\n",
+       "      <td>2026-10-01 12:45:02+00:00</td>\n",
+       "      <td>30.016667</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>253</th>\n",
+       "      <td>2026-08-28 03:00:01+00:00</td>\n",
+       "      <td>2026-08-28 03:30:01+00:00</td>\n",
+       "      <td>30.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1877</th>\n",
+       "      <td>2026-09-14 01:30:02+00:00</td>\n",
+       "      <td>2026-09-14 02:00:02+00:00</td>\n",
+       "      <td>30.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2421</th>\n",
+       "      <td>2026-09-19 17:45:01+00:00</td>\n",
+       "      <td>2026-09-19 18:15:01+00:00</td>\n",
+       "      <td>30.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3410</th>\n",
+       "      <td>2026-10-01 05:15:01+00:00</td>\n",
+       "      <td>2026-10-01 05:45:01+00:00</td>\n",
+       "      <td>30.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3987</th>\n",
+       "      <td>2026-10-07 06:00:01+00:00</td>\n",
+       "      <td>2026-10-07 06:30:01+00:00</td>\n",
+       "      <td>30.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2428</th>\n",
+       "      <td>2026-09-19 19:45:02+00:00</td>\n",
+       "      <td>2026-09-19 20:15:01+00:00</td>\n",
+       "      <td>29.983333</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1874</th>\n",
+       "      <td>2026-09-14 00:30:02+00:00</td>\n",
+       "      <td>2026-09-14 01:00:01+00:00</td>\n",
+       "      <td>29.983333</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                         début                       fin      minutes\n",
+       "2771 2026-09-23 09:45:01+00:00 2026-09-24 13:45:03+00:00  1680.033333\n",
+       "78   2026-08-26 07:00:02+00:00 2026-08-26 07:30:07+00:00    30.083333\n",
+       "3437 2026-10-01 12:15:01+00:00 2026-10-01 12:45:02+00:00    30.016667\n",
+       "253  2026-08-28 03:00:01+00:00 2026-08-28 03:30:01+00:00    30.000000\n",
+       "1877 2026-09-14 01:30:02+00:00 2026-09-14 02:00:02+00:00    30.000000\n",
+       "2421 2026-09-19 17:45:01+00:00 2026-09-19 18:15:01+00:00    30.000000\n",
+       "3410 2026-10-01 05:15:01+00:00 2026-10-01 05:45:01+00:00    30.000000\n",
+       "3987 2026-10-07 06:00:01+00:00 2026-10-07 06:30:01+00:00    30.000000\n",
+       "2428 2026-09-19 19:45:02+00:00 2026-09-19 20:15:01+00:00    29.983333\n",
+       "1874 2026-09-14 00:30:02+00:00 2026-09-14 01:00:01+00:00    29.983333"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Q[\"gaps\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75af070d",
+   "metadata": {},
+   "source": [
+    "#### Relevés incomplets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "0af8bb83",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "36 relevés incomplets ; ensembles de stations disjoints et couvrant les 80 stations : True\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>stations dans l'ensemble</th>\n",
+       "      <th>relevés</th>\n",
+       "      <th>dont Paris</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>30</td>\n",
+       "      <td>18</td>\n",
+       "      <td>17</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>50</td>\n",
+       "      <td>18</td>\n",
+       "      <td>33</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   stations dans l'ensemble  relevés  dont Paris\n",
+       "0                        30       18          17\n",
+       "1                        50       18          33"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "print(f\"{Q['n_incomplets']} relevés incomplets ; ensembles de stations disjoints et couvrant les 80 stations : {Q['complementaires']}\")\n",
+    "Q[\"ensembles_incomplets\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6c8f4a21",
+   "metadata": {},
+   "source": [
+    "#### Stations fermées (`is_renting = 0`)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "aaf789a4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>station_code</th>\n",
+       "      <th>episode</th>\n",
+       "      <th>début</th>\n",
+       "      <th>fin</th>\n",
+       "      <th>relevés</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>4101</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2026-09-19 22:00:02+00:00</td>\n",
+       "      <td>2026-09-19 22:00:02+00:00</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>4101</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2026-09-19 22:30:02+00:00</td>\n",
+       "      <td>2026-09-20 23:15:01+00:00</td>\n",
+       "      <td>100</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>4101</td>\n",
+       "      <td>3</td>\n",
+       "      <td>2026-09-28 19:30:01+00:00</td>\n",
+       "      <td>2026-09-28 20:00:02+00:00</td>\n",
+       "      <td>3</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>4101</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2026-09-28 20:30:02+00:00</td>\n",
+       "      <td>2026-09-29 20:30:02+00:00</td>\n",
+       "      <td>97</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>4101</td>\n",
+       "      <td>5</td>\n",
+       "      <td>2026-10-02 22:45:01+00:00</td>\n",
+       "      <td>2026-10-02 23:00:02+00:00</td>\n",
+       "      <td>2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>4101</td>\n",
+       "      <td>6</td>\n",
+       "      <td>2026-10-02 23:30:02+00:00</td>\n",
+       "      <td>2026-10-03 22:45:02+00:00</td>\n",
+       "      <td>94</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>6030</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2026-09-24 19:30:01+00:00</td>\n",
+       "      <td>2026-09-26 21:30:01+00:00</td>\n",
+       "      <td>198</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>8046</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2026-09-24 13:45:03+00:00</td>\n",
+       "      <td>2026-09-26 21:30:01+00:00</td>\n",
+       "      <td>221</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>10017</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2026-10-07 20:15:01+00:00</td>\n",
+       "      <td>2026-10-08 20:00:02+00:00</td>\n",
+       "      <td>96</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   station_code  episode                     début                       fin  \\\n",
+       "0          4101        1 2026-09-19 22:00:02+00:00 2026-09-19 22:00:02+00:00   \n",
+       "1          4101        2 2026-09-19 22:30:02+00:00 2026-09-20 23:15:01+00:00   \n",
+       "2          4101        3 2026-09-28 19:30:01+00:00 2026-09-28 20:00:02+00:00   \n",
+       "3          4101        4 2026-09-28 20:30:02+00:00 2026-09-29 20:30:02+00:00   \n",
+       "4          4101        5 2026-10-02 22:45:01+00:00 2026-10-02 23:00:02+00:00   \n",
+       "5          4101        6 2026-10-02 23:30:02+00:00 2026-10-03 22:45:02+00:00   \n",
+       "6          6030        1 2026-09-24 19:30:01+00:00 2026-09-26 21:30:01+00:00   \n",
+       "7          8046        1 2026-09-24 13:45:03+00:00 2026-09-26 21:30:01+00:00   \n",
+       "8         10017        1 2026-10-07 20:15:01+00:00 2026-10-08 20:00:02+00:00   \n",
+       "\n",
+       "   relevés  \n",
+       "0        1  \n",
+       "1      100  \n",
+       "2        3  \n",
+       "3       97  \n",
+       "4        2  \n",
+       "5       94  \n",
+       "6      198  \n",
+       "7      221  \n",
+       "8       96  "
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Q[\"fermetures\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6d4daa5a",
+   "metadata": {},
+   "source": [
+    "#### Fiabilité de `source_updated_at`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "c8993f9e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "collected_at_utc - source_updated_at (minutes):\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>count</th>\n",
+       "      <th>mean</th>\n",
+       "      <th>std</th>\n",
+       "      <th>min</th>\n",
+       "      <th>50%</th>\n",
+       "      <th>90%</th>\n",
+       "      <th>99%</th>\n",
+       "      <th>max</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>minutes</th>\n",
+       "      <td>329680.0</td>\n",
+       "      <td>64.3</td>\n",
+       "      <td>31.9</td>\n",
+       "      <td>4.1</td>\n",
+       "      <td>61.7</td>\n",
+       "      <td>98.2</td>\n",
+       "      <td>150.5</td>\n",
+       "      <td>1194.7</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "            count  mean   std  min   50%   90%    99%     max\n",
+       "minutes  329680.0  64.3  31.9  4.1  61.7  98.2  150.5  1194.7"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "rows whose source timestamp did not change while the bike count did: 91373\n"
+     ]
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "print(\"collected_at_utc - source_updated_at (minutes):\")\n",
+    "display(Q[\"retard_source\"].round(1).to_frame(\"minutes\").T)\n",
+    "print(\"rows whose source timestamp did not change while the bike count did:\",\n",
+    "      Q[\"source_figee_mais_velos_changent\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "660272d0",
+   "metadata": {},
+   "source": [
+    "`source_updated_at` ne permet pas de dater l'état des stations de façon fiable :\n",
+    "\n",
+    "- l'horodatage de la source est en retard sur la collecte : de 62 min en médiane, 98 min pour 90 % des lignes et 150 min pour 99 % d'entre elles, avec un maximum d'environ 20 h ;\n",
+    "- dans 91 373 lignes (environ 28 %), il ne change pas alors que le nombre de vélos change.\n",
+    "\n",
+    "Nous utilisons donc `collected_at_utc` comme seule référence temporelle et n'employons pas `source_updated_at` dans les variables du modèle.\n",
+    "\n",
+    "# Grille régulière, cible et population"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "650c0809",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Lignes brutes écartées car hors grille de 15 minutes : 80\n",
+      "\n",
+      "horizon 30 min\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th>bloc de t</th>\n",
+       "      <th>train</th>\n",
+       "      <th>val</th>\n",
+       "      <th>test</th>\n",
+       "      <th>total</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>raison</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>conservée</th>\n",
+       "      <td>219126</td>\n",
+       "      <td>47612</td>\n",
+       "      <td>59574</td>\n",
+       "      <td>326312</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>fermée à t</th>\n",
+       "      <td>102</td>\n",
+       "      <td>520</td>\n",
+       "      <td>193</td>\n",
+       "      <td>815</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>fermée à t+h</th>\n",
+       "      <td>2</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4</td>\n",
+       "      <td>10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>non observée à t</th>\n",
+       "      <td>10240</td>\n",
+       "      <td>240</td>\n",
+       "      <td>560</td>\n",
+       "      <td>11040</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>non observée à t+h</th>\n",
+       "      <td>1490</td>\n",
+       "      <td>184</td>\n",
+       "      <td>629</td>\n",
+       "      <td>2303</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>t+h dans le bloc suivant</th>\n",
+       "      <td>0</td>\n",
+       "      <td>160</td>\n",
+       "      <td>0</td>\n",
+       "      <td>160</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "bloc de t                  train    val   test   total\n",
+       "raison                                                \n",
+       "conservée                 219126  47612  59574  326312\n",
+       "fermée à t                   102    520    193     815\n",
+       "fermée à t+h                   2      4      4      10\n",
+       "non observée à t           10240    240    560   11040\n",
+       "non observée à t+h          1490    184    629    2303\n",
+       "t+h dans le bloc suivant       0    160      0     160"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "horizon 60 min\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th>bloc de t</th>\n",
+       "      <th>train</th>\n",
+       "      <th>val</th>\n",
+       "      <th>test</th>\n",
+       "      <th>total</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>raison</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>conservée</th>\n",
+       "      <td>219144</td>\n",
+       "      <td>47476</td>\n",
+       "      <td>59322</td>\n",
+       "      <td>325942</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>fermée à t</th>\n",
+       "      <td>102</td>\n",
+       "      <td>520</td>\n",
+       "      <td>193</td>\n",
+       "      <td>815</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>fermée à t+h</th>\n",
+       "      <td>4</td>\n",
+       "      <td>8</td>\n",
+       "      <td>8</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>non observée à t</th>\n",
+       "      <td>10240</td>\n",
+       "      <td>240</td>\n",
+       "      <td>560</td>\n",
+       "      <td>11040</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>non observée à t+h</th>\n",
+       "      <td>1470</td>\n",
+       "      <td>156</td>\n",
+       "      <td>877</td>\n",
+       "      <td>2503</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>t+h dans le bloc suivant</th>\n",
+       "      <td>0</td>\n",
+       "      <td>320</td>\n",
+       "      <td>0</td>\n",
+       "      <td>320</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "bloc de t                  train    val   test   total\n",
+       "raison                                                \n",
+       "conservée                 219144  47476  59322  325942\n",
+       "fermée à t                   102    520    193     815\n",
+       "fermée à t+h                   4      8      8      20\n",
+       "non observée à t           10240    240    560   11040\n",
+       "non observée à t+h          1470    156    877    2503\n",
+       "t+h dans le bloc suivant       0    320      0     320"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "HORIZONS = (30, 60)\n",
+    "S = {h: prepare_sets(raw, h) for h in HORIZONS}\n",
+    "\n",
+    "print(\"Lignes brutes écartées car hors grille de 15 minutes :\", n_unaligned(raw))\n",
+    "print()\n",
+    "for h in HORIZONS:\n",
+    "    print(f\"horizon {h} min\")\n",
+    "    display(population_table(S[h][\"reason\"], h))\n",
+    "    print()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e18fd55d",
+   "metadata": {},
+   "source": [
+    "## Distribution de la cible"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "b127f546",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th>t</th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "      <th>2</th>\n",
+       "      <th>3</th>\n",
+       "      <th>4</th>\n",
+       "      <th>5</th>\n",
+       "      <th>6</th>\n",
+       "      <th>7</th>\n",
+       "      <th>8</th>\n",
+       "      <th>9</th>\n",
+       "      <th>...</th>\n",
+       "      <th>14</th>\n",
+       "      <th>15</th>\n",
+       "      <th>16</th>\n",
+       "      <th>17</th>\n",
+       "      <th>18</th>\n",
+       "      <th>19</th>\n",
+       "      <th>20</th>\n",
+       "      <th>21</th>\n",
+       "      <th>22</th>\n",
+       "      <th>23</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>taux de positifs par heure (Paris), train</th>\n",
+       "      <td>0.081</td>\n",
+       "      <td>0.079</td>\n",
+       "      <td>0.08</td>\n",
+       "      <td>0.08</td>\n",
+       "      <td>0.086</td>\n",
+       "      <td>0.088</td>\n",
+       "      <td>0.08</td>\n",
+       "      <td>0.085</td>\n",
+       "      <td>0.098</td>\n",
+       "      <td>0.127</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.121</td>\n",
+       "      <td>0.118</td>\n",
+       "      <td>0.122</td>\n",
+       "      <td>0.122</td>\n",
+       "      <td>0.115</td>\n",
+       "      <td>0.109</td>\n",
+       "      <td>0.11</td>\n",
+       "      <td>0.091</td>\n",
+       "      <td>0.082</td>\n",
+       "      <td>0.078</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>1 rows × 24 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "t                                             0      1     2     3      4   \\\n",
+       "taux de positifs par heure (Paris), train  0.081  0.079  0.08  0.08  0.086   \n",
+       "\n",
+       "t                                             5     6      7      8      9   \\\n",
+       "taux de positifs par heure (Paris), train  0.088  0.08  0.085  0.098  0.127   \n",
+       "\n",
+       "t                                          ...     14     15     16     17  \\\n",
+       "taux de positifs par heure (Paris), train  ...  0.121  0.118  0.122  0.122   \n",
+       "\n",
+       "t                                             18     19    20     21     22  \\\n",
+       "taux de positifs par heure (Paris), train  0.115  0.109  0.11  0.091  0.082   \n",
+       "\n",
+       "t                                             23  \n",
+       "taux de positifs par heure (Paris), train  0.078  \n",
+       "\n",
+       "[1 rows x 24 columns]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>taux de positifs, train</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>Paris</th>\n",
+       "      <td>0.118</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>banlieue</th>\n",
+       "      <td>0.078</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "          taux de positifs, train\n",
+       "Paris                       0.118\n",
+       "banlieue                    0.078"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>count</th>\n",
+       "      <th>mean</th>\n",
+       "      <th>std</th>\n",
+       "      <th>min</th>\n",
+       "      <th>25%</th>\n",
+       "      <th>50%</th>\n",
+       "      <th>75%</th>\n",
+       "      <th>max</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>taux de positifs par station, train</th>\n",
+       "      <td>80.0</td>\n",
+       "      <td>0.103</td>\n",
+       "      <td>0.112</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.012</td>\n",
+       "      <td>0.058</td>\n",
+       "      <td>0.156</td>\n",
+       "      <td>0.458</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                     count   mean    std  min    25%    50%  \\\n",
+       "taux de positifs par station, train   80.0  0.103  0.112  0.0  0.012  0.058   \n",
+       "\n",
+       "                                       75%    max  \n",
+       "taux de positifs par station, train  0.156  0.458  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>35</th>\n",
+       "      <th>36</th>\n",
+       "      <th>37</th>\n",
+       "      <th>38</th>\n",
+       "      <th>39</th>\n",
+       "      <th>40</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>taux de positifs par semaine ISO (train + val)</th>\n",
+       "      <td>0.086</td>\n",
+       "      <td>0.1</td>\n",
+       "      <td>0.112</td>\n",
+       "      <td>0.108</td>\n",
+       "      <td>0.117</td>\n",
+       "      <td>0.133</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                                   35   36     37     38  \\\n",
+       "taux de positifs par semaine ISO (train + val)  0.086  0.1  0.112  0.108   \n",
+       "\n",
+       "                                                   39     40  \n",
+       "taux de positifs par semaine ISO (train + val)  0.117  0.133  "
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "tr = S[30][\"train\"]\n",
+    "hour = tr[\"t\"].dt.tz_convert(TZ).dt.hour\n",
+    "\n",
+    "display(tr.groupby(hour)[\"y\"].mean().rename(\"taux de positifs par heure (Paris), train\").to_frame().T.round(3))\n",
+    "display(tr.groupby(np.where(tr[\"paris\"] == 1, \"Paris\", \"banlieue\"))[\"y\"].mean()\n",
+    "          .rename(\"taux de positifs, train\").to_frame().round(3))\n",
+    "display(tr.groupby(\"station_code\")[\"y\"].mean().describe()\n",
+    "          .rename(\"taux de positifs par station, train\").to_frame().T.round(3))\n",
+    "\n",
+    "trval = pd.concat([S[30][\"train\"], S[30][\"val\"]])\n",
+    "week = trval[\"t\"].dt.tz_convert(TZ).dt.isocalendar().week.to_numpy()\n",
+    "trval.groupby(week)[\"y\"].mean().rename(\"taux de positifs par semaine ISO (train + val)\").to_frame().T.round(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e47f8835",
+   "metadata": {},
+   "source": [
+    "## Découpage chronologique"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "ff8dea6e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "horizon 30 min\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>samples</th>\n",
+       "      <th>positive rate</th>\n",
+       "      <th>from (UTC)</th>\n",
+       "      <th>to (UTC)</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>train</th>\n",
+       "      <td>219126</td>\n",
+       "      <td>0.103</td>\n",
+       "      <td>2026-08-25 12:00:00+00:00</td>\n",
+       "      <td>2026-09-23 09:15:00+00:00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>val</th>\n",
+       "      <td>47612</td>\n",
+       "      <td>0.126</td>\n",
+       "      <td>2026-09-24 13:45:00+00:00</td>\n",
+       "      <td>2026-09-30 21:15:00+00:00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>test</th>\n",
+       "      <td>59574</td>\n",
+       "      <td>(hidden)</td>\n",
+       "      <td>2026-09-30 22:00:00+00:00</td>\n",
+       "      <td>2026-10-08 19:45:00+00:00</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      samples positive rate                 from (UTC)  \\\n",
+       "train  219126         0.103  2026-08-25 12:00:00+00:00   \n",
+       "val     47612         0.126  2026-09-24 13:45:00+00:00   \n",
+       "test    59574      (hidden)  2026-09-30 22:00:00+00:00   \n",
+       "\n",
+       "                        to (UTC)  \n",
+       "train  2026-09-23 09:15:00+00:00  \n",
+       "val    2026-09-30 21:15:00+00:00  \n",
+       "test   2026-10-08 19:45:00+00:00  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "horizon 60 min\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>samples</th>\n",
+       "      <th>positive rate</th>\n",
+       "      <th>from (UTC)</th>\n",
+       "      <th>to (UTC)</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>train</th>\n",
+       "      <td>219144</td>\n",
+       "      <td>0.103</td>\n",
+       "      <td>2026-08-25 12:00:00+00:00</td>\n",
+       "      <td>2026-09-23 08:45:00+00:00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>val</th>\n",
+       "      <td>47476</td>\n",
+       "      <td>0.126</td>\n",
+       "      <td>2026-09-24 13:45:00+00:00</td>\n",
+       "      <td>2026-09-30 20:45:00+00:00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>test</th>\n",
+       "      <td>59322</td>\n",
+       "      <td>(hidden)</td>\n",
+       "      <td>2026-09-30 22:00:00+00:00</td>\n",
+       "      <td>2026-10-08 19:15:00+00:00</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      samples positive rate                 from (UTC)  \\\n",
+       "train  219144         0.103  2026-08-25 12:00:00+00:00   \n",
+       "val     47476         0.126  2026-09-24 13:45:00+00:00   \n",
+       "test    59322      (hidden)  2026-09-30 22:00:00+00:00   \n",
+       "\n",
+       "                        to (UTC)  \n",
+       "train  2026-09-23 08:45:00+00:00  \n",
+       "val    2026-09-30 20:45:00+00:00  \n",
+       "test   2026-10-08 19:15:00+00:00  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "for h in HORIZONS:\n",
+    "    print(f\"horizon {h} min\")\n",
+    "    display(split_summary(S[h]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "435d2532",
+   "metadata": {},
+   "source": [
+    "## Variables"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "bb299847",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>variables</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>état</th>\n",
+       "      <td>bikes_available, docks_available, fill</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>tendance</th>\n",
+       "      <td>d_bikes_15, d_bikes_30, d_bikes_60, bikes_24h</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>calendrier</th>\n",
+       "      <td>hour_sin, hour_cos, dow, weekend</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>station</th>\n",
+       "      <td>capacity, paris, latitude, longitude, st_empty...</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                                    variables\n",
+       "état                   bikes_available, docks_available, fill\n",
+       "tendance        d_bikes_15, d_bikes_30, d_bikes_60, bikes_24h\n",
+       "calendrier                   hour_sin, hour_cos, dow, weekend\n",
+       "station     capacity, paris, latitude, longitude, st_empty..."
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pd.Series({g: \", \".join(f) for g, f in FEATURE_GROUPS.items()}, name=\"variables\").to_frame()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "3338a098",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>bikes_available</th>\n",
+       "      <th>docks_available</th>\n",
+       "      <th>fill</th>\n",
+       "      <th>d_bikes_15</th>\n",
+       "      <th>d_bikes_30</th>\n",
+       "      <th>d_bikes_60</th>\n",
+       "      <th>bikes_24h</th>\n",
+       "      <th>hour_sin</th>\n",
+       "      <th>hour_cos</th>\n",
+       "      <th>dow</th>\n",
+       "      <th>weekend</th>\n",
+       "      <th>capacity</th>\n",
+       "      <th>paris</th>\n",
+       "      <th>latitude</th>\n",
+       "      <th>longitude</th>\n",
+       "      <th>st_empty_rate</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>part de valeurs manquantes (train)</th>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.006</td>\n",
+       "      <td>0.006</td>\n",
+       "      <td>0.006</td>\n",
+       "      <td>0.041</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                    bikes_available  docks_available  fill  \\\n",
+       "part de valeurs manquantes (train)              0.0              0.0   0.0   \n",
+       "\n",
+       "                                    d_bikes_15  d_bikes_30  d_bikes_60  \\\n",
+       "part de valeurs manquantes (train)       0.006       0.006       0.006   \n",
+       "\n",
+       "                                    bikes_24h  hour_sin  hour_cos  dow  \\\n",
+       "part de valeurs manquantes (train)      0.041       0.0       0.0  0.0   \n",
+       "\n",
+       "                                    weekend  capacity  paris  latitude  \\\n",
+       "part de valeurs manquantes (train)      0.0       0.0    0.0       0.0   \n",
+       "\n",
+       "                                    longitude  st_empty_rate  \n",
+       "part de valeurs manquantes (train)        0.0            0.0  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th>N</th>\n",
+       "      <th>(-1, 0]</th>\n",
+       "      <th>(0, 1]</th>\n",
+       "      <th>(1, 2]</th>\n",
+       "      <th>(2, 4]</th>\n",
+       "      <th>(4, 8]</th>\n",
+       "      <th>(8, 100]</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>P(y = 1 | vélos maintenant), train</th>\n",
+       "      <td>0.832</td>\n",
+       "      <td>0.653</td>\n",
+       "      <td>0.241</td>\n",
+       "      <td>0.089</td>\n",
+       "      <td>0.018</td>\n",
+       "      <td>0.002</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "N                                   (-1, 0]  (0, 1]  (1, 2]  (2, 4]  (4, 8]  \\\n",
+       "P(y = 1 | vélos maintenant), train    0.832   0.653   0.241   0.089   0.018   \n",
+       "\n",
+       "N                                   (8, 100]  \n",
+       "P(y = 1 | vélos maintenant), train     0.002  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "#| code-fold: true\n",
+    "FEATS = S[30][\"FEATS\"]\n",
+    "\n",
+    "display(tr[FEATS].isna().mean().rename(\"part de valeurs manquantes (train)\").to_frame().T.round(3))\n",
+    "display(tr.groupby(pd.cut(tr[\"N\"], [-1, 0, 1, 2, 4, 8, 100]), observed=True)[\"y\"].mean()\n",
+    "          .rename(\"P(y = 1 | vélos maintenant), train\").to_frame().T.round(3))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "projet-velib",
+   "language": "python",
+   "name": "projet-velib",
+   "path": "/Users/nguyenduchoangviet/Library/Jupyter/kernels/projet-velib"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.14.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

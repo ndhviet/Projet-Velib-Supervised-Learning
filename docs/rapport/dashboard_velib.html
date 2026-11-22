@@ -1,0 +1,728 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Dashboard Vélib' Modèles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  /* Layout : en-tête + sélecteur d'horizon, grille 4 colonnes (4 KPI, 4 graphiques, tableau + forest plot + transitions, ablation + courbe journalière + lecture) */
+  :root {
+    --bg:      #0a0e14;
+    --surface: #121923;
+    --border:  #263243;
+    --neon:    #3ddc84;
+    --lime:    #f2dc5d;
+    --amber:   #ffb454;
+    --coral:   #ff6b6b;
+    --violet:  #c792ea;
+    --blue:    #4cc2ff;
+    --gray:    #9aa8b8;
+    --title:   #f0f6fb;
+    --text:    #dbe5ee;
+    --muted:   #a3b3c4;
+    --glow:    rgba(61,220,132, .28);
+    --font-display: 'Syne', 'Helvetica Neue', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-block: 22px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    background-image:
+      radial-gradient(ellipse 60% 40% at 15% 8%, rgba(61,220,132,.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 85% 90%, rgba(76,194,255,.045) 0%, transparent 60%);
+  }
+
+  /* HEADER */
+  header {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.1rem, 2.5vw, 1.7rem); letter-spacing: -.5px; line-height: 1.15;
+    color: var(--title); text-wrap: balance;
+  }
+  header h1 span { color: var(--neon); text-shadow: 0 0 18px var(--glow); }
+  header p { font-size: .74rem; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+  .badge {
+    font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
+    color: var(--neon); border: 1px solid color-mix(in srgb, var(--neon) 55%, transparent);
+    padding: 3px 10px; border-radius: 2px;
+  }
+  .hdr-right { display: grid; grid-template-columns: auto auto; justify-content: end; align-items: center; gap: 8px 8px; }
+  .hdr-right .badge { grid-area: 1 / 1; }
+  .hdr-right .gh-wrap { grid-area: 1 / 2; display: flex; }
+  .hdr-right .byline { grid-area: 2 / 1 / 3 / 3; margin-top: 0; }
+  .gh {
+    display: inline-flex; align-items: center; gap: 5px; font-size: .62rem; letter-spacing: .04em;
+    color: var(--neon); text-decoration: none; padding: 2px 8px; border-radius: 3px;
+    border: 1px solid color-mix(in srgb, var(--neon) 50%, transparent);
+    transition: background .15s;
+  }
+  .gh:hover { background: color-mix(in srgb, var(--neon) 14%, transparent); }
+  .gh:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
+  .byline { font-size: .7rem; color: var(--muted); margin-top: 6px; letter-spacing: .04em; text-align: right; }
+
+  /* BARRE HORIZON */
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 14px;
+  }
+  .toolbar .lbl { font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .seg button {
+    font: 500 .78rem var(--font-mono); letter-spacing: .04em;
+    background: transparent; color: var(--text); border: 0; padding: 6px 14px; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button:hover { background: rgba(61,220,132,.08); }
+  .seg button[aria-pressed="true"] { background: rgba(61,220,132,.16); color: var(--neon); }
+  .seg button:focus-visible { outline: 2px solid var(--neon); outline-offset: -2px; }
+  .seg.small button { padding: 4px 11px; font-size: .72rem; }
+  .chosen-note { font-size: .76rem; color: var(--text); }
+  .chosen-note b { color: var(--neon); font-weight: 700; }
+
+  /* GRID */
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .span2 { grid-column: span 2; }
+  .span3 { grid-column: span 3; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px; position: relative; overflow: hidden; min-width: 0;
+  }
+  .card::before { content: ''; position: absolute; inset: 0; pointer-events: none; }
+  .card:nth-child(1)::before { background: radial-gradient(circle at 0% 0%,     rgba(255,180,84,.09),  transparent 60%); }
+  .card:nth-child(2)::before { background: radial-gradient(circle at 100% 0%,   rgba(61,220,132,.12),  transparent 60%); }
+  .card:nth-child(3)::before { background: radial-gradient(circle at 100% 100%, rgba(61,220,132,.09),  transparent 60%); }
+  .card:nth-child(4)::before { background: radial-gradient(circle at 0% 100%,   rgba(242,220,93,.08),  transparent 60%); }
+  .card > * { position: relative; }
+
+  .card-label { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  .card-title { font-family: var(--font-display); font-size: 1.02rem; font-weight: 600; margin-bottom: 14px; color: var(--title); }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+
+  /* KPI */
+  .kpi-val { font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .kpi-val.neon  { color: var(--neon);  text-shadow: 0 0 22px var(--glow); }
+  .kpi-val.lime  { color: var(--lime);  text-shadow: 0 0 22px rgba(242,220,93,.25); }
+  .kpi-val.amber { color: var(--amber); text-shadow: 0 0 22px rgba(255,180,84,.25); }
+  .kpi-sub { font-size: .76rem; color: var(--text); margin-top: 6px; }
+  .kpi-delta { display: inline-block; font-size: .74rem; margin-top: 8px; padding: 2px 8px; border-radius: 20px; }
+  .kpi-delta.up   { background: rgba(61,220,132,.14); color: var(--neon); }
+  .kpi-delta.info { background: rgba(255,180,84,.14); color: var(--amber); }
+
+  .chart-box { position: relative; height: 270px; }
+  .legend-note { font-size: .68rem; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+
+  /* Table */
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .68rem; font-variant-numeric: tabular-nums; }
+  thead tr { border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); text-align: right; padding: 4px 7px; font-weight: 500; letter-spacing: .06em; font-size: .66rem; text-transform: uppercase; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  td { padding: 5px 6px; color: var(--text); text-align: right; white-space: nowrap; }
+  tbody tr:nth-child(even) td { background: rgba(61,220,132,.025); }
+  tr.chosen td { background: rgba(61,220,132,.09) !important; }
+  td.best { color: var(--neon); font-weight: 700; }
+  tr.ref td { color: var(--muted); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; vertical-align: baseline; }
+  .tag { display: inline-block; margin-left: 7px; padding: 1px 6px; border-radius: 3px; font-size: .62rem; background: rgba(61,220,132,.16); color: var(--neon); letter-spacing: .04em; }
+
+  /* Forest plot */
+  .fp-title { font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 8px 0 7px; }
+  .fp-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) 46px; align-items: center; gap: 7px; margin-bottom: 9px; font-size: .72rem; }
+  .fp-label { color: var(--text); text-align: right; }
+  .fp-track { position: relative; height: 7px; background: var(--border); border-radius: 3px; }
+  .fp-bar { position: absolute; height: 100%; border-radius: 3px; opacity: .55; }
+  .fp-dot { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; z-index: 2; }
+  .fp-zero { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--coral); opacity: .7; }
+  .fp-val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .fp-scale { display: grid; grid-template-columns: 88px minmax(0, 1fr) 46px; gap: 7px; font-size: .62rem; color: var(--muted); }
+  .fp-scale div:nth-child(2) { display: flex; justify-content: space-between; }
+
+  /* Transitions */
+  .sit { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .sit:last-of-type { border-bottom: 0; }
+  .sit-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: .74rem; margin-bottom: 5px; }
+  .sit-head .nm { color: var(--title); }
+  .sit-head .hint { color: var(--muted); font-size: .64rem; white-space: nowrap; }
+  .sit-bar { display: grid; grid-template-columns: 38px minmax(0, 1fr) 40px; align-items: center; gap: 6px; font-size: .66rem; color: var(--muted); margin-top: 3px; }
+  .track { height: 8px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 3px; }
+  .sit-bar .v { text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* Ablation */
+  .abl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 9px; }
+  .abl-row { font-size: .72rem; }
+  .abl-row .top { display: flex; justify-content: space-between; margin-bottom: 3px; gap: 6px; }
+  .abl-row .nm { color: var(--text); }
+  .abl-row .ec { font-variant-numeric: tabular-nums; }
+  .abl-row .ec.neg { color: var(--coral); }
+
+  /* Lecture */
+  .notes { list-style: none; display: grid; gap: 10px; font-size: .76rem; line-height: 1.6; color: var(--text); }
+  .notes li { padding-left: 14px; position: relative; }
+  .notes li::before { content: ''; position: absolute; left: 0; top: .5em; width: 6px; height: 6px; border-radius: 50%; background: var(--neon); box-shadow: 0 0 8px var(--glow); }
+  .notes b { color: var(--title); font-weight: 700; }
+  .caveat { margin-top: 12px; padding: 9px; background: rgba(61,220,132,.05); border: 1px solid rgba(61,220,132,.18); border-radius: 5px; font-size: .68rem; color: var(--text); line-height: 1.6; }
+
+  footer {
+    margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px;
+    font-size: .68rem; color: var(--muted); line-height: 1.6;
+  }
+
+  @media (max-width: 1024px) {
+    header { flex-direction: column; gap: 10px; }
+    .byline { text-align: left; }
+    .hdr-right { justify-content: start; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .kpi-val { font-size: 2rem; }
+    .span3 { grid-column: span 2; }
+  }
+  @media (max-width: 640px) {
+    body { padding-block: 14px; }
+    header h1 { font-size: 1rem; }
+    .grid { gap: 10px; }
+    .card { padding: 14px; }
+    .card:nth-child(n+5), .span2, .span3 { grid-column: 1 / -1; }
+    .kpi-val { font-size: 1.6rem; }
+    .kpi-delta { font-size: .58rem; }
+    .chart-box { height: 220px; }
+  }
+  @media (max-width: 380px) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    .card:nth-child(n+1) { grid-column: 1 / -1; }
+  }
+  /* MODE RÉDUIT : tout est en rem, la racine passe à 14 px (voir script) ; ici les valeurs en px, l'ordre et les cartes affichées */
+  body.compact { padding-block: 16px; }
+  body.compact header { margin-bottom: 14px; padding-bottom: 12px; }
+  body.compact .toolbar { margin-bottom: 12px; }
+  body.compact .grid { gap: 12px; }
+  body.compact .card { padding: 15px; }
+  body.compact .card-title { margin-bottom: 11px; }
+  body.compact .chart-box { height: 215px; }
+  body.compact .only-detail, body.compact .notes li.dt { display: none; }
+  body.compact .c-ap { order: 1; } body.compact .c-f1 { order: 2; } body.compact .c-pr { order: 3; } body.compact .c-forest { order: 4; }
+  body.compact .c-tbl { order: 5; } body.compact .c-err { order: 6; } body.compact .c-notes { order: 7; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header>
+  <div>
+    <h1>Vélib' — <span>Comparaison des modèles</span></h1>
+    <p>Y = 1{N<sub>t+h</sub> &lt; 2} · 80 stations · 25 août – 8 octobre 2026 · test : 1–8 octobre · entraînement, réglages et choix du modèle sur validation seule</p>
+  </div>
+  <div class="hdr-right">
+    <div class="badge">Supervised Learning · 2026</div>
+    <div class="byline">NGUYEN Duc Hoang Viet · Sun Zhenxuan</div>
+    <div class="gh-wrap">
+      <a class="gh" href="https://github.com/ndhviet/Projet-Velib-Supervised-Learning" target="_blank" rel="noopener">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <span class="lbl">Horizon de prévision</span>
+  <div class="seg" role="group" aria-label="Horizon de prévision">
+    <button type="button" id="h30" aria-pressed="true">30 min</button>
+    <button type="button" id="h60" aria-pressed="false">60 min</button>
+  </div>
+  <span class="chosen-note" id="chosenNote"></span>
+  <div class="seg" role="group" aria-label="Taille d'affichage" style="margin-left:auto">
+    <button type="button" id="vC" aria-pressed="true">Réduit</button>
+    <button type="button" id="vN" aria-pressed="false">Détaillé</button>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- ══ LIGNE 1 : KPI ══ -->
+  <div class="card c-k">
+    <div class="card-label">Semaine de test</div>
+    <div class="card-title">Taux de pénurie</div>
+    <div class="kpi-val amber" id="k1v"></div>
+    <div class="kpi-sub" id="k1s"></div>
+    <span class="kpi-delta info" id="k1d"></span>
+  </div>
+  <div class="card c-k">
+    <div class="card-label">Classement des risques (AP)</div>
+    <div class="card-title" id="k2t"></div>
+    <div class="kpi-val neon" id="k2v"></div>
+    <div class="kpi-sub" id="k2s"></div>
+    <span class="kpi-delta up" id="k2d"></span>
+  </div>
+  <div class="card c-k">
+    <div class="card-label">Décision au seuil (F1)</div>
+    <div class="card-title" id="k3t"></div>
+    <div class="kpi-val neon" id="k3v"></div>
+    <div class="kpi-sub" id="k3s"></div>
+    <span class="kpi-delta up" id="k3d"></span>
+  </div>
+  <div class="card c-k">
+    <div class="card-label">Comparaison au même rappel</div>
+    <div class="card-title">Précision au rappel de la persistance</div>
+    <div class="kpi-val lime" id="k4v"></div>
+    <div class="kpi-sub" id="k4s"></div>
+    <span class="kpi-delta up" id="k4d"></span>
+  </div>
+
+  <!-- ══ LIGNE 2 : GRAPHIQUES ══ -->
+  <div class="card c-ap">
+    <div class="card-label">Test · aire sous la courbe PR</div>
+    <div class="card-title">AP par modèle</div>
+    <div class="chart-box"><canvas id="chAP" aria-label="AP par modèle"></canvas></div>
+    <div class="legend-note">Pointillé : persistance. ★ modèle retenu sur la validation.</div>
+  </div>
+  <div class="card c-f1">
+    <div class="card-label">Test · seuil choisi sur la validation</div>
+    <div class="card-title">F1 par modèle</div>
+    <div class="chart-box"><canvas id="chF1" aria-label="F1 par modèle"></canvas></div>
+    <div class="legend-note">Pointillé : persistance.</div>
+  </div>
+  <div class="card c-pr">
+    <div class="card-label">Compromis</div>
+    <div class="card-title">Précision et rappel</div>
+    <div class="chart-box"><canvas id="chPR" aria-label="Précision contre rappel"></canvas></div>
+    <div class="legend-note">Courbes pointillées : F1 constant. Plus haut et plus à droite = mieux.</div>
+  </div>
+  <div class="card c-err">
+    <div class="card-label">Test · matrice de confusion</div>
+    <div class="card-title">Fausses alertes et pénuries manquées</div>
+    <div class="chart-box"><canvas id="chErr" aria-label="Fausses alertes et pénuries manquées"></canvas></div>
+    <div class="legend-note">FP : alerte à tort. FN : pénurie non signalée.</div>
+  </div>
+
+  <!-- ══ LIGNE 3 ══ -->
+  <div class="card span2 c-tbl">
+    <div class="card-label">Test · toutes les métriques</div>
+    <div class="card-title">Tableau comparatif</div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+    <div class="legend-note">En vert : meilleure valeur de la colonne (hors référence « majoritaire »). Rappel et précision au seuil retenu sur la validation.</div>
+  </div>
+  <div class="card c-forest">
+    <div class="card-label">Bootstrap par stations · IC 95 %</div>
+    <div class="card-title">Modèle retenu vs persistance</div>
+    <div id="forest"></div>
+    <div class="legend-note">Les intervalles des niveaux se chevauchent ; l'écart apparié (mêmes stations tirées) exclut 0.</div>
+  </div>
+  <div class="card c-sit only-detail">
+    <div class="card-label">Erreurs caractéristiques</div>
+    <div class="card-title">Part prédite « vide »</div>
+    <div id="sit"></div>
+    <div class="legend-note" style="display:flex;gap:12px;flex-wrap:wrap"><span><span class="dot" style="background:var(--neon)"></span>modèle retenu</span><span><span class="dot" style="background:var(--gray)"></span>persistance</span></div>
+  </div>
+
+  <!-- ══ LIGNE 4 ══ -->
+  <div class="card c-abl only-detail">
+    <div class="card-label">Validation · forêt réajustée</div>
+    <div class="card-title">Apport des groupes de variables</div>
+    <div class="abl" id="abl"></div>
+    <div class="legend-note">AP sur la validation. Associations, pas des effets.</div>
+  </div>
+  <div class="card span2 c-day only-detail">
+    <div class="card-head">
+      <div>
+        <div class="card-label">Test · jour par jour</div>
+        <div class="card-title">Modèle retenu et persistance, du 1<sup>er</sup> au 8 octobre</div>
+      </div>
+      <div class="seg small" role="group" aria-label="Métrique journalière">
+        <button type="button" id="mAP" aria-pressed="true">AP</button>
+        <button type="button" id="mF1" aria-pressed="false">F1</button>
+      </div>
+    </div>
+    <div class="chart-box"><canvas id="chDay" aria-label="Score par jour"></canvas></div>
+    <div class="legend-note">Le dimanche 4 octobre est le jour le plus difficile pour les deux.</div>
+  </div>
+  <div class="card c-notes">
+    <div class="card-label">Lecture</div>
+    <div class="card-title">À retenir</div>
+    <ul class="notes" id="notes"></ul>
+    <div class="caveat">Le test n'a été lu qu'une seule fois, après le choix des modèles sur la validation. Forêt et boosting sont presque à égalité.</div>
+  </div>
+
+</div>
+
+<footer>
+  <span>Données Vélib' · 80 stations · pas de 15 min · chronologique : entraînement jusqu'au 23 septembre, test du 1<sup>er</sup> au 8 octobre</span>
+  <span>Chiffres issus du projet « Vélib' Supervised Learning »</span>
+</footer>
+
+<script>
+(function () {
+  /* ───────── Données (résultats du notebook) ───────── */
+  var ORDER = ['persistance', 'bayes_naif', 'knn', 'arbre', 'knn_pondere', 'foret', 'boosting'];
+  var NAME  = { persistance: 'Persistance', bayes_naif: 'Bayes naïf', knn: 'k-NN', arbre: 'Arbre', knn_pondere: 'k-NN pondéré', foret: 'Forêt', boosting: 'Boosting', majoritaire: 'Majoritaire' };
+  var SHORT = { persistance: 'Pers.', bayes_naif: 'Bayes', knn: 'k-NN', arbre: 'Arbre', knn_pondere: 'k-NN p.', foret: 'Forêt', boosting: 'Boost.' };
+  var COL   = { persistance: '#9aa8b8', bayes_naif: '#ffb454', knn: '#ff6b6b', arbre: '#4cc2ff', knn_pondere: '#c792ea', foret: '#3ddc84', boosting: '#f2dc5d', majoritaire: '#5b6b7d' };
+
+  // [AP, précision, rappel, F1, TP, FP, FN]
+  var DATA = {
+    30: {
+      n: 59574, pos: 7253, prev: 0.122, chosen: 'foret', chosenName: 'forêt aléatoire',
+      m: {
+        majoritaire: [0.122, 0, 0, 0, 0, 0, 7253],
+        persistance: [0.702, 0.729, 0.729, 0.729, 5284, 1966, 1969],
+        bayes_naif:  [0.629, 0.522, 0.806, 0.634, 5847, 5344, 1406],
+        knn:         [0.699, 0.538, 0.796, 0.642, 5771, 4953, 1482],
+        arbre:       [0.801, 0.693, 0.789, 0.738, 5721, 2532, 1532],
+        knn_pondere: [0.797, 0.706, 0.776, 0.739, 5626, 2344, 1627],
+        foret:       [0.816, 0.714, 0.771, 0.741, 5593, 2245, 1660],
+        boosting:    [0.802, 0.715, 0.776, 0.744, 5627, 2239, 1626]
+      },
+      pAtR: 0.749, pPers: 0.729,
+      dAP: '+0,113 [0,102 ; 0,125]', dF1: '+0,013 [0,007 ; 0,018]',
+      ci: {
+        apM: [0.815, 0.777, 0.851], apP: [0.702, 0.661, 0.744], f1M: [0.741, 0.709, 0.773], f1P: [0.728, 0.694, 0.764],
+        dAP: [0.113, 0.102, 0.125], dF1: [0.013, 0.007, 0.018]
+      },
+      sit: [
+        { nm: 'reste disponible',     share: 0.845, mod: 0.008, per: 0.0, good: 'bas' },
+        { nm: 'devient vide',         share: 0.033, mod: 0.183, per: 0.0, good: 'haut' },
+        { nm: 'reste vide',           share: 0.089, mod: 0.990, per: 1.0, good: 'haut' },
+        { nm: 'redevient disponible', share: 0.033, mod: 0.937, per: 1.0, good: 'bas' }
+      ],
+      abl: [['toutes les variables', 0.828, 0], ['sans état', 0.560, -0.268], ['sans tendance', 0.819, -0.009], ['sans calendrier', 0.806, -0.021], ['sans station', 0.822, -0.006], ['état seul (3 var.)', 0.757, -0.071]],
+      day: {
+        AP: { m: [0.836, 0.820, 0.808, 0.727, 0.815, 0.793, 0.848, 0.859], p: [0.721, 0.722, 0.719, 0.622, 0.691, 0.651, 0.735, 0.740] },
+        F1: { m: [0.757, 0.754, 0.744, 0.684, 0.728, 0.710, 0.776, 0.773], p: [0.737, 0.737, 0.732, 0.675, 0.725, 0.693, 0.768, 0.758] }
+      },
+      pr: { x: [0.70, 0.82], y: [0.50, 0.75] },
+      notes: [
+        '<b>Classement :</b> AP 0,816 contre 0,702 pour la persistance, soit +0,113 (IC à 95 % [0,102 ; 0,125]).',
+        '<b>Décision :</b> le gain en F1 est faible (+0,013), mais positif.',
+        '<b>Même rappel :</b> précision 0,749 contre 0,729.',
+        '<b>Anticipation :</b> 18 % des stations qui se vident sont repérées, la persistance n\'en repère aucune.',
+        '<b>Concurrents :</b> arbre et k-NN pondéré suivent de près (AP ≈ 0,80). Bayes naïf et k-NN simple ne dépassent pas la persistance en AP.'
+      ]
+    },
+    60: {
+      n: 59322, pos: 7223, prev: 0.122, chosen: 'boosting', chosenName: 'gradient boosting',
+      m: {
+        majoritaire: [0.122, 0, 0, 0, 0, 0, 7223],
+        persistance: [0.619, 0.660, 0.660, 0.660, 4766, 2457, 2457],
+        bayes_naif:  [0.561, 0.437, 0.816, 0.569, 5894, 7591, 1329],
+        knn:         [0.662, 0.536, 0.731, 0.618, 5283, 4580, 1940],
+        arbre:       [0.722, 0.634, 0.717, 0.673, 5180, 2991, 2043],
+        knn_pondere: [0.723, 0.615, 0.742, 0.672, 5357, 3354, 1866],
+        foret:       [0.748, 0.647, 0.725, 0.684, 5240, 2865, 1983],
+        boosting:    [0.755, 0.646, 0.735, 0.687, 5306, 2909, 1917]
+      },
+      pAtR: 0.700, pPers: 0.660,
+      dAP: '+0,134 [0,123 ; 0,149]', dF1: '+0,028 [0,018 ; 0,037]',
+      ci: {
+        apM: [0.754, 0.712, 0.798], apP: [0.619, 0.570, 0.661], f1M: [0.687, 0.648, 0.722], f1P: [0.659, 0.624, 0.698],
+        dAP: [0.134, 0.123, 0.149], dF1: [0.028, 0.018, 0.037]
+      },
+      sit: [
+        { nm: 'reste disponible',     share: 0.837, mod: 0.019, per: 0.0, good: 'bas' },
+        { nm: 'devient vide',         share: 0.041, mod: 0.308, per: 0.0, good: 'haut' },
+        { nm: 'reste vide',           share: 0.080, mod: 0.955, per: 1.0, good: 'haut' },
+        { nm: 'redevient disponible', share: 0.041, mod: 0.802, per: 1.0, good: 'bas' }
+      ],
+      abl: [['toutes les variables', 0.767, 0], ['sans état', 0.551, -0.215], ['sans tendance', 0.766, -0.001], ['sans calendrier', 0.722, -0.045], ['sans station', 0.751, -0.016], ['état seul (3 var.)', 0.678, -0.089]],
+      day: {
+        AP: { m: [0.792, 0.754, 0.730, 0.654, 0.743, 0.734, 0.788, 0.823], p: [0.653, 0.634, 0.629, 0.525, 0.596, 0.569, 0.659, 0.681] },
+        F1: { m: [0.714, 0.680, 0.679, 0.616, 0.677, 0.676, 0.703, 0.744], p: [0.686, 0.662, 0.656, 0.595, 0.639, 0.626, 0.698, 0.713] }
+      },
+      pr: { x: [0.62, 0.84], y: [0.40, 0.70] },
+      notes: [
+        '<b>Classement :</b> AP 0,755 contre 0,619 pour la persistance, soit +0,134 (IC à 95 % [0,123 ; 0,149]).',
+        '<b>Décision :</b> F1 0,687 contre 0,660 (+0,028), un gain plus net qu\'à 30 min.',
+        '<b>Même rappel :</b> précision 0,700 contre 0,660.',
+        '<b>Anticipation :</b> 31 % des stations qui se vident sont repérées, la persistance n\'en repère aucune.',
+        '<b>Calendrier :</b> sans l\'heure et le jour, l\'AP de validation perd 0,045 : il compte davantage à 60 min.'
+      ]
+    }
+  };
+
+  var DAYS = ['1 oct · jeu', '2 oct · ven', '3 oct · sam', '4 oct · dim', '5 oct · lun', '6 oct · mar', '7 oct · mer', '8 oct · jeu'];
+
+  /* ───────── Outils ───────── */
+  var fr  = function (x, d) { return x.toFixed(d === undefined ? 3 : d).replace('.', ','); };
+  var pct = function (x, d) { return (x * 100).toFixed(d === undefined ? 1 : d).replace('.', ',') + ' %'; };
+  var int = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+  var $   = function (id) { return document.getElementById(id); };
+  var state = { h: 30, metric: 'AP', compact: window.innerWidth >= 1100 };
+  var K = function (n) { return Math.round(n * (state.compact ? 0.94 : 1)); };
+  var charts = {};
+
+  Chart.defaults.color = '#a3b3c4';
+  Chart.defaults.font.family = "'JetBrains Mono', ui-monospace, monospace";
+  Chart.defaults.font.size = 12;
+  var GRID = 'rgba(150,175,200,.16)';
+  var TIP = { backgroundColor: '#121923', borderColor: '#263243', borderWidth: 1, titleColor: '#f0f6fb', bodyColor: '#dbe5ee', padding: 8, cornerRadius: 4 };
+
+  function mk(id, cfg) {
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart($(id).getContext('2d'), cfg);
+  }
+
+  /* Plugin : valeur au bout des barres horizontales + ligne de référence */
+  var barExtras = {
+    id: 'barExtras',
+    afterDatasetsDraw: function (chart, args, opt) {
+      var ctx = chart.ctx, meta = chart.getDatasetMeta(0), ds = chart.data.datasets[0];
+      ctx.save();
+      ctx.font = '700 ' + K(12) + "px 'JetBrains Mono', monospace";
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#f0f6fb';
+      meta.data.forEach(function (bar, i) { ctx.fillText(fr(ds.data[i]), bar.x + 6, bar.y); });
+      if (opt && opt.ref !== undefined) {
+        var x = chart.scales.x.getPixelForValue(opt.ref), a = chart.chartArea;
+        ctx.setLineDash([4, 3]); ctx.strokeStyle = 'rgba(227,246,234,.55)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke();
+      }
+      ctx.restore();
+    }
+  };
+
+  /* Plugin : étiquettes des courbes F1 constant */
+  var isoLabels = {
+    id: 'isoLabels',
+    afterDatasetsDraw: function (chart) {
+      var ctx = chart.ctx, sx = chart.scales.x, sy = chart.scales.y, a = chart.chartArea;
+      ctx.save(); ctx.font = '400 ' + K(11) + "px 'JetBrains Mono', monospace"; ctx.fillStyle = 'rgba(163,179,196,.8)';
+      chart.data.datasets.forEach(function (d) {
+        if (!d.iso) return;
+        var f = d.iso, r = sx.max, p = f * r / (2 * r - f);
+        if (p >= sy.min && p <= sy.max) {
+          ctx.textAlign = 'right'; ctx.fillText('F1 ' + fr(f, 2), sx.getPixelForValue(r) - 4, sy.getPixelForValue(p) - 5);
+        } else if (p > sy.max) {
+          var pp = sy.max, rr = f * pp / (2 * pp - f);
+          if (rr >= sx.min && rr <= sx.max) { ctx.textAlign = 'left'; ctx.fillText('F1 ' + fr(f, 2), sx.getPixelForValue(rr) + 4, a.top + 10); }
+        }
+      });
+      ctx.restore();
+    }
+  };
+
+  function barOptions(ref) {
+    return {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 34 } },
+      scales: {
+        x: { min: 0, max: 0.9, grid: { color: GRID }, ticks: { callback: function (v) { return fr(v, 1); } } },
+        y: { grid: { display: false } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: Object.assign({}, TIP, { callbacks: { label: function (c) { return ' ' + fr(c.parsed.x); } } }),
+        barExtras: { ref: ref }
+      }
+    };
+  }
+
+  /* ───────── Rendus ───────── */
+  function labels(d) { return ORDER.map(function (k) { return NAME[k] + (k === d.chosen ? ' ★' : ''); }); }
+
+  function renderKPI(d) {
+    var c = d.m[d.chosen], p = d.m.persistance, nm = NAME[d.chosen];
+    $('chosenNote').innerHTML = 'Modèle retenu sur la validation : <b>' + d.chosenName + '</b>';
+    $('k1v').textContent = pct(d.prev);
+    $('k1s').textContent = int(d.pos) + ' pénuries sur ' + int(d.n) + ' lignes';
+    $('k1d').textContent = '80 stations · 1–8 octobre';
+    $('k2t').textContent = nm + ' vs persistance';
+    $('k2v').textContent = fr(c[0]);
+    $('k2s').textContent = 'persistance ' + fr(p[0]);
+    $('k2d').textContent = '↑ ' + d.dAP;
+    $('k3t').textContent = nm + ' vs persistance';
+    $('k3v').textContent = fr(c[3]);
+    $('k3s').textContent = 'persistance ' + fr(p[3]);
+    $('k3d').textContent = '↑ ' + d.dF1;
+    $('k4v').textContent = fr(d.pAtR);
+    $('k4s').textContent = 'persistance ' + fr(d.pPers) + ' (rappel ' + fr(p[2]) + ')';
+    $('k4d').textContent = '↑ +' + fr(d.pAtR - d.pPers) + ' · ' + nm;
+  }
+
+  function renderCharts(d) {
+    var colors = ORDER.map(function (k) { return COL[k]; });
+    var borders = ORDER.map(function (k) { return k === d.chosen ? '#f0f6fb' : 'transparent'; });
+    var mkBar = function (id, idx) {
+      mk(id, {
+        type: 'bar',
+        data: { labels: labels(d), datasets: [{ data: ORDER.map(function (k) { return d.m[k][idx]; }), backgroundColor: colors, borderColor: borders, borderWidth: 1.5, borderRadius: 2, barPercentage: .72 }] },
+        options: barOptions(d.m.persistance[idx]),
+        plugins: [barExtras]
+      });
+    };
+    mkBar('chAP', 0);
+    mkBar('chF1', 3);
+
+    /* précision / rappel */
+    var sets = [];
+    [0.6, 0.65, 0.7, 0.75].forEach(function (f) {
+      var pts = [];
+      for (var r = f / 2 + 0.01; r <= 0.95; r += 0.01) { var p = f * r / (2 * r - f); if (p <= 1) pts.push({ x: r, y: p }); }
+      sets.push({ iso: f, type: 'line', data: pts, borderColor: 'rgba(163,179,196,.28)', borderDash: [3, 4], borderWidth: 1, pointRadius: 0, fill: false, tension: 0 });
+    });
+    ORDER.forEach(function (k) {
+      var v = d.m[k];
+      sets.push({
+        type: 'scatter', label: NAME[k], data: [{ x: v[2], y: v[1] }],
+        backgroundColor: COL[k], borderColor: k === d.chosen ? '#f0f6fb' : COL[k], borderWidth: k === d.chosen ? 2 : 1,
+        pointRadius: k === d.chosen ? 8 : 6, pointHoverRadius: 9, pointStyle: k === 'persistance' ? 'rectRot' : 'circle'
+      });
+    });
+    mk('chPR', {
+      type: 'scatter', data: { datasets: sets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          x: { min: d.pr.x[0], max: d.pr.x[1], title: { display: true, text: 'rappel' }, grid: { color: GRID }, ticks: { callback: function (v) { return fr(v, 2); } } },
+          y: { min: d.pr.y[0], max: d.pr.y[1], title: { display: true, text: 'précision' }, grid: { color: GRID }, ticks: { callback: function (v) { return fr(v, 2); } } }
+        },
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 7, boxHeight: 7, padding: 10, font: { size: K(11) }, filter: function (it, data) { return !data.datasets[it.datasetIndex].iso; } } },
+          tooltip: Object.assign({}, TIP, { filter: function (it) { return !it.dataset.iso; }, callbacks: { label: function (c) { return ' ' + c.dataset.label + ' · précision ' + fr(c.parsed.y) + ' · rappel ' + fr(c.parsed.x); } } })
+        }
+      },
+      plugins: [isoLabels]
+    });
+
+    /* FP / FN */
+    mk('chErr', {
+      type: 'bar',
+      data: {
+        labels: ORDER.map(function (k) { return SHORT[k]; }),
+        datasets: [
+          { label: 'Fausses alertes (FP)', data: ORDER.map(function (k) { return d.m[k][5]; }), backgroundColor: '#ff6b6b', borderRadius: 2 },
+          { label: 'Pénuries manquées (FN)', data: ORDER.map(function (k) { return d.m[k][6]; }), backgroundColor: '#ffb454', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, font: { size: K(10) } } }, y: { beginAtZero: true, grid: { color: GRID }, ticks: { callback: function (v) { return int(v); } } } },
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 7, boxHeight: 7, padding: 10, font: { size: K(11) } } },
+          tooltip: Object.assign({}, TIP, { callbacks: { label: function (c) { return ' ' + c.dataset.label + ' : ' + int(c.parsed.y); } } })
+        }
+      }
+    });
+  }
+
+  function renderTable(d) {
+    var cols = [0, 1, 2, 3], best = {};
+    cols.forEach(function (i) { best[i] = Math.max.apply(null, ORDER.map(function (k) { return d.m[k][i]; })); });
+    best[5] = Math.min.apply(null, ORDER.map(function (k) { return d.m[k][5]; }));
+    best[6] = Math.min.apply(null, ORDER.map(function (k) { return d.m[k][6]; }));
+    var head = '<thead><tr><th>Modèle</th><th>AP</th><th>Précision</th><th>Rappel</th><th>F1</th><th>TP</th><th>FP</th><th>FN</th></tr></thead>';
+    var row = function (k, cls) {
+      var v = d.m[k], eq = function (i) { return (k !== 'majoritaire' && v[i] === best[i]) ? ' class="best"' : ''; };
+      return '<tr class="' + cls + '"><td><span class="dot" style="background:' + COL[k] + '"></span>' + NAME[k] + (k === d.chosen ? '<span class="tag">retenu</span>' : '') + '</td>' +
+        '<td' + eq(0) + '>' + fr(v[0]) + '</td><td' + eq(1) + '>' + fr(v[1]) + '</td><td' + eq(2) + '>' + fr(v[2]) + '</td><td' + eq(3) + '>' + fr(v[3]) + '</td>' +
+        '<td>' + int(v[4]) + '</td><td' + eq(5) + '>' + int(v[5]) + '</td><td' + eq(6) + '>' + int(v[6]) + '</td></tr>';
+    };
+    var body = '<tbody>' + ORDER.map(function (k) { return row(k, k === d.chosen ? 'chosen' : ''); }).join('') + row('majoritaire', 'ref') + '</tbody>';
+    $('tbl').innerHTML = head + body;
+  }
+
+  function forestRows(rows, lo, hi) {
+    var span = hi - lo, pos = function (v) { return ((v - lo) / span * 100).toFixed(2) + '%'; };
+    return rows.map(function (r) {
+      var left = pos(r.v[1]), w = ((r.v[2] - r.v[1]) / span * 100).toFixed(2) + '%';
+      return '<div class="fp-row"><div class="fp-label">' + r.l + '</div><div class="fp-track">' +
+        (r.zero ? '<div class="fp-zero" style="left:' + pos(0) + '"></div>' : '') +
+        '<div class="fp-bar" style="left:' + left + ';width:' + w + ';background:' + r.c + '"></div>' +
+        '<div class="fp-dot" style="left:' + pos(r.v[0]) + ';background:' + r.c + ';box-shadow:0 0 6px ' + r.c + '"></div></div>' +
+        '<div class="fp-val" style="color:' + r.c + '">' + fr(r.v[0]) + '</div></div>';
+    }).join('');
+  }
+  function scale(lo, hi, steps) {
+    var s = '';
+    for (var i = 0; i <= steps; i++) s += '<span>' + fr(lo + (hi - lo) * i / steps, 2) + '</span>';
+    return '<div class="fp-scale"><div></div><div>' + s + '</div><div></div></div>';
+  }
+  function renderForest(d) {
+    var c = d.ci, nm = NAME[d.chosen], col = COL[d.chosen], g = COL.persistance;
+    $('forest').innerHTML =
+      '<div class="fp-title">Niveaux</div>' +
+      forestRows([
+        { l: 'AP ' + nm, v: c.apM, c: col }, { l: 'AP persist.', v: c.apP, c: g },
+        { l: 'F1 ' + nm, v: c.f1M, c: col }, { l: 'F1 persist.', v: c.f1P, c: g }
+      ], 0.5, 0.9) + scale(0.5, 0.9, 4) +
+      '<div class="fp-title" style="margin-top:14px">Écart modèle − persistance</div>' +
+      forestRows([{ l: 'Δ AP', v: c.dAP, c: '#3ddc84', zero: true }, { l: 'Δ F1', v: c.dF1, c: '#3ddc84', zero: true }], 0, 0.16) + scale(0, 0.16, 4);
+  }
+
+  function renderSit(d) {
+    $('sit').innerHTML = d.sit.map(function (s) {
+      var hint = s.good === 'haut' ? '↑ plus haut = mieux' : '↓ plus bas = mieux';
+      return '<div class="sit"><div class="sit-head"><span class="nm">' + s.nm + ' <span style="color:var(--muted)">· ' + pct(s.share) + ' des lignes</span></span></div>' +
+        '<div class="sit-head" style="margin:0"><span class="hint">' + hint + '</span></div>' +
+        '<div class="sit-bar"><span>modèle</span><div class="track"><div class="fill" style="width:' + (s.mod * 100) + '%;background:var(--neon)"></div></div><span class="v">' + pct(s.mod, 1) + '</span></div>' +
+        '<div class="sit-bar"><span>pers.</span><div class="track"><div class="fill" style="width:' + (s.per * 100) + '%;background:var(--gray)"></div></div><span class="v">' + pct(s.per, 0) + '</span></div></div>';
+    }).join('');
+  }
+
+  function renderAbl(d) {
+    $('abl').innerHTML = d.abl.map(function (a, i) {
+      var col = i === 0 ? 'var(--neon)' : (a[2] < -0.1 ? 'var(--coral)' : 'var(--gray)');
+      var ec = i === 0 ? '' : '<span class="ec neg">' + fr(a[2]) + '</span>';
+      return '<div class="abl-row"><div class="top"><span class="nm">' + a[0] + '</span><span><b style="color:var(--title)">' + fr(a[1]) + '</b> ' + ec + '</span></div>' +
+        '<div class="track"><div class="fill" style="width:' + (a[1] / 0.9 * 100).toFixed(1) + '%;background:' + col + '"></div></div></div>';
+    }).join('');
+  }
+
+  function renderDay(d) {
+    var s = d.day[state.metric], nm = NAME[d.chosen], isAP = state.metric === 'AP';
+    mk('chDay', {
+      type: 'line',
+      data: {
+        labels: DAYS,
+        datasets: [
+          { label: nm, data: s.m, borderColor: COL[d.chosen], backgroundColor: COL[d.chosen], borderWidth: 2, pointRadius: 4, tension: .25 },
+          { label: 'Persistance', data: s.p, borderColor: COL.persistance, backgroundColor: COL.persistance, borderWidth: 2, pointRadius: 3, borderDash: [5, 4], tension: .25 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          x: { grid: { color: GRID }, ticks: { maxRotation: 0, font: { size: K(11) } } },
+          y: { min: isAP ? 0.5 : 0.55, max: isAP ? 0.9 : 0.8, grid: { color: GRID }, ticks: { callback: function (v) { return fr(v, 2); } } }
+        },
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 7, boxHeight: 7, padding: 10, font: { size: K(11) } } },
+          tooltip: Object.assign({}, TIP, { callbacks: { label: function (c) { return ' ' + c.dataset.label + ' : ' + fr(c.parsed.y); } } })
+        }
+      }
+    });
+  }
+
+  function renderNotes(d) { $('notes').innerHTML = d.notes.map(function (t) { return '<li' + (t.indexOf('Même rappel') > -1 ? ' class="dt"' : '') + '>' + t + '</li>'; }).join(''); }
+
+  function renderAll() {
+    var d = DATA[state.h];
+    document.body.classList.toggle('compact', state.compact);
+    setPressed(['vC', 'vN'], state.compact ? 'vC' : 'vN');
+    document.documentElement.style.fontSize = state.compact ? '14px' : '';
+    Chart.defaults.font.size = K(12);
+    renderKPI(d); renderCharts(d); renderTable(d); renderForest(d); renderSit(d); renderAbl(d); if (!state.compact) renderDay(d); renderNotes(d);
+  }
+
+  function setPressed(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  $('h30').addEventListener('click', function () { state.h = 30; setPressed(['h30', 'h60'], 'h30'); renderAll(); });
+  $('h60').addEventListener('click', function () { state.h = 60; setPressed(['h30', 'h60'], 'h60'); renderAll(); });
+  $('mAP').addEventListener('click', function () { state.metric = 'AP'; setPressed(['mAP', 'mF1'], 'mAP'); renderDay(DATA[state.h]); });
+  $('mF1').addEventListener('click', function () { state.metric = 'F1'; setPressed(['mAP', 'mF1'], 'mF1'); renderDay(DATA[state.h]); });
+  $('vC').addEventListener('click', function () { state.compact = true; renderAll(); });
+  $('vN').addEventListener('click', function () { state.compact = false; renderAll(); });
+
+  renderAll();
+})();
+</script>
+
+</body></html>

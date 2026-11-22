@@ -634,6 +634,22 @@ def station_comparison(sm, sr):
     out["gain_f1"] = out["f1"] - out["f1_réf"]
     return out.sort_values("gain_f1")
 
+def group_comparison(SCORED, R, groupes=("zone", "tranche", "jour_type"), metric="f1"):
+    """Un seul tableau : `metric` du modèle retenu et de la persistance, par groupe et par horizon.
+    Lignes : (groupe, valeur) ; colonnes : horizon, puis n / modèle / persistance / écart."""
+    out = {}
+    for h, sc in SCORED.items():
+        mod, ref = sc[R[h]["chosen"]], sc["persistance"]
+        rows = {}
+        for by in groupes:
+            m, p = metrics_by(mod, by), metrics_by(ref, by)
+            for g in m.index:
+                rows[(by, g)] = {"n": int(m.loc[g, "n"]), f"{metric} modèle": float(m.loc[g, metric]),
+                                 f"{metric} persistance": float(p.loc[g, metric])}
+        d = pd.DataFrame(rows).T
+        d["écart"] = d[f"{metric} modèle"] - d[f"{metric} persistance"]
+        out[h] = d
+    return pd.concat(out, axis=1).round(3)
 
 def situation_table(scored_by_model):
     """Part prédite « vide » dans chaque situation (état maintenant -> état à t+h)."""
@@ -762,21 +778,24 @@ def pca_val(res, var=0.95):
 # Figures
 # ---------------------------------------------------------------------------
 def plot_validation_summary(res, h, colors=None):
-    """Quatre diagrammes en barres (AP, Brier, coût 5:1, précision au rappel de la persistance) pour tous les
-    modèles de `res` sur la validation. La persistance n'a pas de probabilité calibrée : son Brier est omis."""
+    """Quatre diagrammes en barres (AP, précision au rappel de la persistance, Brier, coût 5:1)
+    pour tous les modèles de `res` sur la validation. La persistance n'a pas de probabilité
+    calibrée : son Brier est omis."""
     import matplotlib.pyplot as plt
     colors = colors or dict(zip(res["models"], plt.cm.tab10.colors))
     val = res["val"]
     yv = val["y"].to_numpy()
-    _, sc, _ = evaluate_models(res, val,scores=res["p_val"])
+    _, sc, _ = evaluate_models(res, val, scores=res["p_val"])
     pers = (val["N"].to_numpy() < 2).astype(int)
     r_p, p_p = recall_score(yv, pers), precision_score(yv, pers)
 
     t = res["val_table"].drop(index="majoritaire").copy()
     t["P@R_pers"] = [p_p if n == "persistance" else precision_at_recall(yv, sc[n], r_p) for n in t.index]
     t.loc["persistance", "Brier"] = np.nan
-    metrics = [("AP", "AP (haut = bon)"), ("Brier", "Brier (bas = bon)"),
-               ("cost", "Coût 5:1 (bas = bon)"), ("P@R_pers", "Précision au rappel de la persistance")]
+    metrics = [("AP", "AP (haut = bon)"),
+               ("P@R_pers", "Précision (haut = bon)"),
+               ("Brier", "Brier (bas = bon)"),
+               ("cost", "Coût 5:1 (bas = bon)")]
 
     fig, axes = plt.subplots(1, 4, figsize=(16, 4))
     for ax, (m, titre) in zip(axes, metrics):
@@ -791,9 +810,36 @@ def plot_validation_summary(res, h, colors=None):
     fig.suptitle(f"Horizon {h} min")
     fig.tight_layout()
     plt.show()
+    
+def plot_test_summary(res, h, table, scores, colors=None):
+    """Comme plot_validation_summary, mais sur la semaine de test : quatre diagrammes en barres (AP, Brier,
+    coût 5:1, précision au rappel de la persistance). `table` et `scores` viennent de evaluate_models(res, test)."""
+    import matplotlib.pyplot as plt
+    colors = colors or dict(zip(res["models"], plt.cm.tab10.colors))
+    te = res["test"]
+    yt = te["y"].to_numpy()
+    pers = (te["N"].to_numpy() < 2).astype(int)
+    r_p, p_p = recall_score(yt, pers), precision_score(yt, pers)
 
+    t = table.drop(index="majoritaire").copy()
+    t["P@R_pers"] = [p_p if n == "persistance" else precision_at_recall(yt, scores[n], r_p) for n in t.index]
+    t.loc["persistance", "Brier"] = np.nan
+    metrics = [("AP", "AP (haut = bon)"), ("Brier", "Brier (bas = bon)"),
+               ("cost", "Coût 5:1 (bas = bon)"), ("P@R_pers", "Précision au rappel de la persistance")]
 
-
+    fig, axes = plt.subplots(1, 4, figsize=(16, 4))
+    for ax, (m, titre) in zip(axes, metrics):
+        vals = t[m].dropna()
+        bars = ax.bar(range(len(vals)), vals.values,
+                      color=["gray" if i == "persistance" else colors[i] for i in vals.index])
+        ax.set_xticks(range(len(vals)))
+        ax.set_xticklabels(vals.index, rotation=60, ha="right")
+        ax.set_title(titre, fontsize=10)
+        for b, v in zip(bars, vals.values):
+            ax.text(b.get_x() + b.get_width() / 2, v, f"{v:.3f}", ha="center", va="bottom", fontsize=8)
+    fig.suptitle(f"Horizon {h} min, semaine de test")
+    fig.tight_layout()
+    plt.show()
 
 
 # Resultat simule 
@@ -1024,3 +1070,6 @@ def plot_ap_ci(R, TE, B=200):
         ax.legend(fontsize=8, loc="lower right")
     fig.tight_layout()
     return fig, tables
+  
+  
+

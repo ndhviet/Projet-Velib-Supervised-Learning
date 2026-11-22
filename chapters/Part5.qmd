@@ -1,6 +1,6 @@
 ---
 title: "Partie 5 Conclusion"
-author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan"
 date: "2026-10-27"
 
 jupyter: projet-velib
@@ -23,7 +23,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from velib_utils import (load_raw_dt, pipeline_horizon, predict_now, top_alertes,
                          summary_predictions, plot_predictions_zone,
-                         plot_predictions_commune, map_predictions_folium)
+                         plot_predictions_commune, map_predictions_folium,plot_ap_ci,
+                         precision_at_recall)
 
 raw = load_raw_dt()
 HORIZONS = (30, 60)
@@ -58,6 +59,7 @@ top_alertes(preds, n=15)
 map_predictions_folium(preds)
 ```
 
+::: {.callout-note collapse="true"}
 ## Par commune
 
 ```{python}
@@ -65,21 +67,66 @@ map_predictions_folium(preds)
 plot_predictions_commune(preds)
 plt.show()
 ```
+::: 
 
+::: {.callout-note collapse="true"}
 ## Par zone
-
 ```{python}
 #| code-fold: true
 display(summary_predictions(preds))
 plot_predictions_zone(preds)
 plt.show()
 ```
-
+::: 
 
 # Conclusions
 
-(Résultats chiffrés de la semaine de test : voir ci-dessous.)
+**Réponse à la question.** Sur la semaine de test (1er–8 octobre), le modèle retenu sur la validation classe les situations à risque mieux que la persistance :
+
+| Horizon | Modèle retenu | AP modèle / persistance | F1 modèle / persistance | Écart, IC à 95 % (bootstrap par stations) |
+|---|---|---|---|---|
+| 30 min | forêt aléatoire | 0,816 / 0,702 | 0,741 / 0,729 | AP +0,113 [0,102 ; 0,125] · F1 +0,013 [0,007 ; 0,018] |
+| 60 min | boosting | 0,755 / 0,619 | 0,687 / 0,660 | AP +0,134 [0,123 ; 0,149] · F1 +0,028 [0,018 ; 0,037] |
+
+Les intervalles de l'écart ne contiennent pas zéro : le gain est positif sur les deux métriques et aux deux horizons. Le modèle améliore surtout le **classement** des stations par risque (AP). Au point de fonctionnement de la persistance, le gain est plus modeste : à rappel égal, la précision passe de 0,729 à 0,749 à 30 min et de 0,660 à 0,700 à 60 min. Le score de la persistance est gradué (moins il y a de vélos, plus le risque est élevé), ce qui est favorable à cette référence.
+
+**D'où vient le gain.** La persistance a raison tant que l'état ne change pas, ce qui concerne 93 % des lignes de test à 30 min (92 % à 60 min). L'apport du modèle se situe dans les transitions : il repère 18 % des stations qui deviennent vides à 30 min (31 % à 60 min), ce que la persistance ne peut jamais faire. En contrepartie, il prédit « vide » pour 94 % des stations vides qui redeviennent disponibles à 30 min (80 % à 60 min), contre 100 % pour la persistance, et déclenche à tort une alerte sur 0,8 % des stations qui restent disponibles (1,9 % à 60 min).
+
+**Où le modèle aide moins.**
+
+- **Heure.** La nuit est facile (AP 0,92) et n'apporte aucun gain en F1 (0,860 des deux côtés). La pointe du soir (17–20 h) est la tranche la plus difficile (AP 0,69).
+- **Jour.** Le week-end est plus difficile qu'en semaine (AP 0,78 contre 0,83). Le F1 journalier vaut 0,741 ± 0,032 ; il est le plus bas le dimanche 4 octobre (0,684), qui est aussi le pire jour pour la persistance (0,675).
+- **Zone et station.** Paris et la banlieue obtiennent des scores proches. Station par station, le F1 du modèle est au moins égal à celui de la persistance pour 65 % des 69 stations ayant au moins un positif à 30 min (61 % à 60 min). Les plus fortes pertes concernent des stations qui ont très peu de positifs (4 à 30 dans la semaine).
+
+**Apport des variables** (validation, forêt réajustée sans chaque groupe).
+
+- L'état actuel est essentiel : −0,27 d'AP à 30 min et −0,22 à 60 min sans lui.
+- Le calendrier (surtout l'heure) vient ensuite : −0,02 à 30 min, −0,045 à 60 min.
+- Les attributs de station (−0,006 et −0,016) et les tendances (−0,009 et −0,001) apportent peu une fois l'état connu.
+- Une forêt réduite à l'état seul (3 variables) atteint déjà 0,757 d'AP à 30 min.
+
+Ce sont des associations mesurées sur cette période, pas des effets.
+
+**Choix du modèle.** Forêt et boosting sont pratiquement à égalité (à 30 min : AP 0,816 contre 0,802, F1 0,741 contre 0,744 ; à 60 min : AP 0,748 contre 0,755). Le choix fait sur la validation est défendable mais pas décisif, et il n'a pas été modifié après avoir vu le test. L'arbre et le k-NN pondéré suivent de près (AP ≈ 0,80 à 30 min). Le Bayes naïf et le k-NN simple ne dépassent pas la persistance en AP à 30 min ; à 60 min, seul le k-NN simple la dépasse (0,662 contre 0,619).
+
+**Robustesse.** Compter les fermetures à t + h comme pénuries ajoute 4 lignes à 30 min et 8 à 60 min, et ne modifie aucune métrique de plus de 0,001. Retirer la station 45504, dont les valeurs semblent figées dans le flux, ne change rien : elle ne contient aucun positif.
 
 # Limites
 
-(...)
+- **Durée.** Une seule semaine de test, un peu plus d'un mois de données et 80 stations : la saisonnalité et les vacances ne sont pas couvertes, et les résultats peuvent changer sur une autre période.
+- **Pénuries manquées.** Le modèle laisse passer la majorité des stations qui se vident (environ 82 % à 30 min et 69 % à 60 min).
+- **Stations rares.** Certaines stations ont très peu de pénuries (4 à 30 cas dans la semaine) : leurs scores sont bruités, et c'est là que le modèle perd le plus face à la persistance.
+- **Écart de F1 modeste.** Le gain en F1 est faible (+0,013 à 30 min, +0,028 à 60 min) : l'apport principal est le classement des stations (AP), pas la décision à un seuil donné.
+- **Choix entre modèles.** Forêt et boosting sont pratiquement à égalité : le modèle retenu sur la validation n'est pas significativement meilleur que l'autre.
+- **Réentraînement.** Les modèles sont ajustés sur le train seul (jusqu'au 23 septembre) et non réajustés sur toutes les données.
+- **Associations.** L'analyse des variables (ablation) mesure des associations sur cette période, pas des effets causaux.
+
+# Références {.unnumbered}
+
+1. E. Boizard, G. Chardon, F. Pascal, *Une méthode de Gradient Boosting d'Arbre de Décision explicative basée sur l'algorithme de Frank-Wolfe*. Disponible sur : <https://hal.science/hal-04366782v1/document>
+
+2. E. Scornet, G. Hooker, *Theory of Random Forests: A Review*. Disponible sur : <https://hal.science/hal-05006431v1/document>
+
+3. E. Mathieu-Dupas, *Algorithme des k plus proches voisins pondérés et application en diagnostic*. Disponible sur : <https://inria.hal.science/inria-00494814v1/document>
+
+4. J. Sublime, *Data Analysis - Lecture 7: Introduction Supervised Learning*. Disponible sur : <https://hal.science/hal-03845317v1/file/DM_CM7.pdf>

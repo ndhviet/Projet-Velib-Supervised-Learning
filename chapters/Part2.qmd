@@ -1,6 +1,6 @@
 ---
 title: "Partie 2 Qualité et préparation des données"
-author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan"
 date: "2026-10-27"
 
 jupyter: projet-velib
@@ -24,6 +24,7 @@ from velib_utils import (load_raw_dt, coverage, qualite, prepare_sets, populatio
 Les données sont téléchargées depuis `docs.ambroise.cloud` ; leur empreinte MD5 est vérifiée à chaque chargement (le calcul s'arrête si elle ne correspond pas).
 
 ```{python}
+#| echo: false
 raw = load_raw_dt(verbose=True)
 raw.head(3)
 ```
@@ -33,6 +34,7 @@ raw.head(3)
 ## Aperçu des données
 
 ```{python}
+#| code-fold: true
 print("Nombre de lignes :", raw.shape[0])
 print("Nombre de colonnes :", raw.shape[1])
 ```
@@ -52,12 +54,14 @@ Avant toute analyse, on vérifie la qualité du jeu de données : présence de d
 ### Lignes dupliquées
 
 ```{python}
+#| code-fold: true
 print("Nombre de lignes dupliquées :", raw.duplicated().sum())
 ```
 
 ### Valeurs manquantes
 
 ```{python}
+#| code-fold: true
 na = raw.isna().sum()
 na[na > 0].to_frame("manquantes").assign(part=lambda d: (d["manquantes"] / len(raw)).round(4))
 ```
@@ -94,6 +98,7 @@ Q["coherence"]
 #### Stations quasi figées et incohérences de capacité
 
 ```{python}
+#| code-fold: true
 S_ = Q["static_stations"]
 top = S_.nlargest(5, "unchanged_share").index.union(S_.nlargest(5, "over_capacity_rows").index)
 S_.loc[top].sort_values("unchanged_share", ascending=False).round(3)
@@ -126,6 +131,7 @@ Q["gaps"]
 #### Relevés incomplets
 
 ```{python}
+#| code-fold: true
 print(f"{Q['n_incomplets']} relevés incomplets ; ensembles de stations disjoints et couvrant les 80 stations : {Q['complementaires']}")
 Q["ensembles_incomplets"]
 ```
@@ -201,6 +207,7 @@ pd.Series({g: ", ".join(f) for g, f in FEATURE_GROUPS.items()}, name="variables"
 ```
 
 ```{python}
+#| code-fold: true
 FEATS = S[30]["FEATS"]
 
 display(tr[FEATS].isna().mean().rename("part de valeurs manquantes (train)").to_frame().T.round(3))

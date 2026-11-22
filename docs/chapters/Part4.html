@@ -252,16 +252,17 @@ window.Quarto = {
     <h2 id="toc-title">Sur cette page</h2>
    
   <ul>
-  <li><a href="#évaluation-finale-sur-la-semaine-de-test" id="toc-évaluation-finale-sur-la-semaine-de-test" class="nav-link active" data-scroll-target="#évaluation-finale-sur-la-semaine-de-test"><span class="header-section-number">1</span> Évaluation finale sur la semaine de test</a></li>
+  <li><a href="#évaluation-finale-sur-la-semaine-de-test" id="toc-évaluation-finale-sur-la-semaine-de-test" class="nav-link active" data-scroll-target="#évaluation-finale-sur-la-semaine-de-test"><span class="header-section-number">1</span> Évaluation finale sur la semaine de test</a>
+  <ul class="collapse">
+  <li><a href="#courbes-précision-rappel-test" id="toc-courbes-précision-rappel-test" class="nav-link" data-scroll-target="#courbes-précision-rappel-test"><span class="header-section-number">1.1</span> Courbes précision-rappel (test)</a></li>
+  <li><a href="#intervalles-de-confiance-de-lap" id="toc-intervalles-de-confiance-de-lap" class="nav-link" data-scroll-target="#intervalles-de-confiance-de-lap"><span class="header-section-number">1.2</span> Intervalles de confiance de l’AP</a></li>
+  </ul></li>
   <li><a href="#résultats-par-groupe-dispersion-et-incertitude" id="toc-résultats-par-groupe-dispersion-et-incertitude" class="nav-link" data-scroll-target="#résultats-par-groupe-dispersion-et-incertitude"><span class="header-section-number">2</span> Résultats par groupe, dispersion et incertitude</a>
   <ul class="collapse">
   <li><a href="#jour-par-jour-et-bootstrap-par-station" id="toc-jour-par-jour-et-bootstrap-par-station" class="nav-link" data-scroll-target="#jour-par-jour-et-bootstrap-par-station"><span class="header-section-number">2.1</span> Jour par jour et bootstrap par station</a></li>
   <li><a href="#station-par-station" id="toc-station-par-station" class="nav-link" data-scroll-target="#station-par-station"><span class="header-section-number">2.2</span> Station par station</a></li>
   </ul></li>
-  <li><a href="#erreurs-caractéristiques" id="toc-erreurs-caractéristiques" class="nav-link" data-scroll-target="#erreurs-caractéristiques"><span class="header-section-number">3</span> Erreurs caractéristiques</a>
-  <ul class="collapse">
-  <li><a href="#rappel-et-précision-selon-lheure" id="toc-rappel-et-précision-selon-lheure" class="nav-link" data-scroll-target="#rappel-et-précision-selon-lheure"><span class="header-section-number">3.1</span> Rappel et précision selon l’heure</a></li>
-  </ul></li>
+  <li><a href="#erreurs-caractéristiques" id="toc-erreurs-caractéristiques" class="nav-link" data-scroll-target="#erreurs-caractéristiques"><span class="header-section-number">3</span> Erreurs caractéristiques</a></li>
   <li><a href="#sensibilité-des-résultats-de-test" id="toc-sensibilité-des-résultats-de-test" class="nav-link" data-scroll-target="#sensibilité-des-résultats-de-test"><span class="header-section-number">4</span> Sensibilité des résultats de test</a></li>
   <li><a href="#apport-des-groupes-de-variables-ablation-validation" id="toc-apport-des-groupes-de-variables-ablation-validation" class="nav-link" data-scroll-target="#apport-des-groupes-de-variables-ablation-validation"><span class="header-section-number">5</span> Apport des groupes de variables (ablation, validation)</a></li>
   </ul>
@@ -415,8 +416,28 @@ window.Quarto = {
 
 <section id="évaluation-finale-sur-la-semaine-de-test" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Évaluation finale sur la semaine de test</h1>
-<p>Les modèles et les seuils sont <strong>fixés</strong> : ils viennent de la validation. La semaine de test est notée une seule fois, pour chaque horizon.</p>
-<div id="9a276c65" class="cell" data-execution_count="2">
+<p>Les modèles sont ajustés sur le train ; leurs hyperparamètres, leurs seuils et le choix du modèle retenu sont fixés sur la validation. La semaine de test n’est utilisée qu’une seule fois, pour chaque horizon.</p>
+<div id="ec94d6ff" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Part4_files/figure-html/cell-3-output-1.png" width="1528" height="385" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Part4_files/figure-html/cell-3-output-2.png" width="1528" height="385" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Voir les tableaux détaillés du test
+</summary>
+<div id="92328244" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prédictions sur le test : calculées une seule fois, puis relues depuis le cache</span></span>
@@ -695,7 +716,163 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 </code></pre>
 </div>
 </div>
-<div id="da3533fe" class="cell" data-execution_count="3">
+</details>
+<div class="callout callout-style-default callout-note callout-titled" title="Lexique des indicateurs">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Lexique des indicateurs
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Une ligne est <strong>positive</strong> (<span class="math inline">\(Y=1\)</span>) quand la station a moins de deux vélos à <span class="math inline">\(t+h\)</span>. Le modèle prédit « pénurie » quand sa probabilité <span class="math inline">\(\hat p\)</span> dépasse le seuil <span class="math inline">\(\tau\)</span>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Indicateur</th>
+<th>Définition</th>
+<th>Lecture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>TP</strong> (vrais positifs)</td>
+<td>pénuries annoncées et réelles</td>
+<td>à maximiser</td>
+</tr>
+<tr class="even">
+<td><strong>FP</strong> (faux positifs)</td>
+<td>pénuries annoncées, mais qui n’ont pas lieu (fausses alarmes)</td>
+<td>à minimiser</td>
+</tr>
+<tr class="odd">
+<td><strong>FN</strong> (faux négatifs)</td>
+<td>pénuries réelles non annoncées</td>
+<td>à minimiser</td>
+</tr>
+<tr class="even">
+<td><strong>TN</strong> (vrais négatifs)</td>
+<td>pas de pénurie annoncée, et il n’y en a pas</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>Précision</strong></td>
+<td><span class="math inline">\(\dfrac{TP}{TP+FP}\)</span></td>
+<td>parmi les alertes, part de vraies pénuries</td>
+</tr>
+<tr class="even">
+<td><strong>Rappel</strong></td>
+<td><span class="math inline">\(\dfrac{TP}{TP+FN}\)</span></td>
+<td>parmi les pénuries réelles, part détectée</td>
+</tr>
+<tr class="odd">
+<td><strong>F1</strong></td>
+<td><span class="math inline">\(\dfrac{2\,TP}{2\,TP+FP+FN}\)</span></td>
+<td>moyenne harmonique précision et rappel</td>
+</tr>
+<tr class="even">
+<td><strong>F2</strong></td>
+<td><span class="math inline">\(\dfrac{5\,P\,R}{4\,P+R}\)</span></td>
+<td>comme F1, mais le rappel compte deux fois plus</td>
+</tr>
+<tr class="odd">
+<td><strong>AP</strong></td>
+<td>aire sous la courbe précision-rappel</td>
+<td>qualité du classement, indépendante de <span class="math inline">\(\tau\)</span></td>
+</tr>
+<tr class="even">
+<td><strong>AP/<span class="math inline">\(\pi\)</span></strong></td>
+<td>AP divisée par la fréquence des pénuries <span class="math inline">\(\pi\)</span></td>
+<td>1 pour un classement au hasard</td>
+</tr>
+<tr class="odd">
+<td><strong>Brier</strong></td>
+<td><span class="math inline">\(\frac1n\sum(\hat p_i-y_i)^2\)</span></td>
+<td>erreur des probabilités (bas = bon)</td>
+</tr>
+<tr class="even">
+<td><strong>logloss</strong></td>
+<td><span class="math inline">\(-\frac1n\sum\big[y_i\ln\hat p_i+(1-y_i)\ln(1-\hat p_i)\big]\)</span></td>
+<td>pénalise les probabilités sûres et fausses (bas = bon)</td>
+</tr>
+<tr class="odd">
+<td><strong>cost</strong></td>
+<td><span class="math inline">\(\dfrac{1\times FP+5\times FN}{n}\)</span></td>
+<td>coût moyen par ligne ; manquer une pénurie coûte 5 fois une fausse alarme</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="31e49e7c" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">AP modèle / persistance</th>
+<th data-quarto-table-cell-role="th">F1 modèle / persistance</th>
+<th data-quarto-table-cell-role="th">précision à rappel égal</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">horizon</th>
+<th data-quarto-table-cell-role="th">modèle</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th rowspan="2" data-quarto-table-cell-role="th" data-valign="top">30 min</th>
+<th data-quarto-table-cell-role="th">foret</th>
+<td>0.816 / 0.702</td>
+<td>0.741 / 0.729</td>
+<td>0.749 / 0.729</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">boosting</th>
+<td>0.802 / 0.702</td>
+<td>0.744 / 0.729</td>
+<td>0.745 / 0.729</td>
+</tr>
+<tr class="odd">
+<th rowspan="2" data-quarto-table-cell-role="th" data-valign="top">60 min</th>
+<th data-quarto-table-cell-role="th">foret</th>
+<td>0.748 / 0.619</td>
+<td>0.684 / 0.660</td>
+<td>0.693 / 0.660</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">boosting</th>
+<td>0.755 / 0.619</td>
+<td>0.687 / 0.660</td>
+<td>0.700 / 0.660</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Comme sur la validation, le test donne la meilleure AP à la forêt aléatoire à 30 min (0.816 contre 0.802) et au gradient boosting à 60 min (0.755 contre 0.748). L’écart entre les deux reste faible (≈ 0,01 en AP, F1 quasi identique).</p>
+<section id="courbes-précision-rappel-test" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="courbes-précision-rappel-test"><span class="header-section-number">1.1</span> Courbes précision-rappel (test)</h2>
+<div id="60f3def2" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"figures"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
@@ -708,35 +885,350 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: (sc[<span class="st">"persistance"</span>], (te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>).astype(<span class="bu">int</span>))}</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Image(pr_curves(panels, <span class="st">"figures/pr_curves_test.png"</span>), width<span class="op">=</span><span class="dv">900</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 <figure class="figure">
-<p><img src="Part4_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img" width="900"></p>
+<p><img src="Part4_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img" width="900"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>La courbe de la persistance classe les lignes selon le nombre de vélos actuel (moins de vélos = risque plus élevé). Ce score gradué est généreux pour la référence : avec la seule règle binaire, son AP serait bien plus faible.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lecture des résultats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Légende.</strong> La courbe bleue est celle du modèle retenu (forêt à 30 min, boosting à 60 min) ; la courbe orange est la persistance, classée par le score <span class="math inline">\(1/(1+N)\)</span>. Les points marquent les seuils de décision (seuil choisi sur la validation pour le modèle, règle <span class="math inline">\(N&lt;2\)</span> pour la persistance) et le pointillé gris la fréquence des pénuries (0,12).</li>
+<li><strong>Le modèle domine la persistance sur toute la courbe.</strong> À chaque niveau de rappel, sa précision est plus élevée ; l’aire sous la courbe (AP) passe de 0,702 à 0,816 à 30 min et de 0,619 à 0,755 à 60 min. L’écart est plus large à 60 min, car la persistance se dégrade plus vite quand l’horizon s’allonge.</li>
+<li><strong>La persistance n’offre qu’un compromis utilisable.</strong> Sa courbe en escalier vient du fait que son score ne prend que quelques valeurs (<span class="math inline">\(N=0,1,2,\dots\)</span>) : pour détecter davantage de pénuries, il faudrait élargir la règle (par exemple <span class="math inline">\(N&lt;3\)</span>), et la précision chute d’un coup. Le modèle, lui, permet de déplacer le seuil progressivement.</li>
+<li><strong>Aux seuils retenus, le modèle détecte plus de pénuries à précision comparable.</strong> À 30 min, le rappel est un peu plus élevé que celui de la persistance pour une précision voisine ; à 60 min, il est nettement plus élevé (environ 0,74 contre 0,66) pour une précision presque identique (0,646 contre 0,660).</li>
+<li><strong>Les deux courbes se rejoignent aux extrêmes</strong> (rappel proche de 0 ou de 1) : l’avantage du modèle se situe dans la zone intermédiaire, là où les décisions se prennent. Il reste modéré, ce qui est cohérent avec le gain limité en F1.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="intervalles-de-confiance-de-lap" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="intervalles-de-confiance-de-lap"><span class="header-section-number">1.2</span> Intervalles de confiance de l’AP</h2>
+<p>L’AP de chaque modèle est calculée sur la semaine de test, avec un intervalle à 95 % obtenu par bootstrap des stations (les mêmes stations sont tirées pour tous les modèles). Le modèle retenu sur la validation est en rouge ; la ligne pointillée est la persistance, avec son intervalle en gris. Quand les intervalles de deux modèles se chevauchent, le test ne permet pas de les départager.</p>
+<div id="91064887" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, tables <span class="op">=</span> plot_ap_ci(R, TE, B<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Part4_files/figure-html/cell-7-output-1.png" width="1147" height="374" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Valeurs de l’AP et intervalles
+</summary>
+<div id="a1e46a50" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-stdout">
+<pre><code>horizon 30 min</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">AP</th>
+<th data-quarto-table-cell-role="th">ic_bas</th>
+<th data-quarto-table-cell-role="th">ic_haut</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">bayes_naif</th>
+<td>0.629</td>
+<td>0.560</td>
+<td>0.681</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">knn</th>
+<td>0.699</td>
+<td>0.634</td>
+<td>0.753</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">arbre</th>
+<td>0.801</td>
+<td>0.758</td>
+<td>0.836</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">knn_pondere</th>
+<td>0.797</td>
+<td>0.755</td>
+<td>0.830</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">foret</th>
+<td>0.816</td>
+<td>0.775</td>
+<td>0.851</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">boosting</th>
+<td>0.802</td>
+<td>0.757</td>
+<td>0.838</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">persistance</th>
+<td>0.702</td>
+<td>0.657</td>
+<td>0.743</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>horizon 60 min</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">AP</th>
+<th data-quarto-table-cell-role="th">ic_bas</th>
+<th data-quarto-table-cell-role="th">ic_haut</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">bayes_naif</th>
+<td>0.561</td>
+<td>0.486</td>
+<td>0.618</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">knn</th>
+<td>0.662</td>
+<td>0.587</td>
+<td>0.719</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">arbre</th>
+<td>0.722</td>
+<td>0.665</td>
+<td>0.764</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">knn_pondere</th>
+<td>0.723</td>
+<td>0.667</td>
+<td>0.766</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">foret</th>
+<td>0.748</td>
+<td>0.695</td>
+<td>0.791</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">boosting</th>
+<td>0.755</td>
+<td>0.704</td>
+<td>0.797</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">persistance</th>
+<td>0.619</td>
+<td>0.566</td>
+<td>0.661</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</details>
+</section>
 </section>
 <section id="résultats-par-groupe-dispersion-et-incertitude" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Résultats par groupe, dispersion et incertitude</h1>
-<div id="0f219bb6" class="cell" data-execution_count="4">
+<div id="44149bbe" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th colspan="4" data-quarto-table-cell-role="th" data-halign="left">30</th>
+<th colspan="4" data-quarto-table-cell-role="th" data-halign="left">60</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">f1 modèle</th>
+<th data-quarto-table-cell-role="th">f1 persistance</th>
+<th data-quarto-table-cell-role="th">écart</th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">f1 modèle</th>
+<th data-quarto-table-cell-role="th">f1 persistance</th>
+<th data-quarto-table-cell-role="th">écart</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th rowspan="2" data-quarto-table-cell-role="th" data-valign="top">zone</th>
+<th data-quarto-table-cell-role="th">Paris</th>
+<td>37155.0</td>
+<td>0.746</td>
+<td>0.731</td>
+<td>0.014</td>
+<td>37002.0</td>
+<td>0.692</td>
+<td>0.658</td>
+<td>0.034</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">banlieue</th>
+<td>22419.0</td>
+<td>0.732</td>
+<td>0.723</td>
+<td>0.009</td>
+<td>22320.0</td>
+<td>0.678</td>
+<td>0.665</td>
+<td>0.013</td>
+</tr>
+<tr class="odd">
+<th rowspan="5" data-quarto-table-cell-role="th" data-valign="top">tranche</th>
+<th data-quarto-table-cell-role="th">nuit 0-7h</th>
+<td>17621.0</td>
+<td>0.860</td>
+<td>0.860</td>
+<td>-0.000</td>
+<td>17510.0</td>
+<td>0.792</td>
+<td>0.805</td>
+<td>-0.013</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pointe matin 7-10h</th>
+<td>7156.0</td>
+<td>0.716</td>
+<td>0.691</td>
+<td>0.026</td>
+<td>7206.0</td>
+<td>0.685</td>
+<td>0.592</td>
+<td>0.093</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">journée 10-17h</th>
+<td>17574.0</td>
+<td>0.753</td>
+<td>0.735</td>
+<td>0.018</td>
+<td>17544.0</td>
+<td>0.710</td>
+<td>0.681</td>
+<td>0.030</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pointe soir 17-20h</th>
+<td>7656.0</td>
+<td>0.625</td>
+<td>0.611</td>
+<td>0.014</td>
+<td>7656.0</td>
+<td>0.555</td>
+<td>0.528</td>
+<td>0.027</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">soirée 20-24h</th>
+<td>9567.0</td>
+<td>0.675</td>
+<td>0.667</td>
+<td>0.007</td>
+<td>9406.0</td>
+<td>0.593</td>
+<td>0.576</td>
+<td>0.017</td>
+</tr>
+<tr class="even">
+<th rowspan="2" data-quarto-table-cell-role="th" data-valign="top">jour_type</th>
+<th data-quarto-table-cell-role="th">semaine</th>
+<td>44313.0</td>
+<td>0.749</td>
+<td>0.735</td>
+<td>0.013</td>
+<td>44062.0</td>
+<td>0.698</td>
+<td>0.669</td>
+<td>0.029</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">week-end</th>
+<td>15261.0</td>
+<td>0.717</td>
+<td>0.707</td>
+<td>0.010</td>
+<td>15260.0</td>
+<td>0.651</td>
+<td>0.629</td>
+<td>0.022</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<details>
+<summary>
+Détaillé
+</summary>
+<div id="e810c462" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>SCORED <span class="op">=</span> {}</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    SCORED[h] <span class="op">=</span> {chosen: scored_frame(te, sc[chosen], sc[chosen] <span class="op">&gt;</span> taus[chosen]),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: scored_frame(te, sc[<span class="st">"persistance"</span>], te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>)}</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>GROUP_COLS <span class="op">=</span> [<span class="st">"n"</span>, <span class="st">"prévalence"</span>, <span class="st">"pr_auc"</span>, <span class="st">"précision"</span>, <span class="st">"rappel"</span>, <span class="st">"f1"</span>]</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> by <span class="kw">in</span> (<span class="st">"zone"</span>, <span class="st">"tranche"</span>, <span class="st">"jour_type"</span>):</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        display(pd.concat({nom: metrics_by(s, by)[GROUP_COLS] <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()},</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                          names<span class="op">=</span>[<span class="st">"modèle"</span>, by]).astype(<span class="bu">float</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>SCORED <span class="op">=</span> {}</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    _, sc, taus <span class="op">=</span> TE[h]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    te, chosen <span class="op">=</span> R[h][<span class="st">"test"</span>], R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    SCORED[h] <span class="op">=</span> {chosen: scored_frame(te, sc[chosen], sc[chosen] <span class="op">&gt;</span> taus[chosen]),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"persistance"</span>: scored_frame(te, sc[<span class="st">"persistance"</span>], te[<span class="st">"N"</span>].to_numpy() <span class="op">&lt;</span> <span class="dv">2</span>)}</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>GROUP_COLS <span class="op">=</span> [<span class="st">"n"</span>, <span class="st">"prévalence"</span>, <span class="st">"pr_auc"</span>, <span class="st">"précision"</span>, <span class="st">"rappel"</span>, <span class="st">"f1"</span>]</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> by <span class="kw">in</span> (<span class="st">"zone"</span>, <span class="st">"tranche"</span>, <span class="st">"jour_type"</span>):</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        display(pd.concat({nom: metrics_by(s, by)[GROUP_COLS] <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()},</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                          names<span class="op">=</span>[<span class="st">"modèle"</span>, by]).astype(<span class="bu">float</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>===== horizon 30 min =====</code></pre>
@@ -1295,21 +1787,122 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <pre><code></code></pre>
 </div>
 </div>
+</details>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lecture des résultats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>1. Par zone (Paris / banlieue).</strong> Le modèle se comporte de façon quasi identique dans les deux zones : l’écart d’AP entre Paris et la banlieue est de 0,005 à 30 min (0,818 contre 0,813) et de 0,010 à 60 min (0,758 contre 0,748). Il n’y a donc pas de biais géographique net. Le gain par rapport à la persistance est lui aussi comparable (environ +0,11 à +0,12 à 30 min, +0,13 à +0,15 à 60 min). La prévalence est un peu plus élevée à Paris (0,133 contre 0,103), ce qui peut favoriser légèrement l’AP, car cette mesure dépend de la proportion de la classe positive. Ces petits écarts sont à interpréter avec prudence : les lignes d’une même station sont corrélées et le tableau ne donne pas d’intervalle de confiance.</p>
+<p><strong>2. Par tranche horaire (30 min).</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Tranche</th>
+<th>AP modèle</th>
+<th>AP persistance</th>
+<th>Gain</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nuit 0-7 h</td>
+<td>0,918</td>
+<td>0,849</td>
+<td>+0,07</td>
+</tr>
+<tr class="even">
+<td>Pointe du matin 7-10 h</td>
+<td>0,778</td>
+<td>0,664</td>
+<td>+0,11</td>
+</tr>
+<tr class="odd">
+<td>Journée 10-17 h</td>
+<td>0,824</td>
+<td>0,733</td>
+<td>+0,09</td>
+</tr>
+<tr class="even">
+<td>Pointe du soir 17-20 h</td>
+<td>0,689</td>
+<td>0,576</td>
+<td>+0,11</td>
+</tr>
+<tr class="odd">
+<td>Soirée 20-24 h</td>
+<td>0,719</td>
+<td>0,615</td>
+<td>+0,10</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>La nuit</strong> est la tranche la plus facile (AP 0,918), car l’état des stations change peu. En revanche, le F1 du modèle et celui de la persistance sont identiques (0,860 et 0,860) : à seuil fixé, le modèle n’apporte rien la nuit. À 60 min, son F1 est même un peu inférieur (0,792 contre 0,805), alors que son AP reste supérieure (0,865 contre 0,792).</li>
+<li><strong>La pointe du matin</strong> est où le modèle gagne le plus en F1 (0,716 contre 0,691) et en rappel (0,728 contre 0,672) : l’état des stations évolue beaucoup, et les tendances récentes deviennent utiles.</li>
+<li><strong>La pointe du soir (17-20 h)</strong> est la tranche la plus difficile (AP 0,689 ; F1 0,625), pour le modèle comme pour la persistance (AP 0,576). La demande y varie vite et semble plus difficile à anticiper.</li>
+</ul>
+<p><strong>3. Par type de jour.</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>AP modèle 30 min</th>
+<th>AP persistance 30 min</th>
+<th>AP modèle 60 min</th>
+<th>AP persistance 60 min</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Semaine</td>
+<td>0,828</td>
+<td>0,709</td>
+<td>0,771</td>
+<td>0,630</td>
+</tr>
+<tr class="even">
+<td>Week-end</td>
+<td>0,775</td>
+<td>0,677</td>
+<td>0,697</td>
+<td>0,582</td>
+</tr>
+</tbody>
+</table>
+<p>Le week-end est plus difficile que la semaine pour les deux méthodes (l’AP du modèle baisse de 0,05 à 30 min et de 0,07 à 60 min). Le gain sur la persistance subsiste toutefois (+0,10 à 30 min, +0,12 à 60 min) : le modèle reste utile, mais la tâche est plus difficile. Cela peut s’expliquer par le fait que la semaine de test ne contient qu’un seul week-end et que les comportements y sont moins réguliers.</p>
+</div>
+</div>
+</div>
 <section id="jour-par-jour-et-bootstrap-par-station" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="jour-par-jour-et-bootstrap-par-station"><span class="header-section-number">2.1</span> Jour par jour et bootstrap par station</h2>
 <p>Jour par jour : une mesure de dispersion qui respecte le temps. Bootstrap : les 80 stations sont rééchantillonnées avec remise (les lignes d’une même station sont dépendantes, rééchantillonner les lignes sous-estimerait l’incertitude). La différence modèle − persistance est calculée sur les mêmes stations tirées.</p>
-<div id="2c2d710f" class="cell" data-execution_count="5">
+<div id="f6f9cfdd" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>B_BOOT <span class="op">=</span> <span class="dv">100</span>      <span class="co"># 100 pour travailler vite ; mettre 500 pour le rendu final</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    display(pd.concat({nom: daily_dispersion(s) <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()}, names<span class="op">=</span>[<span class="st">"modèle"</span>, <span class="st">"jour"</span>]).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    display(station_bootstrap(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>],</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>                              labels<span class="op">=</span>(chosen, <span class="st">"persistance"</span>), B<span class="op">=</span>B_BOOT).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>B_BOOT <span class="op">=</span> <span class="dv">100</span>      <span class="co"># 100 pour travailler vite ; mettre 500 pour le rendu final</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"===== horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min ====="</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    display(pd.concat({nom: daily_dispersion(s) <span class="cf">for</span> nom, s <span class="kw">in</span> SCORED[h].items()}, names<span class="op">=</span>[<span class="st">"modèle"</span>, <span class="st">"jour"</span>]).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    display(station_bootstrap(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>],</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                              labels<span class="op">=</span>(chosen, <span class="st">"persistance"</span>), B<span class="op">=</span>B_BOOT).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>===== horizon 30 min =====</code></pre>
@@ -1934,20 +2527,135 @@ horizon 60 min | 59322 lignes | taux de positifs : 0.122 | modèle retenu : boos
 <pre><code></code></pre>
 </div>
 </div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lecture des résultats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Deux mesures complémentaires : (1) la dispersion jour par jour sur les huit jours du test, qui respecte l’ordre du temps ; (2) l’intervalle de confiance par bootstrap sur les stations, pour le gain du modèle par rapport à la persistance.</p>
+<p><strong>1. Jour par jour : le modèle est stable.</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>30 min : modèle</th>
+<th>30 min : persistance</th>
+<th>60 min : modèle</th>
+<th>60 min : persistance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AP moyenne</td>
+<td>0,813</td>
+<td>0,700</td>
+<td>0,752</td>
+<td>0,618</td>
+</tr>
+<tr class="even">
+<td>AP écart-type</td>
+<td>0,041</td>
+<td>0,043</td>
+<td>0,051</td>
+<td>0,052</td>
+</tr>
+<tr class="odd">
+<td>F1 moyen</td>
+<td>0,741</td>
+<td>0,728</td>
+<td>0,686</td>
+<td>0,659</td>
+</tr>
+<tr class="even">
+<td>F1 écart-type</td>
+<td>0,032</td>
+<td>0,031</td>
+<td>0,037</td>
+<td>0,039</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>L’AP du modèle est supérieure à celle de la persistance <strong>chaque jour</strong>, aux deux horizons (par exemple, à 30 min, le pire jour du modèle atteint 0,727 contre 0,622 pour la persistance). Le résultat ne dépend donc pas de quelques jours favorables.</li>
+<li>Le F1 est beaucoup plus proche. Le modèle reste légèrement au-dessus de la persistance chaque jour, mais l’écart quotidien est faible (de l’ordre de 0,003 à 0,02 à 30 min), cohérent avec un gain moyen d’environ 0,013.</li>
+<li>Le jour le plus difficile est le <strong>dimanche 4 octobre</strong> : l’AP (0,727 à 30 min, 0,654 à 60 min) et le F1 (0,684 à 30 min) y sont les plus bas, pour le modèle comme pour la persistance (F1 de 0,675 à 30 min). La difficulté vient donc de la tâche (c’est le jour où la prévalence est la plus faible, 0,099), et non d’un défaut propre au modèle.</li>
+<li>Les écarts-types du modèle et de la persistance sont comparables : le modèle n’est pas plus instable que la référence.</li>
+</ul>
+<p>Remarque : l’écart-type d’un jour à l’autre (0,03 à 0,05) est nettement supérieur au gain moyen en F1 (0,01 à 0,03). Il faut donc parler d’un gain modeste en moyenne, et non d’une victoire nette chaque jour.</p>
+<p><strong>2. Bootstrap par station: </strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Indicateur</th>
+<th>Gain</th>
+<th>IC à 95 %</th>
+<th>Contient 0 ?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AP, 30 min (forêt − persistance)</td>
+<td>+0,113</td>
+<td>[0,102 ; 0,125]</td>
+<td>Non</td>
+</tr>
+<tr class="even">
+<td>F1, 30 min</td>
+<td>+0,013</td>
+<td>[0,007 ; 0,018]</td>
+<td>Non</td>
+</tr>
+<tr class="odd">
+<td>AP, 60 min (boosting − persistance)</td>
+<td>+0,134</td>
+<td>[0,123 ; 0,149]</td>
+<td>Non</td>
+</tr>
+<tr class="even">
+<td>F1, 60 min</td>
+<td>+0,028</td>
+<td>[0,018 ; 0,037]</td>
+<td>Non</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Les quatre intervalles excluent 0 : le gain n’est pas dû au hasard du tirage des stations.</li>
+<li><strong>AP</strong> : le gain est important et bien établi (intervalles étroits, loin de 0).</li>
+<li><strong>F1</strong> : le gain est faible mais réel. À 30 min, la borne basse n’est que de 0,007 : il faut parler d’une légère amélioration, sans l’exagérer. À 60 min, il est plus net (borne basse de 0,018).</li>
+</ul>
+</div>
+</div>
+</div>
 </section>
 <section id="station-par-station" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="station-par-station"><span class="header-section-number">2.2</span> Station par station</h2>
-<div id="61e98d34" class="cell" data-execution_count="6">
+<p>Les résultats précédents sont des moyennes. Cette section compare le modèle et la persistance <strong>station par station</strong>, pour vérifier que le gain est réparti sur l’ensemble des stations. On indique la part des stations où le F1 du modèle est au moins égal à celui de la persistance (stations ayant au moins un positif), puis les cinq stations où le modèle perd le plus (<code>gain_f1</code> = F1 modèle − F1 persistance).</p>
+<div id="36c0549b" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    st <span class="op">=</span> station_comparison(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>])</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    avec_pos <span class="op">=</span> st[st[<span class="st">"positifs"</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss"> : F1 &gt;= F1 de la persistance sur </span><span class="sc">{</span>(avec_pos[<span class="st">'gain_f1'</span>] <span class="op">&gt;=</span> <span class="dv">0</span>)<span class="sc">.</span>mean()<span class="sc">:.0%}</span><span class="ss"> "</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"des </span><span class="sc">{</span><span class="bu">len</span>(avec_pos)<span class="sc">}</span><span class="ss"> stations ayant au moins un positif ; plus fortes pertes :"</span>)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    display(avec_pos.head(<span class="dv">5</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    st <span class="op">=</span> station_comparison(SCORED[h][chosen], SCORED[h][<span class="st">"persistance"</span>])</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    avec_pos <span class="op">=</span> st[st[<span class="st">"positifs"</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>chosen<span class="sc">}</span><span class="ss"> : F1 &gt;= F1 de la persistance sur </span><span class="sc">{</span>(avec_pos[<span class="st">'gain_f1'</span>] <span class="op">&gt;=</span> <span class="dv">0</span>)<span class="sc">.</span>mean()<span class="sc">:.0%}</span><span class="ss"> "</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"des </span><span class="sc">{</span><span class="bu">len</span>(avec_pos)<span class="sc">}</span><span class="ss"> stations ayant au moins un positif ; plus fortes pertes :"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    display(avec_pos.head(<span class="dv">5</span>).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min | foret : F1 &gt;= F1 de la persistance sur 65% des 69 stations ayant au moins un positif ; plus fortes pertes :</code></pre>
@@ -2106,36 +2814,65 @@ horizon 60 min | boosting : F1 &gt;= F1 de la persistance sur 61% des 69 station
 <pre><code></code></pre>
 </div>
 </div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lecture des résultats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Part des stations où le modèle fait au moins aussi bien.</strong> À 30 min, le F1 de la forêt est au moins égal à celui de la persistance sur 65 % des 69 stations ayant au moins un positif ; à 60 min, le F1 du boosting l’est sur 61 % d’entre elles. Le gain n’est donc pas uniforme : pour environ un tiers des stations, la persistance fait aussi bien ou mieux. Cela reste cohérent avec le gain modeste du F1 global (+0,013 et +0,028), car le F1 global est dominé par les stations souvent vides, alors que le F1 par station donne le même poids à chaque station.</p>
+<p><strong>Lecture des tableaux.</strong> Les colonnes <code>pr_auc</code> et <code>f1</code> sont celles du modèle, <code>pr_auc_réf</code> et <code>f1_réf</code> celles de la persistance, et <code>gain_f1</code> = F1 du modèle − F1 de la persistance. Les tableaux ne montrent que les cinq plus fortes pertes : ils servent à repérer les cas défavorables, pas à juger le modèle dans son ensemble.</p>
+<p><strong>À 30 min.</strong></p>
+<ul>
+<li>Les plus fortes pertes concernent surtout des stations avec très peu de positifs (4, 4, 7 et 10 sur la semaine ; 25 pour la station 17027). Avec si peu de cas, un seul exemple manqué fait varier fortement le F1 : ces écarts sont peu fiables.</li>
+<li>Pour les cinq stations listées, le modèle a pourtant une AP supérieure à celle de la persistance (par exemple 0,166 contre 0,139 pour la station 22014) : le classement est meilleur, mais le seuil unique ne déclenche aucune alerte dans les stations 22014 et 23009 (F1 nul).</li>
+</ul>
+<p><strong>À 60 min.</strong></p>
+<ul>
+<li>Les pertes sont plus marquées (jusqu’à −0,645) et le F1 du modèle est nul dans quatre des cinq stations listées.</li>
+<li>Deux de ces stations ont un nombre de positifs non négligeable (15 pour la 3007, 30 pour la 7009) : il ne s’agit donc pas seulement de bruit d’échantillonnage.</li>
+<li>L’AP du modèle est supérieure à celle de la persistance dans certaines stations (7009 : 0,666 contre 0,432) mais pas dans d’autres (3007 : 0,390 contre 0,497).</li>
+</ul>
+<p><strong>Conclusion.</strong> Le modèle fait au moins aussi bien que la persistance dans environ deux stations sur trois, et les stations où il perd le plus ont souvent très peu de positifs. Un seuil unique, commun aux 80 stations, est mal adapté aux stations rarement vides ; un seuil par station ou par groupe de stations pourrait aider, mais demanderait davantage de données.</p>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="erreurs-caractéristiques" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Erreurs caractéristiques</h1>
-<p>La persistance a raison par construction quand l’état ne change pas, et tort à chaque changement. Découper les lignes de test par situation (état maintenant → état à <span class="math inline">\(t+h\)</span>) montre où un modèle apporte quelque chose : anticiper les stations qui se vident, au prix de fausses alarmes sur celles qui restent disponibles.</p>
-<div id="ed691d8f" class="cell" data-execution_count="7">
+<p>La persistance a raison par construction quand l’état ne change pas, et tort à chaque changement. On classe donc chaque ligne du test selon l’état de la station maintenant et son état réel à <span class="math inline">\(t+h\)</span> ; le tableau donne, pour chaque situation, la part de lignes prédites « vide » (toujours 0 % ou 100 % pour la persistance, qui ne regarde que l’état actuel).</p>
+<div id="50dfd9a5" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    tab <span class="op">=</span> situation_table(SCORED[h])</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    display(tab.<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># part de lignes prédites « vide » dans chaque situation : modèle retenu vs persistance</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.5</span>))</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.arange(<span class="bu">len</span>(tab))</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, (nom, couleur) <span class="kw">in</span> <span class="bu">enumerate</span>([(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]):</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        v_ <span class="op">=</span> tab[<span class="ss">f"prédit vide : </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss">"</span>].to_numpy()</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        bars <span class="op">=</span> ax.bar(x <span class="op">+</span> (k <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="fl">0.38</span>, v_, width<span class="op">=</span><span class="fl">0.38</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b, val_ <span class="kw">in</span> <span class="bu">zip</span>(bars, v_):</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>            ax.text(b.get_x() <span class="op">+</span> b.get_width() <span class="op">/</span> <span class="dv">2</span>, val_, <span class="ss">f"</span><span class="sc">{</span>val_<span class="sc">:.0%}</span><span class="ss">"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks(x)</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    ax.set_xticklabels([<span class="ss">f"</span><span class="sc">{</span>sit<span class="sc">}</span><span class="ch">\n</span><span class="ss">(n=</span><span class="sc">{</span><span class="bu">int</span>(n)<span class="sc">}</span><span class="ss">)"</span> <span class="cf">for</span> sit, n <span class="kw">in</span> <span class="bu">zip</span>(tab.index, tab[<span class="st">"n"</span>])])</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="fl">1.1</span>), ylabel<span class="op">=</span><span class="st">"part prédite « vide »"</span>,</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>           title<span class="op">=</span><span class="ss">f"Où se trouvent les erreurs — semaine de test, </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min (état maintenant → état à t+h)"</span>)</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    tab <span class="op">=</span> situation_table(SCORED[h])</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    display(tab.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># part de lignes prédites « vide » dans chaque situation : modèle retenu vs persistance</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.5</span>))</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.arange(<span class="bu">len</span>(tab))</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, (nom, couleur) <span class="kw">in</span> <span class="bu">enumerate</span>([(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]):</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        v_ <span class="op">=</span> tab[<span class="ss">f"prédit vide : </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss">"</span>].to_numpy()</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        bars <span class="op">=</span> ax.bar(x <span class="op">+</span> (k <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="fl">0.38</span>, v_, width<span class="op">=</span><span class="fl">0.38</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b, val_ <span class="kw">in</span> <span class="bu">zip</span>(bars, v_):</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>            ax.text(b.get_x() <span class="op">+</span> b.get_width() <span class="op">/</span> <span class="dv">2</span>, val_, <span class="ss">f"</span><span class="sc">{</span>val_<span class="sc">:.0%}</span><span class="ss">"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks(x)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    ax.set_xticklabels([<span class="ss">f"</span><span class="sc">{</span>sit<span class="sc">}</span><span class="ch">\n</span><span class="ss">(n=</span><span class="sc">{</span><span class="bu">int</span>(n)<span class="sc">}</span><span class="ss">)"</span> <span class="cf">for</span> sit, n <span class="kw">in</span> <span class="bu">zip</span>(tab.index, tab[<span class="st">"n"</span>])])</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="fl">1.1</span>), ylabel<span class="op">=</span><span class="st">"part prédite « vide »"</span>,</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>           title<span class="op">=</span><span class="ss">f"Où se trouvent les erreurs — semaine de test, </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min (état maintenant → état à t+h)"</span>)</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min</code></pre>
@@ -2201,7 +2938,7 @@ horizon 60 min | boosting : F1 &gt;= F1 de la persistance sur 61% des 69 station
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Part4_files/figure-html/cell-8-output-4.png" width="760" height="421" class="figure-img"></p>
+<p><img src="Part4_files/figure-html/cell-13-output-4.png" width="760" height="421" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -2269,67 +3006,124 @@ horizon 60 min | boosting : F1 &gt;= F1 de la persistance sur 61% des 69 station
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Part4_files/figure-html/cell-8-output-8.png" width="760" height="421" class="figure-img"></p>
+<p><img src="Part4_files/figure-html/cell-13-output-8.png" width="760" height="421" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<section id="rappel-et-précision-selon-lheure" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="rappel-et-précision-selon-lheure"><span class="header-section-number">3.1</span> Rappel et précision selon l’heure</h2>
-<div id="7cdfb167" class="cell" data-execution_count="8">
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lecture des résultats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>La grande majorité des lignes correspondent à une situation sans changement (« reste disponible » 84,5 % + « reste vide » 8,9 % = 93,4 % à 30 min). Dans ces cas, la persistance a raison par construction : le modèle a très peu de marge pour faire mieux, ce qui explique que le F1 n’augmente que légèrement.</p>
+<ul>
+<li><strong>« devient vide » : c’est là que le modèle apporte de la valeur.</strong> La persistance n’en détecte aucune (0 %), puisque la station a encore des vélos au moment de la prédiction. Le modèle en anticipe 18,3 % à 30 min et 30,8 % à 60 min : c’est précisément l’anticipation que le problème demande.</li>
+<li><strong>Le prix à payer : des fausses alarmes.</strong> Sur les stations qui « restent disponibles », le modèle prédit « vide » pour 0,8 % des lignes à 30 min (environ 400 fausses alarmes) et 1,9 % à 60 min.</li>
+<li><strong>« redevient disponible » :</strong> le modèle prédit « vide » dans 93,7 % des cas à 30 min (80,2 % à 60 min), contre 100 % pour la persistance. Il ne repère donc qu’une petite partie des réapprovisionnements : avec les seules données disponibles, ils restent presque imprévisibles.</li>
+<li><strong>À 60 min</strong>, les transitions sont plus nombreuses (2 457 lignes « devient vide » contre 1 969 à 30 min). Le modèle en détecte une plus grande part (30,8 %), mais déclenche aussi plus de fausses alarmes.</li>
+</ul>
+</div>
+</div>
+</div>
+<p><strong>Rappel et précision selon l’heure</strong></p>
+<div id="20e7379a" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, couleur <span class="kw">in</span> [(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]:</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        par_h <span class="op">=</span> metrics_by(SCORED[h][nom], <span class="st">"heure"</span>)[[<span class="st">"rappel"</span>, <span class="st">"précision"</span>]].astype(<span class="bu">float</span>)</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ax, col <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"rappel"</span>, <span class="st">"précision"</span>]):</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>            ax.plot(par_h.index, par_h[col], <span class="st">"o-"</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax, titre <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"Rappel"</span>, <span class="st">"Précision"</span>]):</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>titre<span class="sc">}</span><span class="ss"> selon l'heure (heure de Paris), </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Heure (Europe/Paris)"</span>,</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>               ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        ax.set_xticks(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">24</span>, <span class="dv">3</span>))</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>)</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> R[h][<span class="st">"chosen"</span>]</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, couleur <span class="kw">in</span> [(chosen, <span class="st">"#3b78d0"</span>), (<span class="st">"persistance"</span>, <span class="st">"#e0703c"</span>)]:</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>        par_h <span class="op">=</span> metrics_by(SCORED[h][nom], <span class="st">"heure"</span>)[[<span class="st">"rappel"</span>, <span class="st">"précision"</span>]].astype(<span class="bu">float</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ax, col <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"rappel"</span>, <span class="st">"précision"</span>]):</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>            ax.plot(par_h.index, par_h[col], <span class="st">"o-"</span>, color<span class="op">=</span>couleur, label<span class="op">=</span>nom)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax, titre <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="st">"Rappel"</span>, <span class="st">"Précision"</span>]):</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(title<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>titre<span class="sc">}</span><span class="ss"> selon l'heure (heure de Paris), </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>, xlabel<span class="op">=</span><span class="st">"Heure (Europe/Paris)"</span>,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>               ylim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>        ax.set_xticks(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">24</span>, <span class="dv">3</span>))</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>)</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Part4_files/figure-html/cell-9-output-1.png" width="1144" height="374" class="figure-img"></p>
+<p><img src="Part4_files/figure-html/cell-14-output-1.png" width="1144" height="374" class="figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Part4_files/figure-html/cell-9-output-2.png" width="1144" height="374" class="figure-img"></p>
+<p><img src="Part4_files/figure-html/cell-14-output-2.png" width="1144" height="374" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lecture des résultats
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Sur chaque graphique, la courbe bleue correspond au modèle et la courbe orange à la persistance. Pour chaque heure (heure de Paris, par exemple 8 h), on regroupe toutes les lignes du test qui tombent à cette heure (les huit jours ensemble), puis on calcule le rappel et la précision pour cette heure seulement. Les 24 points obtenus forment la courbe.</p>
+<p><strong>Rappel</strong> (parmi les stations qui vont réellement se vider, part détectée par la méthode).</p>
+<ul>
+<li>La courbe du modèle est au-dessus de celle de la persistance presque à toutes les heures, surtout entre 8 h et 17 h : le modèle détecte davantage de stations sur le point de se vider.</li>
+<li>À 60 min, l’écart est nettement plus grand (vers 8 h, environ 0,68 pour le modèle contre 0,47 pour la persistance, valeurs lues sur le graphique). C’est la pointe du matin, où l’état des stations change vite et où la persistance ne peut pas suivre.</li>
+<li>La nuit (0-6 h), les deux courbes sont presque confondues : l’état des stations change peu, donc le modèle n’apporte rien de plus. Cela rejoint l’absence de gain en F1 la nuit.</li>
+<li>Les deux méthodes baissent autour de 8 h et de 18-20 h (heures de pointe), qui sont les moments les plus difficiles à prévoir.</li>
+</ul>
+<p><strong>Précision</strong> (parmi les alertes « vide », part qui est correcte).</p>
+<ul>
+<li>Les deux courbes sont très proches, et à 60 min la persistance est même légèrement au-dessus du modèle à plusieurs heures.</li>
+<li>Le modèle n’est donc pas plus précis : il déclenche davantage d’alertes (d’où un rappel plus élevé), au prix d’une précision un peu plus faible.</li>
+</ul>
+<p><strong>En résumé.</strong> Le modèle échange un peu de précision contre un rappel plus élevé, surtout en journée et aux heures de pointe. La nuit, il ne se distingue pas de la persistance.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="sensibilité-des-résultats-de-test" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Sensibilité des résultats de test</h1>
-<p>Les modèles restent figés ; on change seulement la population de test : (i) une fermeture à <span class="math inline">\(t+h\)</span> compte comme « départ impossible » (<span class="math inline">\(Y=1\)</span>) au lieu d’être exclue ; (ii) la station 45504, peut-être figée dans le flux, est retirée.</p>
-<div id="c13a7730" class="cell" data-execution_count="9">
+<p>Cette section vérifie que les résultats ne changent pas selon la population de test retenue. Les modèles restent figés (ils ne sont pas réentraînés) ; seule la population de test varie :</p>
+<ul>
+<li><ol type="i">
+<li>une fermeture à <span class="math inline">\(t+h\)</span> est comptée comme un « départ impossible » (<span class="math inline">\(Y=1\)</span>) au lieu d’être exclue ;</li>
+</ol></li>
+<li><ol start="2" type="i">
+<li>la station 45504, dont les valeurs semblent figées dans le flux de données, est retirée.</li>
+</ol></li>
+</ul>
+<div id="167a6511" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> R[h]</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> res[<span class="st">"chosen"</span>]</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    te <span class="op">=</span> res[<span class="st">"test"</span>]</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    variantes <span class="op">=</span> {</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"fermeture à t+h comptée comme positive"</span>: prepare_sets(raw, h, closed_as_positive<span class="op">=</span><span class="va">True</span>, rate<span class="op">=</span>res[<span class="st">"rate"</span>])[<span class="st">"test"</span>],</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"sans la station </span><span class="sc">{</span>SUSPECT_STATION<span class="sc">}</span><span class="ss">"</span>: te[te[<span class="st">"station_code"</span>] <span class="op">!=</span> SUSPECT_STATION],</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, d <span class="kw">in</span> variantes.items():</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        table, _, _ <span class="op">=</span> evaluate_models(res, d, names<span class="op">=</span>[<span class="st">"persistance"</span>, chosen])</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss"> : </span><span class="sc">{</span><span class="bu">len</span>(d)<span class="sc">}</span><span class="ss"> lignes (référence : </span><span class="sc">{</span><span class="bu">len</span>(te)<span class="sc">}</span><span class="ss">)"</span>)</span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>        display(table[COLS].<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> R[h]</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> res[<span class="st">"chosen"</span>]</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    te <span class="op">=</span> res[<span class="st">"test"</span>]</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    variantes <span class="op">=</span> {</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"fermeture à t+h comptée comme positive"</span>: prepare_sets(raw, h, closed_as_positive<span class="op">=</span><span class="va">True</span>, rate<span class="op">=</span>res[<span class="st">"rate"</span>])[<span class="st">"test"</span>],</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"sans la station </span><span class="sc">{</span>SUSPECT_STATION<span class="sc">}</span><span class="ss">"</span>: te[te[<span class="st">"station_code"</span>] <span class="op">!=</span> SUSPECT_STATION],</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nom, d <span class="kw">in</span> variantes.items():</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>        table, _, _ <span class="op">=</span> evaluate_models(res, d, names<span class="op">=</span>[<span class="st">"persistance"</span>, chosen])</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min | </span><span class="sc">{</span>nom<span class="sc">}</span><span class="ss"> : </span><span class="sc">{</span><span class="bu">len</span>(d)<span class="sc">}</span><span class="ss"> lignes (référence : </span><span class="sc">{</span><span class="bu">len</span>(te)<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>        display(table[COLS].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min | fermeture à t+h comptée comme positive : 59578 lignes (référence : 59574)</code></pre>
@@ -2578,21 +3372,22 @@ horizon 60 min | sans la station 45504 : 58578 lignes (référence : 59322)</cod
 <pre><code></code></pre>
 </div>
 </div>
+<p>Les résultats sont quasiment inchangés : la comparaison avec la persistance ne dépend pas de ces choix.</p>
 </section>
 <section id="apport-des-groupes-de-variables-ablation-validation" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Apport des groupes de variables (ablation, validation)</h1>
 <p>Une forêt est ajustée de nouveau sans chaque groupe de variables. La forêt est utilisée car elle est stable d’une graine à l’autre. À la différence de l’importance par permutation, le réajustement laisse des variables corrélées se remplacer : un faible écart signifie que le groupe est redondant, pas forcément inutile.</p>
-<div id="a419228b" class="cell" data-execution_count="10">
+<div id="491b2e36" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ablation : réajustement coûteux, calculé une seule fois puis relu depuis le cache</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>ABL <span class="op">=</span> cached(<span class="ss">f"cache/ablation_</span><span class="sc">{</span>CRITERION<span class="sc">}</span><span class="ss">.joblib"</span>,</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>             <span class="kw">lambda</span>: {h: ablation(R[h]) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS})</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    display(ABL[h].<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ablation : réajustement coûteux, calculé une seule fois puis relu depuis le cache</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>ABL <span class="op">=</span> cached(<span class="ss">f"cache/ablation_</span><span class="sc">{</span>CRITERION<span class="sc">}</span><span class="ss">.joblib"</span>,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>             <span class="kw">lambda</span>: {h: ablation(R[h]) <span class="cf">for</span> h <span class="kw">in</span> HORIZONS})</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"horizon </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss"> min"</span>)</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    display(ABL[h].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>horizon 30 min</code></pre>
@@ -2727,141 +3522,13 @@ horizon 60 min</code></pre>
 <pre><code></code></pre>
 </div>
 </div>
-<div id="b1d03cd6" class="cell" data-execution_count="11">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>fig, tables <span class="op">=</span> plot_ap_ci(R, TE, B<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> HORIZONS:</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    display(tables[h])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Part4_files/figure-html/cell-12-output-1.png" width="1147" height="374" class="figure-img"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">AP</th>
-<th data-quarto-table-cell-role="th">ic_bas</th>
-<th data-quarto-table-cell-role="th">ic_haut</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">bayes_naif</th>
-<td>0.629</td>
-<td>0.560</td>
-<td>0.681</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">knn</th>
-<td>0.699</td>
-<td>0.634</td>
-<td>0.753</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">arbre</th>
-<td>0.801</td>
-<td>0.758</td>
-<td>0.836</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">knn_pondere</th>
-<td>0.797</td>
-<td>0.755</td>
-<td>0.830</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">foret</th>
-<td>0.816</td>
-<td>0.775</td>
-<td>0.851</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">boosting</th>
-<td>0.802</td>
-<td>0.757</td>
-<td>0.838</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">persistance</th>
-<td>0.702</td>
-<td>0.657</td>
-<td>0.743</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">AP</th>
-<th data-quarto-table-cell-role="th">ic_bas</th>
-<th data-quarto-table-cell-role="th">ic_haut</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">bayes_naif</th>
-<td>0.561</td>
-<td>0.486</td>
-<td>0.618</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">knn</th>
-<td>0.662</td>
-<td>0.587</td>
-<td>0.719</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">arbre</th>
-<td>0.722</td>
-<td>0.665</td>
-<td>0.764</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">knn_pondere</th>
-<td>0.723</td>
-<td>0.667</td>
-<td>0.766</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">foret</th>
-<td>0.748</td>
-<td>0.695</td>
-<td>0.791</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">boosting</th>
-<td>0.755</td>
-<td>0.704</td>
-<td>0.797</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">persistance</th>
-<td>0.619</td>
-<td>0.566</td>
-<td>0.661</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
+<ul>
+<li><strong>État</strong> (nombre de vélos et de bornes libres à l’instant <span class="math inline">\(t\)</span>) : groupe déterminant. Sans lui, l’AP de validation chute de 0,828 à 0,560 à 30 min (de 0,767 à 0,551 à 60 min) ; seul, il atteint déjà 0,757 (0,678 à 60 min).</li>
+<li><strong>Tendance</strong> : apport quasi nul (−0,009 à 30 min, −0,001 à 60 min), car elle est en grande partie redondante avec l’état.</li>
+<li><strong>Calendrier</strong> : plus utile à 60 min (−0,045) qu’à 30 min (−0,021) ; plus l’horizon est lointain, plus l’heure de la journée aide.</li>
+<li><strong>Station</strong> : effet faible (−0,006 à 30 min, −0,016 à 60 min).</li>
+</ul>
+<p>L’information utile est donc surtout l’état actuel de la station ; le calendrier et les tendances n’ajoutent que peu.</p>
 
 
 </section>

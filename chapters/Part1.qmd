@@ -1,6 +1,6 @@
 ---
 title: "Partie 1 Exploration visuelle du réseau Vélib’"
-author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan "
+author: "NGUYEN Duc Hoang Viet  & Sun Zhenxuan"
 date: "2026-10-27"
 
 jupyter: projet-velib
