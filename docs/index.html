@@ -218,10 +218,7 @@ window.Quarto = {
     <h2 id="toc-title">Sur cette page</h2>
    
   <ul>
-  <li><a href="#présentation-du-projet" id="toc-présentation-du-projet" class="nav-link active" data-scroll-target="#présentation-du-projet">Présentation du projet</a>
-  <ul class="collapse">
-  <li><a href="#objectif" id="toc-objectif" class="nav-link" data-scroll-target="#objectif">Objectif</a></li>
-  </ul></li>
+  <li><a href="#présentation-du-projet" id="toc-présentation-du-projet" class="nav-link active" data-scroll-target="#présentation-du-projet">Présentation du projet</a></li>
   <li><a href="#liste-des-parties" id="toc-liste-des-parties" class="nav-link" data-scroll-target="#liste-des-parties">Liste des parties</a></li>
   </ul>
 </nav>
@@ -375,15 +372,11 @@ window.Quarto = {
 <section id="présentation-du-projet" class="level1">
 <h1>Présentation du projet</h1>
 <p>Le système Vélib’ repose sur la disponibilité des vélos dans chaque station : une station vide empêche de prendre un vélo, une station pleine empêche d’en déposer un. L’état actuel ne suffit pas, il faut anticiper.</p>
-<p><strong>Question.</strong> À partir de l’historique de disponibilité, une station Vélib’ aura-t-elle moins de deux vélos dans 30 ou 60 minutes ?</p>
-<section id="objectif" class="level2">
-<h2 class="anchored" data-anchor-id="objectif">Objectif</h2>
-<p>Le projet compare des modèles d’apprentissage supervisé pour cette prévision, formulée comme une classification binaire :</p>
+<p><strong>Question.</strong> À partir de l’historique de disponibilité, une station aura-t-elle moins de deux vélos dans 30 ou 60 minutes ? Le projet compare des modèles d’apprentissage supervisé pour y répondre, en classification binaire :</p>
 <p><span class="math display">\[
 Y_{s,t} = \mathbb{1}\{N_{s,t+h} &lt; 2\}, \qquad h \in \{30, 60\} \text{ minutes},
 \]</span></p>
-<p>où <span class="math inline">\(N_{s,t+h}\)</span> est le nombre de vélos disponibles dans la station <span class="math inline">\(s\)</span> à l’instant <span class="math inline">\(t+h\)</span>. L’étude porte sur 80 stations de Paris et de banlieue.</p>
-</section>
+<p>où <span class="math inline">\(N_{s,t+h}\)</span> est le nombre de vélos de la station <span class="math inline">\(s\)</span> à l’instant <span class="math inline">\(t+h\)</span>. L’étude porte sur 80 stations de Paris et de banlieue.</p>
 </section>
 <section id="liste-des-parties" class="level1">
 <h1>Liste des parties</h1>
