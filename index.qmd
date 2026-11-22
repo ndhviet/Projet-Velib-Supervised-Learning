@@ -42,9 +42,8 @@ Vous pouvez consulter le rapport détaillé du projet (format PDF) en cliquant s
 
 ::: callout-note
 ## Consulter le dashboard
-
 <a href="rapport/dashboard_velib.html" target="_blank">
-  <img src="rapport/dashboard_velib.png"
+  <img src="rapport/darshboard_velib.png"
        alt="Dashboard du projet"
        style="max-width:100%; height:auto; border-radius:8px;">
 </a>
