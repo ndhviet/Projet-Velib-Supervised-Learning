@@ -3,27 +3,21 @@
 
 <h1>Projet Vélib' — Supervised Learning</h1>
 
-
 <a href="https://ndhviet.github.io/Projet-Velib-Supervised-Learning/">
   <img src="https://img.shields.io/badge/View-Live%20Demo-2ea44f?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Demo">
 </a>
 
-</div>
-<br>
+<h3>Réalisé par</h3>
 
-
-<h2 align="center">Réalisé par</h2>
-
-<div align="center">
-
-| Membre | Contact |
-|---|---|
-| **Duc Hoang Viet NGUYEN** | [ndhviet.github.io](https://ndhviet.github.io/) |
-| **Zhenxuan SUN** | [LIEN-A-COMPLETER](#) |
+<p>
+  <strong>Duc Hoang Viet NGUYEN</strong> ·
+  <a href="https://ndhviet.github.io/">Portfolio</a>
+  <br>
+  <strong>Zhenxuan SUN</strong>
+</p>
 
 </div>
 
-<br>
 
 # Vélib' sous tension — Question A: *departure impossible*
 Projet de M2 Data Science (Université Paris-Saclay). Peut-on anticiper, 30 ou 60 minutes à l'avance, qu'une station Vélib' disposera de moins de 2 vélos disponibles ?
