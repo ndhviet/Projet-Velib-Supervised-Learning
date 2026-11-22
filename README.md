@@ -61,3 +61,34 @@ quarto render          # génère le site dans docs/
 ```
 
 Les données (`velib-2026-10-08.csv.gz`) sont téléchargées automatiquement, et leur empreinte MD5 est vérifiée à chaque chargement. Le code commun est dans `velib_utils.py`.
+
+
+# Vélib' sous tension — Question A: *departure impossible*
+
+M2 Data Science project (Université Paris-Saclay). Can we anticipate, **30 or 60 minutes ahead**, that a Vélib'
+station will have **fewer than 2 bikes available**?
+
+## Exact target
+
+For station `s` and time `t` (15-minute UTC grid), with `h` ∈ {30, 60} minutes:
+
+```
+y(s, t) = 1  if  bikes_available(s, t + h) < 2   else 0
+```
+
+* Population: all 80 stations, one common model. A sample is kept when the station is **observed and open**
+  (`is_renting = 1`) at `t` and at `t + h`, and `t + h` falls in the same block (train / validation / test) as `t`.
+  Every excluded slot is counted by reason and by block (`reports/results/population_{30,60}min.csv`). Counting a
+  closure at `t + h` as "departure impossible" instead is tested as a sensitivity analysis.
+* References: the majority class, and **persistence**: `ŷ(s, t) = 1{bikes_available(s, t) < 2}`. For PR curves and
+  PR-AUC, persistence ranks samples by the current number of bikes, a graded score that is generous to the reference.
+
+## Data
+
+| | |
+|---|---|
+| Source | Vélib' Métropole — real-time station availability, [Paris Data](https://opendata.paris.fr) |
+| Licence | Open Database License (ODbL). Attribution: *Vélib' Métropole / Ville de Paris, Paris Data* |
+| File | `velib-2026-10-08.csv.gz` — 329,680 rows, 80 stations (50 Paris, 30 suburbs), 25 Aug → 8 Oct 2026 |
+| URL | https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz |
+| md5 | `02ab1e3fdac10579e4ce93d1540a5dc7` |
