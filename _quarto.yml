@@ -32,6 +32,8 @@ website:
         text: "Conclusion"
 
     right:
+      - icon: github
+        href: https://github.com/ndhviet/Projet-Velib-Supervised-Learning
       - text: "Viet"
         icon: person-circle
         menu:
