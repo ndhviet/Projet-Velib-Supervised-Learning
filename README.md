@@ -3,14 +3,6 @@
 
 <h1>Projet Vélib' — Supervised Learning</h1>
 
-<p>
-  <em>Prédiction des stations Vélib' à risque de pénurie de vélos à horizons de 30 et 60 minutes</em>
-</p>
-
-<p>
-  <img src="https://img.shields.io/badge/Python-3-3776AB?logo=python&logoColor=white&style=flat-square" alt="Python">
-  <img src="https://img.shields.io/badge/scikit--learn-ML-F7931E?logo=scikitlearn&logoColor=white&style=flat-square" alt="scikit-learn">
-</p>
 
 <a href="https://ndhviet.github.io/Projet-Velib-Supervised-Learning/">
   <img src="https://img.shields.io/badge/View-Live%20Demo-2ea44f?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Demo">
@@ -33,6 +25,10 @@
 
 <br>
 
+# Vélib' sous tension — Question A: *departure impossible*
+Projet de M2 Data Science (Université Paris-Saclay). Peut-on anticiper, 30 ou 60 minutes à l'avance, qu'une station Vélib' disposera de moins de 2 vélos disponibles ?
+
+
 ## À propos
 
 Pour chaque station et chaque relevé (pas de 15 minutes), on estime la probabilité que la station compte **moins de deux vélos** dans 30 ou 60 minutes. Les données couvrent 80 stations du 25 août au 8 octobre 2026.
@@ -40,16 +36,6 @@ Pour chaque station et chaque relevé (pas de 15 minutes), on estime la probabil
 La démarche suit un protocole strict : découpage **chronologique** (train, validation, test), choix des modèles et des seuils **sur la validation seulement**, test noté **une seule fois**, et comparaison systématique à une règle de **persistance** (« dans 30 minutes, ce sera comme maintenant »).
 
 **Modèles comparés :** Bayes naïf gaussien (écrit à la main), régression logistique, k plus proches voisins (usuel et pondéré), arbre de décision, forêt aléatoire, gradient boosting.
-
-## Contenu du site
-
-| Partie | Contenu |
-|---|---|
-| **1. Exploration** | Carte des stations, usage par heure et par jour, taux d'occupation |
-| **2. Qualité et préparation** | Valeurs manquantes, coupures de collecte, grille de 15 minutes, cible, découpage, variables |
-| **3. Modèles supervisés** | Construction du problème, références, Bayes naïf, entraînement et réglage |
-| **4. Comparaison des modèles** | Validation, évaluation sur la semaine de test, analyses par groupe, bootstrap, sensibilité, ablation |
-| **5. Conclusion** | Résultats et limites |
 
 ## Reproduire le projet
 
@@ -63,27 +49,21 @@ quarto render          # génère le site dans docs/
 Les données (`velib-2026-10-08.csv.gz`) sont téléchargées automatiquement, et leur empreinte MD5 est vérifiée à chaque chargement. Le code commun est dans `velib_utils.py`.
 
 
-# Vélib' sous tension — Question A: *departure impossible*
 
-M2 Data Science project (Université Paris-Saclay). Can we anticipate, **30 or 60 minutes ahead**, that a Vélib'
-station will have **fewer than 2 bikes available**?
 
-## Exact target
+## Définition exacte de la variable cible
 
-For station `s` and time `t` (15-minute UTC grid), with `h` ∈ {30, 60} minutes:
+Pour une station `s` et un instant `t` (grille temporelle UTC à pas de 15 minutes), avec `h` ∈ {30, 60} minutes:
 
 ```
 y(s, t) = 1  if  bikes_available(s, t + h) < 2   else 0
 ```
 
-* Population: all 80 stations, one common model. A sample is kept when the station is **observed and open**
-  (`is_renting = 1`) at `t` and at `t + h`, and `t + h` falls in the same block (train / validation / test) as `t`.
-  Every excluded slot is counted by reason and by block (`reports/results/population_{30,60}min.csv`). Counting a
-  closure at `t + h` as "departure impossible" instead is tested as a sensitivity analysis.
-* References: the majority class, and **persistence**: `ŷ(s, t) = 1{bikes_available(s, t) < 2}`. For PR curves and
-  PR-AUC, persistence ranks samples by the current number of bikes, a graded score that is generous to the reference.
+* Population étudiée : les 80 stations, avec un modèle commun. Une observation est conservée lorsque la station est observée et ouverte (is_renting = 1) à t et à t + h, et que t + h appartient au même bloc (entraînement / validation / test) que t. Chaque créneau exclu est comptabilisé selon son motif d'exclusion et son bloc (reports/results/population_{30,60}min.csv). Une analyse de sensibilité examine également le cas où une fermeture à t + h est considérée comme un « départ impossible ».
 
-## Data
+* Modèles de référence : la classe majoritaire et la persistance : ŷ(s, t) = 1{bikes_available(s, t) < 2}. Pour les courbes précision-rappel et l'aire sous ces courbes (PR-AUC), la persistance classe les observations selon le nombre de vélos actuellement disponibles, à l'aide d'un score gradué qui favorise cette référence.
+
+## Données
 
 | | |
 |---|---|
@@ -92,3 +72,8 @@ y(s, t) = 1  if  bikes_available(s, t + h) < 2   else 0
 | File | `velib-2026-10-08.csv.gz` — 329,680 rows, 80 stations (50 Paris, 30 suburbs), 25 Aug → 8 Oct 2026 |
 | URL | https://docs.ambroise.cloud/velib/velib-2026-10-08.csv.gz |
 | md5 | `02ab1e3fdac10579e4ce93d1540a5dc7` |
+
+
+
+
+
