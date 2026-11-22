@@ -1,4 +1,3 @@
-
 <div align="center">
 
 <h1>Projet Vélib' — Supervised Learning</h1>
@@ -12,7 +11,7 @@
 <p>
   <a href="https://ndhviet.github.io/">Duc Hoang Viet NGUYEN</a>
   ·
-  Zhenxuan SUN
+  <a href="https://www.linkedin.com/in/zhenxuan-sun-576607327/">Zhenxuan SUN</a>
 </p>
 
 </div>
